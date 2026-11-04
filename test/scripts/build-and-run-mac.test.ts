@@ -189,6 +189,7 @@ const nativeScripts = [
   "scripts/apple-release-source-check.sh",
   "scripts/build-and-run-mac.sh",
   "scripts/ops/build-openclaw-mac-fork.sh",
+  "scripts/ops/install-openclaw-mac48.sh",
   "scripts/check-swift-tools.sh",
   "scripts/codesign-mac-app.sh",
   "scripts/create-dmg.sh",
