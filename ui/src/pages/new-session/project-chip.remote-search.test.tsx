@@ -105,6 +105,8 @@ describe("remote project search slot", () => {
 
   it("scopes searches to the selected organization and toggles multiple repositories", async () => {
     const { request, view, typeQuery, browser, state } = await mountSearch();
+    expect(view.getByRole("group", { name: "GitHub organization" })).toBeTruthy();
+    expect(view.container.textContent).toContain("Select repositories");
     const projects = [
       { ...result("one").projects[0], defaultBranch: "main", preferredBranch: "develop" },
       { ...result("two").projects[0], defaultBranch: "main" },
@@ -130,6 +132,7 @@ describe("remote project search slot", () => {
       view.container.querySelector('[data-value="remote-project:example/two"]') as HTMLButtonElement
     ).click();
     flush();
+    expect(view.container.textContent).toContain("2 selected");
     expect(state.baseRef).toBe("develop");
     expect(browser.remoteProjects.map((project) => project.identity)).toEqual([
       "example/one",
@@ -140,6 +143,16 @@ describe("remote project search slot", () => {
     flush();
     expect(browser.remoteProjects.map((project) => project.identity)).toEqual(["example/two"]);
     expect(state.baseRef).toBe("main");
+  });
+
+  it("shows an empty repository search result", async () => {
+    const { request, view, typeQuery } = await mountSearch();
+    request.mockResolvedValue({ credential: "configured", projects: [] });
+    typeQuery("missing");
+    await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
+    await waitForSolid(() =>
+      expect(view.getByRole("status").textContent).toBe("No repositories match your search."),
+    );
   });
 
   it("keeps input and local selection live through debounce, loading, failure, and a new query", async () => {
@@ -170,7 +183,7 @@ describe("remote project search slot", () => {
     ).toBeNull();
     await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
     await waitForSolid(() =>
-      expect(view.getByRole("alert").textContent).toBe("Remote search unavailable"),
+      expect(view.getByRole("alert").textContent).toBe("Couldn’t search repositories. Try again. Remote search unavailable"),
     );
 
     const recovered = createDeferred<ProjectsSearchRemoteResult>();

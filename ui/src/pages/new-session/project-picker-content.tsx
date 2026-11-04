@@ -293,7 +293,7 @@ export function ProjectPickerContent(props: ProjectChipProps) {
           />
           <div class="new-session-page__picker-root">
             {!props.nativeTerminal && view().projectSearchAvailable ? (
-              <div role="group" aria-label="GitHub organization">
+              <div role="group" aria-label={t("newSession.githubOrganization")}>
                 <For each={["My-Clone-AI", "bitcoinuniverseio", "Project-Boden", "Echelon-RSVP"]}>
                   {(org) => (
                     <button
@@ -308,6 +308,15 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                     </button>
                   )}
                 </For>
+              </div>
+            ) : undefined}
+            {!props.nativeTerminal && view().projectSearchAvailable ? (
+              <div class="new-session-page__menu-note">
+                {props.params.place.browser.remoteProjects.length
+                  ? t("newSession.githubRepositoriesSelected", {
+                      count: props.params.place.browser.remoteProjects.length,
+                    })
+                  : t("newSession.githubSelectRepositories")}
               </div>
             ) : undefined}
             {view().cloneInput && view().projectAddAvailable ? (
@@ -329,7 +338,7 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                 <Errored
                   fallback={(error) => (
                     <div class="new-session-page__project-error" role="alert">
-                      {formatUiError(error())}
+                      {t("newSession.githubSearchFailed", { error: formatUiError(error()) })}
                     </div>
                   )}
                 >
@@ -344,6 +353,11 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                     {projectSearchResult()?.credential === "missing" ? (
                       <div class="new-session-page__menu-note">
                         {t("newSession.githubTokenHint")}
+                      </div>
+                    ) : undefined}
+                    {projectSearchResult()?.projects.length === 0 ? (
+                      <div class="new-session-page__project-status" role="status">
+                        {t("newSession.githubSearchEmpty")}
                       </div>
                     ) : undefined}
                     {
@@ -389,7 +403,7 @@ export function ProjectPickerContent(props: ProjectChipProps) {
             ) : undefined}
             <details open={props.nativeTerminal || props.params.place.isAdmin()}>
               <summary hidden={props.nativeTerminal || props.params.place.isAdmin()}>
-                {t("routeTitles.advanced")}
+                {t("newSession.projectAdvanced")}
               </summary>
               {props.params.place.remotePlacement && !view().query ? (
                 <SessionMenuItem
