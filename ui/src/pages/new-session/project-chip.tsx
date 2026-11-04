@@ -1,4 +1,4 @@
-import { lazy } from "solid-js";
+import { For, lazy } from "solid-js";
 import { Icon } from "../../components/solid/icon.tsx";
 import { pathDisplayName } from "../../lib/path-display.ts";
 import { t } from "../../lib/reactive/i18n.ts";
@@ -28,29 +28,43 @@ export function ProjectChip(props: ProjectChipProps) {
     return pathDisplayName(deviceFolder.path.trim()) || t("newSession.deviceFolder");
   };
   return (
-    <SessionPicker
-      lazy
-      kind="project"
-      label={`${t("newSession.what")}: ${label()}`}
-      value={label()}
-      icon={
-        <Icon
-          name={
-            props.params.place.browser.projectId || props.params.place.browser.remoteProject
-              ? "book"
-              : "folder"
-          }
-        />
-      }
-      triggerAttributes={{ "data-project-id": props.params.place.browser.projectId || undefined }}
-      params={props.params}
-    >
-      <ProjectPickerContent
+    <>
+      <SessionPicker
+        lazy
+        kind="project"
+        label={`${t("newSession.what")}: ${label()}`}
+        value={label()}
+        icon={
+          <Icon
+            name={
+              props.params.place.browser.projectId || props.params.place.browser.remoteProject
+                ? "book"
+                : "folder"
+            }
+          />
+        }
+        triggerAttributes={{ "data-project-id": props.params.place.browser.projectId || undefined }}
         params={props.params}
-        state={props.state}
-        nativeTerminal={props.nativeTerminal}
-        focus={props.focus}
-      />
-    </SessionPicker>
+      >
+        <ProjectPickerContent
+          params={props.params}
+          state={props.state}
+          nativeTerminal={props.nativeTerminal}
+          focus={props.focus}
+        />
+      </SessionPicker>
+      <For each={props.params.place.browser.remoteProjects} keyed={(project) => project.cloneUrl}>
+        {(project) => (
+          <button
+            type="button"
+            class="btn btn--sm"
+            aria-label={`Remove ${project().identity}`}
+            onClick={() => props.params.place.toggleRemoteProject(project())}
+          >
+            {project().identity} ×
+          </button>
+        )}
+      </For>
+    </>
   );
 }

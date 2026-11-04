@@ -61,6 +61,8 @@ export class DraftPlaceBrowser {
   private projectCatalogGateway: ApplicationContext["gateway"] | undefined;
   private lastProjectResult: ProjectCatalog["snapshot"]["result"] = null;
   private projectSelection: DraftProjectSelection = null;
+  private remoteProjectsValue: readonly DraftRemoteProject[] = [];
+  private projectOrgValue = "My-Clone-AI";
   private selectedProjectRecord: ProjectRecord | undefined;
   private projectQueryValue = "";
   private environmentQueryValue = "";
@@ -84,8 +86,12 @@ export class DraftPlaceBrowser {
   private projectSearchReadValue: ProjectSearchRead | null = null;
   private finishProjectSearch: ((outcome: ProjectSearchOutcome) => void) | undefined;
   private readonly projectSearchRequest = createPageRequest(() => this.callbacks.changed(), {
-    task: ([client, query]: readonly [GatewayBrowserClient, string], { signal }) =>
-      client.request<ProjectsSearchRemoteResult>("projects.searchRemote", { query }, { signal }),
+    task: ([client, query, org]: readonly [GatewayBrowserClient, string, string], { signal }) =>
+      client.request<ProjectsSearchRemoteResult>(
+        "projects.searchRemote",
+        { query, org },
+        { signal },
+      ),
     onComplete: (result) => {
       this.finishProjectSearch?.({ result });
       this.finishProjectSearch = undefined;
@@ -172,6 +178,7 @@ export class DraftPlaceBrowser {
       ),
       this.debouncedProjectQuery,
       this.gateway.connectionEpoch,
+      this.projectOrgValue,
     ] as const;
   }
 
@@ -182,14 +189,14 @@ export class DraftPlaceBrowser {
     this.finishProjectSearch?.(null);
     this.finishProjectSearch = undefined;
     this.projectSearchReadValue = null;
-    const [client, advertised, query] = args;
+    const [client, advertised, query, , org] = args;
     if (!client || !advertised || query.length < 2 || projectCloneInput(query)) {
       return;
     }
     const completion = Promise.withResolvers<ProjectSearchOutcome>();
     this.projectSearchReadValue = { query, completed: completion.promise };
     this.finishProjectSearch = completion.resolve;
-    void this.projectSearchRequest.run([client, query]);
+    void this.projectSearchRequest.run([client, query, org]);
   }
 
   get projects(): readonly ProjectRecord[] {
@@ -241,6 +248,19 @@ export class DraftPlaceBrowser {
 
   get remoteProject(): DraftRemoteProject | null {
     return this.projectSelection?.kind === "remote" ? this.projectSelection.project : null;
+  }
+
+  get remoteProjects(): readonly DraftRemoteProject[] {
+    return this.remoteProjectsValue;
+  }
+
+  get projectOrg(): string {
+    return this.projectOrgValue;
+  }
+
+  selectProjectOrg(org: string) {
+    this.projectOrgValue = org;
+    this.changeProjectQuery(this.projectQueryValue);
   }
 
   get projectQuery(): string {
@@ -332,9 +352,16 @@ export class DraftPlaceBrowser {
     );
   }
 
-  selectProject(selection: Exclude<DraftProjectSelection, null>) {
+  selectProject(selection: Exclude<DraftProjectSelection, null>, preserveRemotes = false) {
+    if (!preserveRemotes) {
+      this.remoteProjectsValue = selection.kind === "remote" ? [selection.project] : [];
+    }
     this.projectSelection = selection;
     this.selectedProjectRecord = this.projects.find((project) => project.id === this.projectId);
+  }
+
+  setRemoteProjects(projects: readonly DraftRemoteProject[]) {
+    this.remoteProjectsValue = projects;
   }
 
   recordRemoteProjectId(cloneUrl: string, projectId: string) {
@@ -346,6 +373,7 @@ export class DraftPlaceBrowser {
 
   clearProjectSelection() {
     this.projectSelection = null;
+    this.remoteProjectsValue = [];
     this.selectedProjectRecord = undefined;
   }
 
@@ -405,7 +433,7 @@ export class DraftPlaceBrowser {
     this.projectQueryValue = query;
     this.clearProjectSearchTimer();
     this.debouncedProjectQuery = "";
-    this.searchProjects([null, false, "", this.gateway.connectionEpoch]);
+    this.searchProjects([null, false, "", this.gateway.connectionEpoch, this.projectOrgValue]);
     const normalized = query.trim();
     const context = this.read().context;
     if (
@@ -427,7 +455,7 @@ export class DraftPlaceBrowser {
         return;
       }
       this.debouncedProjectQuery = normalized;
-      this.searchProjects([client, true, normalized, connectionEpoch]);
+      this.searchProjects([client, true, normalized, connectionEpoch, this.projectOrgValue]);
       this.callbacks.changed();
     }, PICKER_INPUT_DEBOUNCE_MS);
     this.callbacks.changed();
@@ -563,7 +591,7 @@ export class DraftPlaceBrowser {
     this.projectCatalogCleanup = undefined;
     this.projectCatalogGateway = undefined;
     this.projectCatalog = undefined;
-    this.searchProjects([null, false, "", -1]);
+    this.searchProjects([null, false, "", -1, this.projectOrgValue]);
   }
 
   private resetBrowser(closePopover: boolean) {

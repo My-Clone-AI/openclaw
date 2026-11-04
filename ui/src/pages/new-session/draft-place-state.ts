@@ -652,16 +652,43 @@ export class DraftPlaceState {
     this.selectProject({ kind: "remote", project });
   }
 
-  private selectProject(selection: Parameters<DraftPlaceBrowser["selectProject"]>[0]) {
+  toggleRemoteProject(project: DraftRemoteProject) {
+    const snapshot = this.read();
+    if (snapshot.submitting || snapshot.pendingPlacementSessionKey) {
+      return;
+    }
+    const projects = this.browser.remoteProjects;
+    const selected = projects.some((item) => item.cloneUrl === project.cloneUrl);
+    const next = selected
+      ? projects.filter((item) => item.cloneUrl !== project.cloneUrl)
+      : [...projects, project];
+    if (next.length === 0) {
+      this.browser.clearProjectSelection();
+      this.repositoryState.clearDetails(true);
+      this.persistPreference({ projectId: "", remoteProject: null });
+      this.repositoryState.load();
+      this.callbacks.changed();
+      return;
+    }
+    this.browser.setRemoteProjects(next);
+    this.selectProject({ kind: "remote", project: next[0] }, true);
+  }
+
+  private selectProject(
+    selection: Parameters<DraftPlaceBrowser["selectProject"]>[0],
+    multi = false,
+  ) {
     const snapshot = this.read();
     if (snapshot.submitting || snapshot.pendingPlacementSessionKey) {
       return;
     }
     this.deviceFolderValue = null;
-    this.browser.selectProject(selection);
+    this.browser.selectProject(selection, multi);
     this.selection.freshWorkspace = false;
     this.folderValidation.cancel();
-    this.browser.resetProjectSearch();
+    if (!multi) {
+      this.browser.resetProjectSearch();
+    }
     this.callbacks.onError(null);
     this.selection.folderSelectedByUser = false;
     markDraftPlaceProjectChoice(this.selection, false);
@@ -679,7 +706,11 @@ export class DraftPlaceState {
       this.repositoryState.setDetail("baseRef", selection.project.defaultBranch, false);
     }
     this.repositoryState.load();
-    this.browser.close();
+    if (!multi) {
+      this.browser.close();
+    } else {
+      this.callbacks.changed();
+    }
   }
 
   private targetActions() {

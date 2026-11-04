@@ -51,7 +51,7 @@ async function mountSearch() {
   Object.assign(context.gateway.snapshot, {
     hello: {
       ...context.gateway.snapshot.hello,
-      features: { methods: ["projects.searchRemote"] },
+      features: { methods: ["projects.searchRemote", "sessions.create"] },
     },
   });
   vi.spyOn(browser, "projects", "get").mockReturnValue(projects);
@@ -88,6 +88,40 @@ async function mountSearch() {
 afterEach(() => vi.useRealTimers());
 
 describe("remote project search slot", () => {
+  it("scopes searches to the selected organization and toggles multiple repositories", async () => {
+    const { request, view, typeQuery, browser } = await mountSearch();
+    const projects = [result("one").projects[0], result("two").projects[0]];
+    request.mockResolvedValue({ credential: "configured", projects });
+    view.getByRole("button", { name: "Project-Boden" }).click();
+    typeQuery("repo");
+    await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
+    await waitForSolid(() =>
+      expect(
+        view.container.querySelector('[data-value="remote-project:example/one"]'),
+      ).not.toBeNull(),
+    );
+    expect(request).toHaveBeenCalledWith("projects.searchRemote", {
+      query: "repo",
+      org: "Project-Boden",
+    });
+    (
+      view.container.querySelector('[data-value="remote-project:example/one"]') as HTMLButtonElement
+    ).click();
+    flush();
+    (
+      view.container.querySelector('[data-value="remote-project:example/two"]') as HTMLButtonElement
+    ).click();
+    flush();
+    expect(browser.remoteProjects.map((project) => project.identity)).toEqual([
+      "example/one",
+      "example/two",
+    ]);
+    expect(view.getByRole("button", { name: "Remove example/one" })).toBeTruthy();
+    view.getByRole("button", { name: "Remove example/one" }).click();
+    flush();
+    expect(browser.remoteProjects.map((project) => project.identity)).toEqual(["example/two"]);
+  });
+
   it("keeps input and local selection live through debounce, loading, failure, and a new query", async () => {
     const { browser, request, view, input, localRow, typeQuery } = await mountSearch();
     const current = createDeferred<ProjectsSearchRemoteResult>();

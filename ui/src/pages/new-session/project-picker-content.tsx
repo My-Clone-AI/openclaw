@@ -292,6 +292,24 @@ export function ProjectPickerContent(props: ProjectChipProps) {
             }}
           />
           <div class="new-session-page__picker-root">
+            {!props.nativeTerminal && view().projectSearchAvailable ? (
+              <div role="group" aria-label="GitHub organization">
+                <For each={["My-Clone-AI", "bitcoinuniverseio", "Project-Boden", "Echelon-RSVP"]}>
+                  {(org) => (
+                    <button
+                      type="button"
+                      class="btn btn--sm"
+                      aria-pressed={
+                        props.params.place.browser.projectOrg === org ? "true" : "false"
+                      }
+                      onClick={() => props.params.place.browser.selectProjectOrg(org)}
+                    >
+                      {org}
+                    </button>
+                  )}
+                </For>
+              </div>
+            ) : undefined}
             {props.params.place.remotePlacement && !view().query ? (
               <SessionMenuItem
                 item={{
@@ -436,12 +454,13 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                                 label: project().fullName,
                                 icon,
                                 sub: project().description ?? t("newSession.cloneProject"),
-                                checked:
-                                  props.params.place.browser.remoteProject?.cloneUrl ===
-                                  project().cloneUrl,
+                                checked: props.params.place.browser.remoteProjects.some(
+                                  (selected) => selected.cloneUrl === project().cloneUrl,
+                                ),
+                                keepOpen: true,
                                 title: project().webUrl,
                                 onSelect: () =>
-                                  props.params.place.selectRemoteProject({
+                                  props.params.place.toggleRemoteProject({
                                     identity: project().fullName,
                                     cloneUrl: project().cloneUrl,
                                     ...(project().defaultBranch
