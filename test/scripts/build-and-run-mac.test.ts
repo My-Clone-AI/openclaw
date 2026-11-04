@@ -155,6 +155,31 @@ describe("scripts/build-and-run-mac.sh", () => {
   });
 });
 
+describe("fork macOS build wrapper", () => {
+  it("dispatches bundle and debug modes to the existing scripts", () => {
+    const root = tempDirs.make("openclaw-fork-mac-");
+    mkdirSync(join(root, "scripts/ops"), { recursive: true });
+    const wrapper = join(root, "scripts/ops/build-openclaw-mac-fork.sh");
+    writeFileSync(wrapper, readFileSync("scripts/ops/build-openclaw-mac-fork.sh"));
+    for (const name of ["package-mac-app.sh", "build-and-run-mac.sh"]) {
+      const script = join(root, "scripts", name);
+      writeFileSync(script, `#!/bin/bash\nprintf '%s\\n' '${name}'\n`);
+      chmodSync(script, 0o755);
+    }
+    for (const [args, expected] of [
+      [[], "package-mac-app.sh"],
+      [["--bundle"], "package-mac-app.sh"],
+      [["--run"], "build-and-run-mac.sh"],
+    ] as const) {
+      const result = spawnSync("/bin/bash", [wrapper, ...args], { encoding: "utf8" });
+      expect(result.status).toBe(0);
+      expect(result.stdout.trim()).toBe(expected);
+    }
+    expect(spawnSync("/bin/bash", [wrapper, "--run", "extra"]).status).toBe(1);
+    expect(spawnSync("/bin/bash", [wrapper, "--unknown"]).status).toBe(1);
+  });
+});
+
 // Platform contract: macOS tooling must not select Homebrew Bash through PATH.
 const nativeScripts = [
   "scripts/lib/plistbuddy.sh",
@@ -163,6 +188,7 @@ const nativeScripts = [
   "scripts/e2e/parallels-npm-update-smoke.sh",
   "scripts/apple-release-source-check.sh",
   "scripts/build-and-run-mac.sh",
+  "scripts/ops/build-openclaw-mac-fork.sh",
   "scripts/check-swift-tools.sh",
   "scripts/codesign-mac-app.sh",
   "scripts/create-dmg.sh",
