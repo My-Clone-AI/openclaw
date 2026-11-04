@@ -686,6 +686,13 @@ export class DraftPlaceState {
       this.callbacks.changed();
       return;
     }
+    const primaryUnchanged = projects[0]?.cloneUrl === next[0].cloneUrl;
+    if (primaryUnchanged) {
+      this.browser.setRemoteProjects(next);
+      this.persistPreference({ remoteProjects: next });
+      this.callbacks.changed();
+      return;
+    }
     this.browser.setRemoteProjects(next);
     this.selectProject({ kind: "remote", project: next[0] }, true);
   }

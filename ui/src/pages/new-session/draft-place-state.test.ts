@@ -235,6 +235,19 @@ describe("DraftPlaceState repository selection", () => {
     }
   });
 
+  it("keeps the primary branch when adding or removing an additional repository", () => {
+    const f = createRepositoryFixture();
+    const second = { identity: "acme/second", cloneUrl: "https://github.com/acme/second.git" };
+    f.state.toggleRemoteProject(REMOTE_PROJECT);
+    f.state.setBaseRef("feature/custom");
+    f.state.toggleRemoteProject(second);
+    expect(f.browser.remoteProjects).toEqual([REMOTE_PROJECT, second]);
+    expect(f.state.baseRef).toBe("feature/custom");
+    f.state.toggleRemoteProject(second);
+    expect(f.browser.remoteProjects).toEqual([REMOTE_PROJECT]);
+    expect(f.state.baseRef).toBe("feature/custom");
+  });
+
   it("remembers a remote project and restores its default branch", () => {
     const restored = createRepositoryFixture();
     vi.spyOn(restored.browser, "projectsReady", "get").mockReturnValue(true);
