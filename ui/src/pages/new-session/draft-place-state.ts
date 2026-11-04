@@ -425,12 +425,12 @@ export class DraftPlaceState {
       return;
     }
     const preference = this.agentIdValue ? this.gateway.readPreference(this.agentIdValue) : null;
-    if (
-      !this.selection.projectSelectedByUser &&
-      !snapshot.data?.group &&
-      !catalog.isTarget(snapshot.data)
-    ) {
-      this.browser.restoreProjectOrg(preference?.projectOrg ?? "My-Clone-AI");
+    if (!this.selection.projectSelectedByUser && !catalog.isTarget(snapshot.data)) {
+      const group = snapshot.data?.group?.trim() ?? "";
+      const buContext = /^(?:bu|bitcoin\s*universe(?:io)?)$/iu.test(group);
+      this.browser.restoreProjectOrg(
+        buContext ? "bitcoinuniverseio" : (preference?.projectOrg ?? "My-Clone-AI"),
+      );
     }
     const keepSelectedFolder =
       options.preserveSelectedFolder && this.selection.folderSelectedByUser;

@@ -84,6 +84,21 @@ const cloudProfile: DraftCloudProfile = {
 };
 
 describe("DraftPlaceState agent selection", () => {
+  it.each(["BU", "Bitcoin Universe", "bitcoinuniverseio"])(
+    "defaults the %s group to the BU organization while preserving an explicit choice",
+    (group) => {
+      const { state, browser, readPreference } = createRepositoryFixture({
+        data: routeData({ group, groupStatus: "resolved" }),
+      });
+      readPreference.mockReturnValue({ projectOrg: "My-Clone-AI" });
+      state.adoptAgentDefaults();
+      expect(browser.projectOrg).toBe("bitcoinuniverseio");
+      browser.selectProjectOrg("Project-Boden");
+      state.adoptAgentDefaults();
+      expect(browser.projectOrg).toBe("Project-Boden");
+    },
+  );
+
   it("resolves the normalized selected workspace from the current non-system roster", () => {
     const { state, context } = createRepositoryFixture();
     const system: GatewayAgentRow = { id: "research", kind: "system", workspace: "/system" };
