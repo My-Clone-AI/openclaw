@@ -31,7 +31,7 @@ function result(name: string): ProjectsSearchRemoteResult {
   };
 }
 
-async function mountSearch() {
+async function mountSearch(admin = true) {
   vi.useFakeTimers();
   const fixture = createRepositoryFixture();
   const { browser, state: place, context, gateway } = fixture;
@@ -51,7 +51,7 @@ async function mountSearch() {
   Object.assign(context.gateway.snapshot, {
     hello: {
       ...context.gateway.snapshot.hello,
-      features: { methods: ["projects.searchRemote"] },
+      features: { methods: ["projects.searchRemote", "sessions.create"] },
     },
   });
   vi.spyOn(browser, "projects", "get").mockReturnValue(projects);
@@ -60,7 +60,7 @@ async function mountSearch() {
   vi.spyOn(place, "folder", "get").mockReturnValue("");
   vi.spyOn(place, "workspacePath").mockReturnValue("/fixture");
   vi.spyOn(place, "browseAvailable").mockReturnValue(true);
-  vi.spyOn(place, "isAdmin").mockReturnValue(true);
+  vi.spyOn(place, "isAdmin").mockReturnValue(admin);
   vi.spyOn(place, "canWrite").mockReturnValue(true);
   vi.spyOn(place, "deviceFolderAvailable", "get").mockReturnValue(false);
   browser.selectProject({ kind: "local", id: "sample" });
@@ -88,6 +88,141 @@ async function mountSearch() {
 afterEach(() => vi.useRealTimers());
 
 describe("remote project search slot", () => {
+  it("puts local folders behind Advanced for non-admin coding sessions", async () => {
+    const { view, typeQuery } = await mountSearch(false);
+    const details = view.container.querySelector("details")!;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("Advanced");
+    expect(details.querySelector('[data-value="project:sample"]')).not.toBeNull();
+    expect(details.querySelector('[data-value="browse"]')).not.toBeNull();
+    details.querySelector("summary")!.click();
+    expect(details.open).toBe(true);
+    typeQuery("https://github.com/example/repo.git");
+    const clone = view.container.querySelector('[data-value="project-clone-url"]');
+    expect(clone).not.toBeNull();
+    expect(details.contains(clone)).toBe(false);
+  });
+
+  it("scopes searches to the selected organization and toggles multiple repositories", async () => {
+    const { request, view, typeQuery, browser, state } = await mountSearch();
+    expect(view.getByRole("group", { name: "GitHub organization" })).toBeTruthy();
+    expect(view.container.textContent).toContain("Select repositories");
+    const projects = [
+      { ...result("one").projects[0], defaultBranch: "main", preferredBranch: "develop" },
+      { ...result("two").projects[0], defaultBranch: "main" },
+    ];
+    request.mockResolvedValue({ credential: "configured", projects });
+    view.getByRole("button", { name: "Project-Boden" }).click();
+    typeQuery("repo");
+    await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
+    await waitForSolid(() =>
+      expect(
+        view.container.querySelector('[data-value="remote-project:example/one"]'),
+      ).not.toBeNull(),
+    );
+    expect(request).toHaveBeenCalledWith("projects.searchRemote", {
+      query: "repo",
+      org: "Project-Boden",
+    });
+    (
+      view.container.querySelector('[data-value="remote-project:example/one"]') as HTMLButtonElement
+    ).click();
+    flush();
+    (
+      view.container.querySelector('[data-value="remote-project:example/two"]') as HTMLButtonElement
+    ).click();
+    flush();
+    expect(view.container.textContent).toContain("2 selected");
+    expect(state.baseRef).toBe("develop");
+    expect(browser.remoteProjects.map((project) => project.identity)).toEqual([
+      "example/one",
+      "example/two",
+    ]);
+    expect(view.getByRole("button", { name: "Remove example/one" })).toBeTruthy();
+    view.getByRole("button", { name: "Remove example/one" }).click();
+    flush();
+    expect(browser.remoteProjects.map((project) => project.identity)).toEqual(["example/two"]);
+    expect(state.baseRef).toBe("main");
+    view.getByRole("button", { name: "Echelon-RSVP" }).click();
+    await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
+    await waitForSolid(() =>
+      expect(request).toHaveBeenCalledWith("projects.searchRemote", {
+        query: "repo",
+        org: "Echelon-RSVP",
+      }),
+    );
+    await waitForSolid(() =>
+      expect(
+        view.container.querySelector('[data-value="remote-project:example/two"]'),
+      ).not.toBeNull(),
+    );
+    const second = view.container.querySelector<HTMLButtonElement>(
+      '[data-value="remote-project:example/two"]',
+    )!;
+    expect(second.getAttribute("aria-pressed")).toBe("true");
+    second.click();
+    flush();
+    expect(second.getAttribute("aria-pressed")).toBe("false");
+    expect(browser.remoteProjects).toEqual([]);
+  });
+
+  it("restores saved organization and repositories in a new draft", async () => {
+    const { view, state, persistPreference } = await mountSearch();
+    onTestFinished(() => state.modelControl.reset());
+    const projects = [
+      {
+        identity: "example/one",
+        cloneUrl: "https://github.com/example/one.git",
+        defaultBranch: "develop",
+      },
+      {
+        identity: "example/two",
+        cloneUrl: "https://github.com/example/two.git",
+        defaultBranch: "main",
+      },
+    ];
+    state.adoptAgentDefaults();
+    state.toggleRemoteProject(projects[0]);
+    state.toggleRemoteProject(projects[1]);
+    const saved = Object.assign({}, ...persistPreference.mock.calls.map((call) => call[2]));
+    expect(saved.remoteProjects).toEqual(projects);
+    view.unmount();
+
+    const restored = await mountSearch();
+    onTestFinished(() => restored.state.modelControl.reset());
+    restored.view.unmount();
+    restored.browser.clearProjectSelection();
+    restored.readPreference.mockReturnValue({ ...saved, projectOrg: "Project-Boden" });
+    restored.state.adoptAgentDefaults();
+    restored.state.restorePreferenceSelections();
+    const newView = mountProjectChip(restored, () => ({
+      folder: "",
+      workspace: "/fixture",
+      projectId: restored.browser.projectId,
+      selectedRemoteProject: restored.browser.remoteProject,
+      projects: restored.browser.projects,
+      recents: [],
+      projectQuery: restored.browser.projectQuery,
+    }));
+    await waitForSolid(() => expect(newView.container.textContent).toContain("2 selected"));
+    expect(
+      newView.getByRole("button", { name: "Project-Boden" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(restored.browser.remoteProjects).toEqual(projects);
+    expect(restored.state.baseRef).toBe("develop");
+    newView.unmount();
+  });
+
+  it("shows an empty repository search result", async () => {
+    const { request, view, typeQuery } = await mountSearch();
+    request.mockResolvedValue({ credential: "configured", projects: [] });
+    typeQuery("missing");
+    await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
+    await waitForSolid(() =>
+      expect(view.getByRole("status").textContent).toBe("No repositories match your search."),
+    );
+  });
+
   it("keeps input and local selection live through debounce, loading, failure, and a new query", async () => {
     const { browser, request, view, input, localRow, typeQuery } = await mountSearch();
     const current = createDeferred<ProjectsSearchRemoteResult>();
@@ -116,7 +251,9 @@ describe("remote project search slot", () => {
     ).toBeNull();
     await vi.advanceTimersByTimeAsync(PICKER_INPUT_DEBOUNCE_MS);
     await waitForSolid(() =>
-      expect(view.getByRole("alert").textContent).toBe("Remote search unavailable"),
+      expect(view.getByRole("alert").textContent).toBe(
+        "Couldn’t search repositories. Try again. Remote search unavailable",
+      ),
     );
 
     const recovered = createDeferred<ProjectsSearchRemoteResult>();

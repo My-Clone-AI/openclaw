@@ -69,6 +69,8 @@ export type NewSessionPreference = {
   where?: NewSessionWhere;
   projectId?: string;
   remoteProject?: DraftRemoteProject | null;
+  remoteProjects?: readonly DraftRemoteProject[];
+  projectOrg?: string;
   defaultRepositoryOptOut?: boolean;
   worktree?: boolean;
   freshWorkspace?: boolean;
@@ -129,6 +131,7 @@ function normalizePreference(value: unknown): NewSessionPreference | null {
     "workspace",
     "folder",
     "projectId",
+    "projectOrg",
     "baseRef",
     "worktreeName",
     "model",
@@ -189,6 +192,12 @@ function normalizePreference(value: unknown): NewSessionPreference | null {
       };
     }
   }
+  if (Array.isArray(value.remoteProjects)) {
+    preference.remoteProjects = value.remoteProjects.flatMap((project) => {
+      const normalized = normalizePreference({ remoteProject: project })?.remoteProject;
+      return normalized ? [normalized] : [];
+    });
+  }
   const where = normalizeWhere(value.where);
   if (where) {
     preference.where = where;
@@ -206,6 +215,8 @@ function normalizeBrowserPreference(value: unknown): NewSessionPreference | null
   delete preference.cyberAccessProgram;
   delete preference.daybreakAccessProgram;
   delete preference.remoteProject;
+  delete preference.remoteProjects;
+  delete preference.projectOrg;
   delete preference.defaultRepositoryOptOut;
   return Object.keys(preference).length ? preference : null;
 }

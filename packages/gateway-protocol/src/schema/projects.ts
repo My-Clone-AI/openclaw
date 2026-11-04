@@ -149,10 +149,12 @@ export const RemoteProjectSchema = closedObject({
   cloneUrl: Type.String({ minLength: 1, maxLength: 2048 }),
   webUrl: Type.String({ minLength: 1, maxLength: 2048 }),
   defaultBranch: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
+  preferredBranch: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
   private: Type.Boolean(),
 });
 export const ProjectsSearchRemoteParamsSchema = closedObject({
   query: Type.String({ minLength: 1, maxLength: 200 }),
+  org: Type.Optional(Type.String({ minLength: 1, maxLength: 100 })),
 });
 export const ProjectsSearchRemoteResultSchema = closedObject({
   stale: Type.Optional(Type.Boolean()),

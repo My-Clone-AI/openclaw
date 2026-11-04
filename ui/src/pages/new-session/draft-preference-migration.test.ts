@@ -218,3 +218,25 @@ it("keeps a private repository with person A instead of importing its browser mi
   await bob.ready(second);
   expect(bob.stored()).toEqual({ folder: "/repo" });
 });
+
+it("restores legacy and multi-repository identity preferences without sharing them via browser storage", async () => {
+  const firstRepo = { identity: "acme/one", cloneUrl: "https://github.com/acme/one.git" };
+  const secondRepo = { identity: "acme/two", cloneUrl: "https://github.com/acme/two.git" };
+  const prefs = identityPreferences(true, undefined, {
+    [migrationKey]: true,
+    [mainKey]: {
+      remoteProject: firstRepo,
+      projectOrg: "acme",
+      remoteProjects: [firstRepo, secondRepo],
+    },
+  });
+  const draft = prefs.make();
+  await prefs.ready(draft);
+  expect(draft.gateway.readPreference("main")).toMatchObject({
+    projectOrg: "acme",
+    remoteProjects: [firstRepo, secondRepo],
+  });
+  const other = identityPreferences(true, undefined, {}).make();
+  await vi.waitFor(() => expect(other.gateway.preferenceLoading).toBe(false));
+  expect(other.gateway.readPreference("main")).toBeNull();
+});

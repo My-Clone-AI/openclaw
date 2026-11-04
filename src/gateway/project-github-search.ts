@@ -18,6 +18,7 @@ import { logWarn } from "../logger.js";
 import { parseConfiguredProjectGitUrl } from "../projects/project-git-url.runtime.js";
 import { getAsyncWorkSignal } from "../shared/async-work-scope.js";
 import { gitHubPublicApi } from "./github-public-api.js";
+import { DEFAULT_PROJECT_GITHUB_ORGS } from "./project-github-org-catalog.js";
 
 const SEARCH_CACHE_MS = 60_000;
 const SEARCH_CACHE_LIMIT = 100;
@@ -109,9 +110,10 @@ async function loadAffiliatedRepositories(request: GitHubSearchRequest): Promise
 async function loadRepositorySearch(
   query: string,
   request: GitHubSearchRequest,
+  org?: string,
 ): Promise<RemoteProject[]> {
   const url = new URL("search/repositories", `${gitHubPublicApi.GITHUB_API_BASE_URL}/`);
-  url.searchParams.set("q", `${query} in:name,description`);
+  url.searchParams.set("q", `${query} in:name,description${org ? ` org:${org}` : ""}`);
   url.searchParams.set("per_page", String(SEARCH_RESULT_LIMIT));
   return request(url.href);
 }
@@ -120,7 +122,16 @@ async function searchProjectsUncached(params: {
   query: string;
   request: GitHubSearchRequest;
   token?: string;
+  org?: string;
 }): Promise<ProjectsSearchRemoteResult> {
+  if (params.org) {
+    return {
+      credential: params.token ? "configured" : "missing",
+      projects: (await loadRepositorySearch(params.query, params.request, params.org)).filter(
+        (project) => project.fullName.split("/")[0]?.toLowerCase() === params.org?.toLowerCase(),
+      ),
+    };
+  }
   const [exact, affiliated, global] = await Promise.all([
     EXACT_REPO_QUERY.test(params.query) ? loadExactRepository(params.query, params.request) : null,
     params.token ? loadAffiliatedRepositories(params.request) : [],
@@ -151,6 +162,7 @@ export async function searchRemoteProjects(
   query: string,
   options: {
     env?: NodeJS.ProcessEnv;
+    org?: string;
     fetchImpl?: typeof fetch;
     token?: string;
     host?: string;
@@ -160,6 +172,14 @@ export async function searchRemoteProjects(
     signal?: AbortSignal;
   } = {},
 ): Promise<ProjectsSearchRemoteResult> {
+  const org =
+    options.org &&
+    DEFAULT_PROJECT_GITHUB_ORGS.find(
+      (candidate) => candidate.toLowerCase() === options.org?.toLowerCase(),
+    );
+  if (options.org && !org) {
+    throw new gitHubPublicApi.ControlUiGitHubError(400, "GitHub organization is not allowed");
+  }
   const config = getRuntimeConfigSnapshot();
   const host = options.host ?? resolveConfiguredGitHubHost(config);
   const apiBaseUrl = options.apiBaseUrl ?? resolveConfiguredGitHubApiBaseUrl(config);
@@ -189,6 +209,12 @@ export async function searchRemoteProjects(
           token: options.token,
           cacheScope: gitHubPublicApi.githubApiCredentialCacheScope(options.token),
         };
+  if (org && !token) {
+    throw new gitHubPublicApi.ControlUiGitHubError(
+      400,
+      "GitHub token is required for organization search",
+    );
+  }
   const assertTransportCurrent = () => {
     assertCurrent();
     if (
@@ -277,11 +303,48 @@ export async function searchRemoteProjects(
   try {
     // The Gateway owns refresh work; each dispatch still requires its initiating authority.
     const result = await racePromiseWithAbortSignal(
-      searchProjectsUncached({ query: query.trim().toLowerCase(), request, token }),
+      searchProjectsUncached({ query: query.trim().toLowerCase(), request, token, org }),
       options.signal,
     );
+    const projects = await Promise.all(
+      result.projects.map(async (project) => {
+        if (project.defaultBranch === "develop") {
+          return { ...project, preferredBranch: "develop" };
+        }
+        try {
+          const url = new URL(`repos/${project.fullName}/branches/develop`, `${apiBaseUrl}/`);
+          const identity = {
+            assertSelected: assertTransportCurrent,
+            revalidate: async () => assertTransportCurrent(),
+          };
+          const response = await gitHubPublicApi.fetchGitHubApi(
+            url.href,
+            fetchImpl,
+            token,
+            undefined,
+            identity,
+            undefined,
+            options.signal,
+            undefined,
+            apiBaseUrl,
+          );
+          const branch = response.ok
+            ? await gitHubPublicApi.readGitHubJsonResponse(response)
+            : null;
+          if (!response.ok) {
+            await gitHubPublicApi.discardResponse(response);
+          }
+          const found = isRecord(branch) && branch.name === "develop";
+          assertTransportCurrent();
+          return found ? { ...project, preferredBranch: "develop" } : project;
+        } catch {
+          assertTransportCurrent();
+          return project;
+        }
+      }),
+    );
     assertTransportCurrent();
-    return stale ? { ...result, stale: true } : result;
+    return { ...result, projects, ...(stale ? { stale: true } : {}) };
   } finally {
     assertSelected();
   }

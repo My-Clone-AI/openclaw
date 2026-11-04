@@ -84,6 +84,21 @@ const cloudProfile: DraftCloudProfile = {
 };
 
 describe("DraftPlaceState agent selection", () => {
+  it.each(["BU", "Bitcoin Universe", "bitcoinuniverseio"])(
+    "defaults the %s group to the BU organization while preserving an explicit choice",
+    (group) => {
+      const { state, browser, readPreference } = createRepositoryFixture({
+        data: routeData({ group, groupStatus: "resolved" }),
+      });
+      readPreference.mockReturnValue({ projectOrg: "My-Clone-AI" });
+      state.adoptAgentDefaults();
+      expect(browser.projectOrg).toBe("bitcoinuniverseio");
+      browser.selectProjectOrg("Project-Boden");
+      state.adoptAgentDefaults();
+      expect(browser.projectOrg).toBe("Project-Boden");
+    },
+  );
+
   it("resolves the normalized selected workspace from the current non-system roster", () => {
     const { state, context } = createRepositoryFixture();
     const system: GatewayAgentRow = { id: "research", kind: "system", workspace: "/system" };
@@ -207,6 +222,45 @@ describe("DraftPlaceState repository selection", () => {
     expect(f.browser.remoteProject).toBeNull();
     expect(f.state.remoteRepository).toBeUndefined();
     expect(f.state).toMatchObject({ baseRef: "", worktreeName: "" });
+  });
+
+  it("restores the selected organization and all repositories, including legacy selections", () => {
+    const first = REMOTE_PROJECT;
+    const second = { identity: "acme/second", cloneUrl: "https://github.com/acme/second.git" };
+    for (const projects of [undefined, [first, second]]) {
+      const f = createRepositoryFixture();
+      vi.spyOn(f.browser, "projectsReady", "get").mockReturnValue(true);
+      f.readPreference.mockReturnValue({
+        projectOrg: "acme",
+        remoteProject: first,
+        remoteProjects: projects,
+      });
+      f.state.adoptAgentDefaults();
+      f.state.restorePreferenceSelections();
+      expect(f.browser.projectOrg).toBe("acme");
+      expect(f.browser.remoteProjects).toEqual(projects ?? [first]);
+      f.state.toggleRemoteProject(second);
+      expect(f.persistPreference).toHaveBeenCalledWith(
+        "main",
+        "/workspace",
+        expect.objectContaining({
+          remoteProjects: projects ? [first] : [first, second],
+        }),
+      );
+    }
+  });
+
+  it("keeps the primary branch when adding or removing an additional repository", () => {
+    const f = createRepositoryFixture();
+    const second = { identity: "acme/second", cloneUrl: "https://github.com/acme/second.git" };
+    f.state.toggleRemoteProject(REMOTE_PROJECT);
+    f.state.setBaseRef("feature/custom");
+    f.state.toggleRemoteProject(second);
+    expect(f.browser.remoteProjects).toEqual([REMOTE_PROJECT, second]);
+    expect(f.state.baseRef).toBe("feature/custom");
+    f.state.toggleRemoteProject(second);
+    expect(f.browser.remoteProjects).toEqual([REMOTE_PROJECT]);
+    expect(f.state.baseRef).toBe("feature/custom");
   });
 
   it("remembers a remote project and restores its default branch", () => {

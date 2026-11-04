@@ -168,7 +168,9 @@ describe("project GitHub search", () => {
       }
       gate.resolve(page(repository("acme/shared-result")));
       await Promise.all([rejected, secondOutcome]);
-      expect(fetchImpl).toHaveBeenCalledOnce();
+      expect(
+        fetchImpl.mock.calls.filter(([input]) => !requestUrl(input).includes("/branches/")),
+      ).toHaveLength(1);
     },
   );
 
@@ -273,7 +275,9 @@ describe("project GitHub search", () => {
       expect(result.credential).toBe("configured");
       expect(projectNames(result)).toEqual([selected.full_name, global.full_name]);
       expect(result.projects[0]?.defaultBranch).toBe("main");
-      expect(fetchImpl).toHaveBeenCalledTimes(native ? 3 : 2);
+      expect(
+        fetchImpl.mock.calls.filter(([input]) => !requestUrl(input).includes("/branches/")),
+      ).toHaveLength(native ? 3 : 2);
       for (const [, init] of fetchImpl.mock.calls) {
         expect(new Headers(init?.headers).get("Authorization")).toBe(`Bearer ${token}`);
       }
@@ -333,7 +337,11 @@ describe("project GitHub search", () => {
         return page(...global.map((name) => repository(name)));
       });
       expect(projectNames(await search(query, fetchImpl))).toEqual(expected);
-      expect(fetchImpl.mock.calls.map(([input]) => requestUrl(input))).toEqual([
+      expect(
+        fetchImpl.mock.calls
+          .filter(([input]) => !requestUrl(input).includes("/branches/"))
+          .map(([input]) => requestUrl(input)),
+      ).toEqual([
         expect.stringContaining(`/repos/${query}`),
         expect.stringContaining("/search/repositories?"),
       ]);
@@ -354,7 +362,9 @@ describe("project GitHub search", () => {
 
     expect(projectNames(result)).toEqual(["acme/still-works"]);
     expect(await searchRemoteProjects("acme/still-works", options)).toEqual(result);
-    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    expect(
+      fetchImpl.mock.calls.filter(([input]) => !requestUrl(input).includes("/branches/")),
+    ).toHaveLength(3);
   });
 
   it("returns marked stale normalized results while one refresh runs, then publishes fresh results", async ({
@@ -363,10 +373,15 @@ describe("project GitHub search", () => {
     const setTime = clock();
     const gate = createDeferredCore<Response>();
     const { tasks: refreshes, trackExecution } = trackedTasks();
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(page(repository("acme/cache-query")))
-      .mockImplementation(() => gate.promise);
+    let searchCalls = 0;
+    const fetchImpl = vi.fn<typeof fetch>((input) => {
+      if (requestUrl(input).includes("/branches/")) {
+        return Promise.resolve(json({}, 404));
+      }
+      return ++searchCalls === 1
+        ? Promise.resolve(page(repository("acme/cache-query")))
+        : gate.promise;
+    });
     const options = {
       env: {},
       fetchImpl,
@@ -380,7 +395,7 @@ describe("project GitHub search", () => {
       const stale = await withinTest(searchRemoteProjects("cache-query", options), signal);
       expect(stale).toEqual({ ...first, stale: true });
       expect(await searchRemoteProjects("cache-query", options)).toEqual(stale);
-      expect(fetchImpl).toHaveBeenCalledTimes(2);
+      expect(searchCalls).toBe(2);
       await expect(
         searchRemoteProjects("cache-query", {
           ...options,
@@ -423,4 +438,19 @@ describe("project GitHub search", () => {
       ["acme/token-rotation-b"],
     ]);
   });
+});
+
+it("prefers develop when it exists and keeps the repository default otherwise", async () => {
+  const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+    const url = requestUrl(input);
+    if (url.includes("/branches/develop")) {
+      return url.includes("has-develop") ? json({ name: "develop" }) : json({}, 404);
+    }
+    return page(repository("acme/has-develop"), repository("acme/main-only"));
+  });
+  const result = await searchRemoteProjects("acme", { env: {}, fetchImpl });
+  expect(result.projects).toMatchObject([
+    { fullName: "acme/has-develop", defaultBranch: "main", preferredBranch: "develop" },
+    { fullName: "acme/main-only", defaultBranch: "main" },
+  ]);
 });

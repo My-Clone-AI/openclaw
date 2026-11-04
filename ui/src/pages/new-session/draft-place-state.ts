@@ -425,6 +425,13 @@ export class DraftPlaceState {
       return;
     }
     const preference = this.agentIdValue ? this.gateway.readPreference(this.agentIdValue) : null;
+    if (!this.selection.projectSelectedByUser && !catalog.isTarget(snapshot.data)) {
+      const group = snapshot.data?.group?.trim() ?? "";
+      const buContext = /^(?:bu|bitcoin\s*universe(?:io)?)$/iu.test(group);
+      this.browser.restoreProjectOrg(
+        buContext ? "bitcoinuniverseio" : (preference?.projectOrg ?? "My-Clone-AI"),
+      );
+    }
     const keepSelectedFolder =
       options.preserveSelectedFolder && this.selection.folderSelectedByUser;
     if (!keepSelectedFolder && !snapshot.pendingPlacementSessionKey) {
@@ -489,6 +496,7 @@ export class DraftPlaceState {
     this.agentSelectedByUser = false;
     this.folderValue = "";
     this.browser.clearProjectSelection();
+    this.browser.resetProjectOrgSelection();
     this.resetPlaceSelection();
     this.browser.resetProjectSearch();
     this.modelControl.reset();
@@ -553,6 +561,7 @@ export class DraftPlaceState {
     this.persistPreference({
       projectId: "",
       remoteProject: null,
+      remoteProjects: [],
       defaultRepositoryOptOut: true,
     });
     this.repositoryState.load();
@@ -577,6 +586,7 @@ export class DraftPlaceState {
     this.callbacks.onError(null);
     this.agentSelectedByUser = true;
     this.browser.clearProjectSelection();
+    this.browser.resetProjectOrgSelection();
     this.resetPlaceSelection();
     this.browser.close();
     this.adoptAgentDefaults({ preserveSelectedAgent: true });
@@ -605,6 +615,7 @@ export class DraftPlaceState {
         folder: this.folderValue,
         projectId: "",
         remoteProject: null,
+        remoteProjects: [],
         defaultRepositoryOptOut: true,
         worktree: this.worktree,
         freshWorkspace: false,
@@ -632,6 +643,7 @@ export class DraftPlaceState {
       folder: this.folderValue,
       projectId: "",
       remoteProject: null,
+      remoteProjects: [],
       defaultRepositoryOptOut: true,
       worktree: true,
       freshWorkspace: true,
@@ -648,20 +660,58 @@ export class DraftPlaceState {
     this.selectProject({ kind: "local", id: project.id });
   }
 
+  persistProjectOrg(org: string) {
+    this.persistPreference({ projectOrg: org });
+  }
+
   selectRemoteProject(project: DraftRemoteProject) {
     this.selectProject({ kind: "remote", project });
   }
 
-  private selectProject(selection: Parameters<DraftPlaceBrowser["selectProject"]>[0]) {
+  toggleRemoteProject(project: DraftRemoteProject) {
+    const snapshot = this.read();
+    if (snapshot.submitting || snapshot.pendingPlacementSessionKey) {
+      return;
+    }
+    const projects = this.browser.remoteProjects;
+    const selected = projects.some((item) => item.cloneUrl === project.cloneUrl);
+    const next = selected
+      ? projects.filter((item) => item.cloneUrl !== project.cloneUrl)
+      : [...projects, project];
+    if (next.length === 0) {
+      this.browser.clearProjectSelection();
+      this.repositoryState.clearDetails(true);
+      this.persistPreference({ projectId: "", remoteProject: null, remoteProjects: [] });
+      this.repositoryState.load();
+      this.callbacks.changed();
+      return;
+    }
+    const primaryUnchanged = projects[0]?.cloneUrl === next[0].cloneUrl;
+    if (primaryUnchanged) {
+      this.browser.setRemoteProjects(next);
+      this.persistPreference({ remoteProjects: next });
+      this.callbacks.changed();
+      return;
+    }
+    this.browser.setRemoteProjects(next);
+    this.selectProject({ kind: "remote", project: next[0] }, true);
+  }
+
+  private selectProject(
+    selection: Parameters<DraftPlaceBrowser["selectProject"]>[0],
+    multi = false,
+  ) {
     const snapshot = this.read();
     if (snapshot.submitting || snapshot.pendingPlacementSessionKey) {
       return;
     }
     this.deviceFolderValue = null;
-    this.browser.selectProject(selection);
+    this.browser.selectProject(selection, multi);
     this.selection.freshWorkspace = false;
     this.folderValidation.cancel();
-    this.browser.resetProjectSearch();
+    if (!multi) {
+      this.browser.resetProjectSearch();
+    }
     this.callbacks.onError(null);
     this.selection.folderSelectedByUser = false;
     markDraftPlaceProjectChoice(this.selection, false);
@@ -669,6 +719,7 @@ export class DraftPlaceState {
     this.persistPreference({
       projectId: selection.kind === "local" ? selection.id : "",
       remoteProject: selection.kind === "remote" ? selection.project : null,
+      remoteProjects: selection.kind === "remote" ? this.browser.remoteProjects : [],
       defaultRepositoryOptOut: false,
       ...(selection.kind === "local" ? { where: resolveNewSessionWhere(this) } : {}),
       worktree: this.worktree,
@@ -679,7 +730,11 @@ export class DraftPlaceState {
       this.repositoryState.setDetail("baseRef", selection.project.defaultBranch, false);
     }
     this.repositoryState.load();
-    this.browser.close();
+    if (!multi) {
+      this.browser.close();
+    } else {
+      this.callbacks.changed();
+    }
   }
 
   private targetActions() {
