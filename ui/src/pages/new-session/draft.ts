@@ -191,6 +191,7 @@ export class NewSessionDraft {
         changed,
         updateComplete: callbacks.updateComplete,
         onProjectMissing: () => this.place.clearProjectSelection(),
+        onProjectOrgSelected: (org) => this.place.persistProjectOrg(org),
         onSelectProject: (projectId) => this.place.selectProjectId(projectId),
         onApprovedListing: (listing) => this.place.recordGatewayApprovedListing(listing),
         activeElement: callbacks.activeElement,

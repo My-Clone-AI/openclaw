@@ -209,6 +209,32 @@ describe("DraftPlaceState repository selection", () => {
     expect(f.state).toMatchObject({ baseRef: "", worktreeName: "" });
   });
 
+  it("restores the selected organization and all repositories, including legacy selections", () => {
+    const first = REMOTE_PROJECT;
+    const second = { identity: "acme/second", cloneUrl: "https://github.com/acme/second.git" };
+    for (const projects of [undefined, [first, second]]) {
+      const f = createRepositoryFixture();
+      vi.spyOn(f.browser, "projectsReady", "get").mockReturnValue(true);
+      f.readPreference.mockReturnValue({
+        projectOrg: "acme",
+        remoteProject: first,
+        remoteProjects: projects,
+      });
+      f.state.adoptAgentDefaults();
+      f.state.restorePreferenceSelections();
+      expect(f.browser.projectOrg).toBe("acme");
+      expect(f.browser.remoteProjects).toEqual(projects ?? [first]);
+      f.state.toggleRemoteProject(second);
+      expect(f.persistPreference).toHaveBeenCalledWith(
+        "main",
+        "/workspace",
+        expect.objectContaining({
+          remoteProjects: projects ? [first] : [first, second],
+        }),
+      );
+    }
+  });
+
   it("remembers a remote project and restores its default branch", () => {
     const restored = createRepositoryFixture();
     vi.spyOn(restored.browser, "projectsReady", "get").mockReturnValue(true);

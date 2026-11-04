@@ -49,6 +49,7 @@ type DraftPlaceBrowserCallbacks = {
   changed: () => void;
   updateComplete: () => Promise<unknown>;
   onProjectMissing: () => void;
+  onProjectOrgSelected?: (org: string) => void;
   onSelectProject: (projectId: string) => void;
   onApprovedListing: (listing: FsListDirResult) => void;
   activeElement: () => Element | null;
@@ -63,6 +64,7 @@ export class DraftPlaceBrowser {
   private projectSelection: DraftProjectSelection = null;
   private remoteProjectsValue: readonly DraftRemoteProject[] = [];
   private projectOrgValue = "My-Clone-AI";
+  private projectOrgSelectedByUser = false;
   private selectedProjectRecord: ProjectRecord | undefined;
   private projectQueryValue = "";
   private environmentQueryValue = "";
@@ -259,8 +261,20 @@ export class DraftPlaceBrowser {
   }
 
   selectProjectOrg(org: string) {
+    this.projectOrgSelectedByUser = true;
     this.projectOrgValue = org;
+    this.callbacks.onProjectOrgSelected?.(org);
     this.changeProjectQuery(this.projectQueryValue);
+  }
+
+  restoreProjectOrg(org: string) {
+    if (!this.projectOrgSelectedByUser) {
+      this.projectOrgValue = org;
+    }
+  }
+
+  resetProjectOrgSelection() {
+    this.projectOrgSelectedByUser = false;
   }
 
   get projectQuery(): string {

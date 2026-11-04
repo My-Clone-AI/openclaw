@@ -19,6 +19,7 @@ export type DraftPlaceRestoreState = {
   preferredWhereRestore: NewSessionWhere | null;
   preferredProjectRestore: string;
   preferredRemoteProjectRestore: DraftRemoteProject | null;
+  preferredRemoteProjectsRestore: readonly DraftRemoteProject[];
   configuredDefaultRepositoryPending: boolean;
   configuredDefaultRepositoryOptOut: boolean;
   whereSelectedByUser: boolean;
@@ -36,6 +37,7 @@ export function createDraftPlaceRestoreState(): DraftPlaceRestoreState {
     preferredWhereRestore: null,
     preferredProjectRestore: "",
     preferredRemoteProjectRestore: null,
+    preferredRemoteProjectsRestore: [],
     configuredDefaultRepositoryPending: false,
     configuredDefaultRepositoryOptOut: false,
     whereSelectedByUser: false,
@@ -84,6 +86,7 @@ export function markDraftPlaceProjectChoice(state: DraftPlaceRestoreState, optOu
   state.projectSelectedByUser = true;
   state.preferredProjectRestore = "";
   state.preferredRemoteProjectRestore = null;
+  state.preferredRemoteProjectsRestore = [];
   state.configuredDefaultRepositoryPending = false;
   state.configuredDefaultRepositoryOptOut = optOut;
 }
@@ -100,13 +103,16 @@ export function adoptDraftPlaceRestorePreference(
     state.preferredWhereRestore = where?.kind === "local" ? null : (where ?? null);
   }
   state.preferredProjectRestore = localTarget ? "" : (preference?.projectId ?? "");
-  state.preferredRemoteProjectRestore = localTarget ? null : (preference?.remoteProject ?? null);
+  state.preferredRemoteProjectsRestore = localTarget
+    ? []
+    : (preference?.remoteProjects ?? (preference?.remoteProject ? [preference.remoteProject] : []));
+  state.preferredRemoteProjectRestore = state.preferredRemoteProjectsRestore[0] ?? null;
   state.configuredDefaultRepositoryOptOut = preference?.defaultRepositoryOptOut === true;
   state.configuredDefaultRepositoryPending =
     !localTarget &&
     !state.configuredDefaultRepositoryOptOut &&
     !preference?.projectId &&
-    !preference?.remoteProject;
+    !state.preferredRemoteProjectRestore;
   if (state.preferredRemoteProjectRestore) {
     state.preferredProjectRestore = "";
   }
@@ -178,6 +184,7 @@ export function restoreDraftPlacePreferences(params: {
     if (staleSaved || staleActive) {
       if (staleSaved) {
         state.preferredRemoteProjectRestore = null;
+        state.preferredRemoteProjectsRestore = [];
       }
       if (staleActive) {
         browser.clearProjectSelection();
@@ -190,6 +197,7 @@ export function restoreDraftPlacePreferences(params: {
         !state.configuredDefaultRepositoryOptOut && !preferredProject;
       persistPreference({
         remoteProject: state.preferredRemoteProjectRestore ?? browser.remoteProject ?? null,
+        remoteProjects: browser.remoteProjects,
       });
       changed = true;
     }
@@ -252,6 +260,16 @@ export function restoreDraftPlacePreferences(params: {
       state.cloudProfileId = configuredProfileId;
     }
     browser.selectProject({ kind: "remote", project: preferredRemoteProject });
+    if (state.preferredRemoteProjectsRestore.length) {
+      browser.setRemoteProjects(
+        state.preferredRemoteProjectsRestore.filter(
+          (project) =>
+            !browser.githubHost ||
+            parseProjectGitUrl(project.cloneUrl, browser.githubHost) !== null,
+        ),
+      );
+    }
+    state.preferredRemoteProjectsRestore = [];
     state.freshWorkspace = false;
     state.folderSelectedByUser = false;
     if (

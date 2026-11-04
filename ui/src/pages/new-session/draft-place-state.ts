@@ -425,6 +425,13 @@ export class DraftPlaceState {
       return;
     }
     const preference = this.agentIdValue ? this.gateway.readPreference(this.agentIdValue) : null;
+    if (
+      !this.selection.projectSelectedByUser &&
+      !snapshot.data?.group &&
+      !catalog.isTarget(snapshot.data)
+    ) {
+      this.browser.restoreProjectOrg(preference?.projectOrg ?? "My-Clone-AI");
+    }
     const keepSelectedFolder =
       options.preserveSelectedFolder && this.selection.folderSelectedByUser;
     if (!keepSelectedFolder && !snapshot.pendingPlacementSessionKey) {
@@ -489,6 +496,7 @@ export class DraftPlaceState {
     this.agentSelectedByUser = false;
     this.folderValue = "";
     this.browser.clearProjectSelection();
+    this.browser.resetProjectOrgSelection();
     this.resetPlaceSelection();
     this.browser.resetProjectSearch();
     this.modelControl.reset();
@@ -553,6 +561,7 @@ export class DraftPlaceState {
     this.persistPreference({
       projectId: "",
       remoteProject: null,
+      remoteProjects: [],
       defaultRepositoryOptOut: true,
     });
     this.repositoryState.load();
@@ -577,6 +586,7 @@ export class DraftPlaceState {
     this.callbacks.onError(null);
     this.agentSelectedByUser = true;
     this.browser.clearProjectSelection();
+    this.browser.resetProjectOrgSelection();
     this.resetPlaceSelection();
     this.browser.close();
     this.adoptAgentDefaults({ preserveSelectedAgent: true });
@@ -605,6 +615,7 @@ export class DraftPlaceState {
         folder: this.folderValue,
         projectId: "",
         remoteProject: null,
+        remoteProjects: [],
         defaultRepositoryOptOut: true,
         worktree: this.worktree,
         freshWorkspace: false,
@@ -632,6 +643,7 @@ export class DraftPlaceState {
       folder: this.folderValue,
       projectId: "",
       remoteProject: null,
+      remoteProjects: [],
       defaultRepositoryOptOut: true,
       worktree: true,
       freshWorkspace: true,
@@ -646,6 +658,10 @@ export class DraftPlaceState {
       return;
     }
     this.selectProject({ kind: "local", id: project.id });
+  }
+
+  persistProjectOrg(org: string) {
+    this.persistPreference({ projectOrg: org });
   }
 
   selectRemoteProject(project: DraftRemoteProject) {
@@ -665,7 +681,7 @@ export class DraftPlaceState {
     if (next.length === 0) {
       this.browser.clearProjectSelection();
       this.repositoryState.clearDetails(true);
-      this.persistPreference({ projectId: "", remoteProject: null });
+      this.persistPreference({ projectId: "", remoteProject: null, remoteProjects: [] });
       this.repositoryState.load();
       this.callbacks.changed();
       return;
@@ -696,6 +712,7 @@ export class DraftPlaceState {
     this.persistPreference({
       projectId: selection.kind === "local" ? selection.id : "",
       remoteProject: selection.kind === "remote" ? selection.project : null,
+      remoteProjects: selection.kind === "remote" ? this.browser.remoteProjects : [],
       defaultRepositoryOptOut: false,
       ...(selection.kind === "local" ? { where: resolveNewSessionWhere(this) } : {}),
       worktree: this.worktree,
