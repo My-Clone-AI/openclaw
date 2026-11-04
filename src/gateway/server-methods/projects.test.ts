@@ -447,6 +447,76 @@ test("projects.list replies before cold or stale observed Git discovery settles"
   });
 });
 
+test("projects.searchRemote restricts organization results and caches each organization", async () => {
+  vi.stubEnv("GH_TOKEN", "synthetic-org-search-token");
+  const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+    const url = new URL(String(input));
+    const org = url.searchParams.get("q")?.includes("org:Project-Boden")
+      ? "Project-Boden"
+      : "My-Clone-AI";
+    return new Response(
+      JSON.stringify({
+        items: [
+          {
+            name: "repo",
+            full_name: `${org}/repo`,
+            html_url: `https://github.com/${org}/repo`,
+            clone_url: `https://github.com/${org}/repo.git`,
+            default_branch: "develop",
+          },
+          {
+            name: "other",
+            full_name: "outsider/other",
+            html_url: "https://github.com/outsider/other",
+            clone_url: "https://github.com/outsider/other.git",
+            default_branch: "develop",
+          },
+        ],
+      }),
+      { headers: { "content-type": "application/json" } },
+    );
+  });
+  vi.stubGlobal("fetch", fetchImpl);
+  const searchOrg = (org: string) =>
+    invoke("projects.searchRemote", { query: "org-cache-test", org }, {}, ["operator.write"]);
+
+  const first = await searchOrg("my-clone-ai");
+  expect(first).toMatchObject({
+    ok: true,
+    payload: { projects: [{ fullName: "My-Clone-AI/repo" }] },
+  });
+  expect(await searchOrg("My-Clone-AI")).toEqual(first);
+  expect(fetchImpl).toHaveBeenCalledTimes(1);
+  expect(new URL(String(fetchImpl.mock.calls[0]?.[0])).searchParams.get("q")).toContain(
+    "org:My-Clone-AI",
+  );
+  expect(await searchOrg("Project-Boden")).toMatchObject({
+    ok: true,
+    payload: { projects: [{ fullName: "Project-Boden/repo" }] },
+  });
+  expect(fetchImpl).toHaveBeenCalledTimes(2);
+  expect(await searchOrg("unknown-org")).toMatchObject({
+    ok: false,
+    error: { message: "GitHub organization is not allowed" },
+  });
+  expect(fetchImpl).toHaveBeenCalledTimes(2);
+});
+
+test("projects.searchRemote reports a missing token for organization search", async () => {
+  vi.stubEnv("GH_TOKEN", "");
+  vi.stubEnv("GITHUB_TOKEN", "");
+  const fetchImpl = mockGitHubFetch();
+  expect(
+    await invoke("projects.searchRemote", { query: "missing-token-test", org: "My-Clone-AI" }, {}, [
+      "operator.write",
+    ]),
+  ).toMatchObject({
+    ok: false,
+    error: { message: "GitHub token is required for organization search" },
+  });
+  expect(fetchImpl).not.toHaveBeenCalled();
+});
+
 test("projects.searchRemote redacts unexpected error diagnostics", async () => {
   using _ = vi
     .spyOn(projectGitHubSearch, "searchRemoteProjects")

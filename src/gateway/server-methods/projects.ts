@@ -476,6 +476,13 @@ export const projectsHandlers: GatewayRequestHandlers = {
       respond(true, result, undefined);
     },
     (error) => {
+      if (
+        error instanceof gitHubPublicApi.ControlUiGitHubError &&
+        (error.message === "GitHub organization is not allowed" ||
+          error.message === "GitHub token is required for organization search")
+      ) {
+        return errorShape(ErrorCodes.INVALID_REQUEST, error.message);
+      }
       const { message, ...details } =
         error instanceof gitHubPublicApi.ControlUiGitHubError ||
         isTrustedSecretSurfaceUnavailableError(error)

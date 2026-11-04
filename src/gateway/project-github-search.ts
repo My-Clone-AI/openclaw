@@ -209,6 +209,12 @@ export async function searchRemoteProjects(
           token: options.token,
           cacheScope: gitHubPublicApi.githubApiCredentialCacheScope(options.token),
         };
+  if (org && !token) {
+    throw new gitHubPublicApi.ControlUiGitHubError(
+      400,
+      "GitHub token is required for organization search",
+    );
+  }
   const assertTransportCurrent = () => {
     assertCurrent();
     if (
