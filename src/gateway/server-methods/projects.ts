@@ -465,7 +465,12 @@ export const projectsHandlers: GatewayRequestHandlers = {
         signal,
         host,
         apiBaseUrl,
-        ...(cfg.gateway?.projects?.nativeGitHubSearch === true ? { token: nativeToken ?? "" } : {}),
+        org: params.org,
+        ...(cfg.gateway?.projects?.nativeGitHubSearch === true
+          ? { token: nativeToken ?? "" }
+          : params.org
+            ? { token: githubApiToken(process.env, cfg) ?? "" }
+            : {}),
       });
       assertCurrent();
       respond(true, result, undefined);

@@ -153,6 +153,7 @@ export const RemoteProjectSchema = closedObject({
 });
 export const ProjectsSearchRemoteParamsSchema = closedObject({
   query: Type.String({ minLength: 1, maxLength: 200 }),
+  org: Type.Optional(Type.String({ minLength: 1, maxLength: 100 })),
 });
 export const ProjectsSearchRemoteResultSchema = closedObject({
   stale: Type.Optional(Type.Boolean()),
