@@ -104,8 +104,11 @@ describe("remote project search slot", () => {
   });
 
   it("scopes searches to the selected organization and toggles multiple repositories", async () => {
-    const { request, view, typeQuery, browser } = await mountSearch();
-    const projects = [result("one").projects[0], result("two").projects[0]];
+    const { request, view, typeQuery, browser, state } = await mountSearch();
+    const projects = [
+      { ...result("one").projects[0], defaultBranch: "main", preferredBranch: "develop" },
+      { ...result("two").projects[0], defaultBranch: "main" },
+    ];
     request.mockResolvedValue({ credential: "configured", projects });
     view.getByRole("button", { name: "Project-Boden" }).click();
     typeQuery("repo");
@@ -127,6 +130,7 @@ describe("remote project search slot", () => {
       view.container.querySelector('[data-value="remote-project:example/two"]') as HTMLButtonElement
     ).click();
     flush();
+    expect(state.baseRef).toBe("develop");
     expect(browser.remoteProjects.map((project) => project.identity)).toEqual([
       "example/one",
       "example/two",
@@ -135,6 +139,7 @@ describe("remote project search slot", () => {
     view.getByRole("button", { name: "Remove example/one" }).click();
     flush();
     expect(browser.remoteProjects.map((project) => project.identity)).toEqual(["example/two"]);
+    expect(state.baseRef).toBe("main");
   });
 
   it("keeps input and local selection live through debounce, loading, failure, and a new query", async () => {

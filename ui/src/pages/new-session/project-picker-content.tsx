@@ -369,8 +369,11 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                                   props.params.place.toggleRemoteProject({
                                     identity: project().fullName,
                                     cloneUrl: project().cloneUrl,
-                                    ...(project().defaultBranch
-                                      ? { defaultBranch: project().defaultBranch }
+                                    ...(project().preferredBranch || project().defaultBranch
+                                      ? {
+                                          defaultBranch:
+                                            project().preferredBranch ?? project().defaultBranch,
+                                        }
                                       : {}),
                                   }),
                               }}

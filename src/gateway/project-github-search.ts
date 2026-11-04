@@ -172,9 +172,11 @@ export async function searchRemoteProjects(
     signal?: AbortSignal;
   } = {},
 ): Promise<ProjectsSearchRemoteResult> {
-  const org = options.org && DEFAULT_PROJECT_GITHUB_ORGS.find(
-    (candidate) => candidate.toLowerCase() === options.org?.toLowerCase(),
-  );
+  const org =
+    options.org &&
+    DEFAULT_PROJECT_GITHUB_ORGS.find(
+      (candidate) => candidate.toLowerCase() === options.org?.toLowerCase(),
+    );
   if (options.org && !org) {
     throw new gitHubPublicApi.ControlUiGitHubError(400, "GitHub organization is not allowed");
   }
@@ -298,8 +300,45 @@ export async function searchRemoteProjects(
       searchProjectsUncached({ query: query.trim().toLowerCase(), request, token, org }),
       options.signal,
     );
+    const projects = await Promise.all(
+      result.projects.map(async (project) => {
+        if (project.defaultBranch === "develop") {
+          return { ...project, preferredBranch: "develop" };
+        }
+        try {
+          const url = new URL(`repos/${project.fullName}/branches/develop`, `${apiBaseUrl}/`);
+          const identity = {
+            assertSelected: assertTransportCurrent,
+            revalidate: async () => assertTransportCurrent(),
+          };
+          const response = await gitHubPublicApi.fetchGitHubApi(
+            url.href,
+            fetchImpl,
+            token,
+            undefined,
+            identity,
+            undefined,
+            options.signal,
+            undefined,
+            apiBaseUrl,
+          );
+          const branch = response.ok
+            ? await gitHubPublicApi.readGitHubJsonResponse(response)
+            : null;
+          if (!response.ok) {
+            await gitHubPublicApi.discardResponse(response);
+          }
+          const found = isRecord(branch) && branch.name === "develop";
+          assertTransportCurrent();
+          return found ? { ...project, preferredBranch: "develop" } : project;
+        } catch {
+          assertTransportCurrent();
+          return project;
+        }
+      }),
+    );
     assertTransportCurrent();
-    return stale ? { ...result, stale: true } : result;
+    return { ...result, projects, ...(stale ? { stale: true } : {}) };
   } finally {
     assertSelected();
   }
