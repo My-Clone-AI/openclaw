@@ -31,7 +31,7 @@ function result(name: string): ProjectsSearchRemoteResult {
   };
 }
 
-async function mountSearch() {
+async function mountSearch(admin = true) {
   vi.useFakeTimers();
   const fixture = createRepositoryFixture();
   const { browser, state: place, context, gateway } = fixture;
@@ -60,7 +60,7 @@ async function mountSearch() {
   vi.spyOn(place, "folder", "get").mockReturnValue("");
   vi.spyOn(place, "workspacePath").mockReturnValue("/fixture");
   vi.spyOn(place, "browseAvailable").mockReturnValue(true);
-  vi.spyOn(place, "isAdmin").mockReturnValue(true);
+  vi.spyOn(place, "isAdmin").mockReturnValue(admin);
   vi.spyOn(place, "canWrite").mockReturnValue(true);
   vi.spyOn(place, "deviceFolderAvailable", "get").mockReturnValue(false);
   browser.selectProject({ kind: "local", id: "sample" });
@@ -88,6 +88,21 @@ async function mountSearch() {
 afterEach(() => vi.useRealTimers());
 
 describe("remote project search slot", () => {
+  it("puts local folders behind Advanced for non-admin coding sessions", async () => {
+    const { view, typeQuery } = await mountSearch(false);
+    const details = view.container.querySelector("details")!;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("Advanced");
+    expect(details.querySelector('[data-value="project:sample"]')).not.toBeNull();
+    expect(details.querySelector('[data-value="browse"]')).not.toBeNull();
+    details.querySelector("summary")!.click();
+    expect(details.open).toBe(true);
+    typeQuery("https://github.com/example/repo.git");
+    const clone = view.container.querySelector('[data-value="project-clone-url"]');
+    expect(clone).not.toBeNull();
+    expect(details.contains(clone)).toBe(false);
+  });
+
   it("scopes searches to the selected organization and toggles multiple repositories", async () => {
     const { request, view, typeQuery, browser } = await mountSearch();
     const projects = [result("one").projects[0], result("two").projects[0]];
