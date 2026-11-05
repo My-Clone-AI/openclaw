@@ -30,7 +30,8 @@
       "nsvx_fleet",
       "nsvx_legal",
       "nsvx_research",
-      "nsvx_marketing"
+      "nsvx_marketing",
+      "nsvx_access"
     ]
   },
   "uiCapabilities": [

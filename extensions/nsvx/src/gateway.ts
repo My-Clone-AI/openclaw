@@ -1,4 +1,23 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+import {
+  addPermission,
+  challengeInput,
+  challengeResume,
+  checkApp,
+  checkHooks,
+  importCredentials,
+  loginFill,
+  loginInput,
+  pauseApp,
+  revokeApple,
+  revokeCredential,
+  revokePasskey,
+  revokeSession,
+  saveCredential,
+  savePermission,
+  setPermissionAccount,
+  startLogin,
+} from "./access.js";
 import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
 import {
@@ -199,6 +218,31 @@ export function registerNsvxGatewayMethods(
   method("nsvx.group.mailSend", "operator.write", (params) => sendMail(client, params));
   method("nsvx.group.devAction", "operator.admin", (params) => runDevAction(client, params));
   method("nsvx.group.serverAction", "operator.admin", (params) => serverAction(client, params));
+  // Access reads through nsvx.view. Apps, their browser sign-in, visual checks, and hook checks change how clone
+  // reads and replies (write scope); sign-in devices, stored logins, and people's access are security (admin).
+  method("nsvx.access.pause", "operator.write", (params) => pauseApp(client, params));
+  method("nsvx.access.check", "operator.write", (params) => checkApp(client, params));
+  method("nsvx.access.login", "operator.write", (params) => startLogin(client, params));
+  method("nsvx.access.loginInput", "operator.write", (params) => loginInput(client, params));
+  method("nsvx.access.loginFill", "operator.write", (params) => loginFill(client, params));
+  method("nsvx.access.challengeInput", "operator.write", (params) =>
+    challengeInput(client, params),
+  );
+  method("nsvx.access.challengeResume", "operator.write", (params) =>
+    challengeResume(client, params),
+  );
+  method("nsvx.access.hookCheck", "operator.write", (params) => checkHooks(client, params));
+  method("nsvx.access.revokeSession", "operator.admin", (params) => revokeSession(client, params));
+  method("nsvx.access.revokePasskey", "operator.admin", (params) => revokePasskey(client, params));
+  method("nsvx.access.revokeApple", "operator.admin", (params) => revokeApple(client, params));
+  method("nsvx.access.importLogins", "operator.admin", () => importCredentials(client));
+  method("nsvx.access.saveLogin", "operator.admin", (params) => saveCredential(client, params));
+  method("nsvx.access.revokeLogin", "operator.admin", (params) => revokeCredential(client, params));
+  method("nsvx.access.addPerson", "operator.admin", (params) => addPermission(client, params));
+  method("nsvx.access.savePerson", "operator.admin", (params) => savePermission(client, params));
+  method("nsvx.access.personAccount", "operator.admin", (params) =>
+    setPermissionAccount(client, params),
+  );
   registerDeviceMethods(method, client);
   registerGrowMethods(method, client);
   registerAviationMethods(method, client);

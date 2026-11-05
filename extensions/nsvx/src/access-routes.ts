@@ -1,0 +1,47 @@
+/** Access tab NSVX HTTP routes (kept out of client.ts for the line-cap ratchet). */
+
+/** Reads: apps, sign-in state, devices, logins, checks, people, hooks. Never returns a stored secret. */
+export const accessViews = {
+  // Access (`/apps`, `/permissoes`): connected apps, their browser sign-in, sign-in devices, stored logins,
+  // visual checks, people's access, and the provider hooks on WhatsApp and Instagram. `login` with `refresh` makes
+  // NSVX ask the browser once, as its screen does; nothing here returns a stored secret.
+  apps: { path: "/api/apps" },
+  appLogin: { path: "/api/apps/{aid}/login", query: ["refresh"] },
+  appLoginView: { path: "/api/apps/{aid}/login/view" },
+  appLoginFields: { path: "/api/apps/{aid}/login/fields" },
+  authDevices: { path: "/api/auth/devices" },
+  authProviders: { path: "/api/auth/providers" },
+  appleIdentities: { path: "/api/auth/apple/identities" },
+  credentials: { path: "/api/credentials" },
+  credentialImportJob: { path: "/api/credentials/import/{job}" },
+  challenges: { path: "/api/browser-challenges" },
+  challengeView: { path: "/api/browser-challenges/{account}/view" },
+  permissions: { path: "/api/permissions" },
+  permissionPeople: { path: "/api/permissions/people", query: ["q"] },
+  providerHooks: { path: "/api/meta-messaging/accounts/{aid}" },
+} as const;
+
+/** Writes: the changes the NSVX Apps, Acesso, and Permissões screens make (access.ts validates each body). */
+export const accessWrites = {
+  appPause: { method: "POST", path: "/api/apps/{aid}" },
+  appCheck: { method: "POST", path: "/api/apps/{aid}/check" },
+  appRiskAck: { method: "POST", path: "/api/apps/{aid}/risk-ack" },
+  appLoginInput: { method: "POST", path: "/api/apps/{aid}/login/input" },
+  appLoginFill: { method: "POST", path: "/api/apps/{aid}/login/fill" },
+  sessionRevoke: { method: "POST", path: "/api/auth/sessions/{sid}/revoke" },
+  passkeyRevoke: { method: "POST", path: "/api/auth/devices/{cid}/revoke" },
+  appleRevoke: { method: "POST", path: "/api/auth/apple/identities/{iid}/revoke" },
+  credentialImport: { method: "POST", path: "/api/credentials/import" },
+  credentialCreate: { method: "POST", path: "/api/credentials" },
+  credentialReplace: { method: "POST", path: "/api/credentials/{cid}" },
+  credentialRevoke: { method: "POST", path: "/api/credentials/{cid}/revoke" },
+  challengeInput: { method: "POST", path: "/api/browser-challenges/{account}/input" },
+  challengeResume: { method: "POST", path: "/api/browser-challenges/{account}/resume" },
+  permissionAdd: { method: "POST", path: "/api/permissions/people" },
+  permissionSave: { method: "PUT", path: "/api/permissions/people/{pid}" },
+  permissionAccount: { method: "PUT", path: "/api/permissions/people/{pid}/account" },
+  hookCheck: { method: "POST", path: "/api/meta-messaging/accounts/{aid}/check" },
+} as const;
+
+/** @deprecated Prefer accessViews; kept as alias for existing imports. */
+export const accessRoutes = accessViews;

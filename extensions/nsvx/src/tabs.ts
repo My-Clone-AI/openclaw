@@ -1,3 +1,4 @@
+import { accessTranslator } from "./access-i18n.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { aviationTranslator } from "./aviation-i18n.js";
 import { deviceTranslator } from "./device-i18n.js";
@@ -27,6 +28,7 @@ export const TABS = [
   "group",
   "fleet",
   "aviation",
+  "access",
   "legal",
   "research",
   "marketing",
@@ -47,6 +49,8 @@ export function isTab(value: string): value is Tab {
 
 export function tabLabel(locale: string, id: Tab): string {
   switch (id) {
+    case "access":
+      return accessTranslator(locale)(id);
     case "agenda":
       return agendaTranslator(locale)(id);
     case "aviation":
