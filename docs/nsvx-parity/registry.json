@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sources": {
     "nsvx": {
       "repo": "My-Clone-AI/clone",
@@ -10,11 +10,1313 @@
       "commit": "dfc33ec231d4afd31ae7eeb8b9b218575b39a596"
     }
   },
+  "families": {
+    "01": "Today, search and commands",
+    "02": "Messages",
+    "03": "People",
+    "04": "Calls and voice",
+    "05": "Tasks and automation",
+    "06": "Calendar and Google",
+    "07": "AI and inference",
+    "08": "Agents",
+    "09": "Grow and development",
+    "10": "Group companies",
+    "11": "Documents and Drive",
+    "12": "Finance",
+    "13": "Real estate",
+    "14": "Short-stay rentals",
+    "15": "Aviation",
+    "16": "TVDE and transport",
+    "17": "Legal",
+    "18": "Research and web",
+    "19": "Marketing and social",
+    "20": "Business and personal",
+    "21": "Permissions and integrations",
+    "22": "Everything else"
+  },
   "entries": [
+    {
+      "id": "home-today",
+      "title": "Today and decisions",
+      "family": "01",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [
+          "(root)"
+        ],
+        "apiPrefixes": [
+          "/api/today",
+          "/api/approvals"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "dashboard",
+          "approvals"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/today, /api/approvals; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/TodayScreen.tsx",
+          "backend/clone/api.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Native approvals cover tool runs; NSVX decisions cover business actions. Merging them is undecided."
+      ]
+    },
+    {
+      "id": "unified-search",
+      "title": "Unified search",
+      "family": "01",
+      "priority": "P1",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/find",
+          "/api/inspect"
+        ],
+        "sourceFiles": [
+          "backend/clone/experience_api.py",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/experience_api.py",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "activity-log",
+      "title": "Activity log",
+      "family": "01",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/"
+        ],
+        "backendPackages": [
+          "oplog"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai",
+          "/api/audit",
+          "/api/client-errors",
+          "/api/ops"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/oplog/api.py",
+          "web/src/screens/LiveTasks.tsx",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "logs",
+          "activity"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/ai; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/LiveTasks.tsx",
+          "backend/clone/oplog/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "The NSVX log and native logs hold different records.",
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "messages",
+      "title": "Messages and coverage",
+      "family": "02",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/mensagens"
+        ],
+        "backendPackages": [
+          "meta_messaging"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/attachments",
+          "/api/controls",
+          "/api/conversations",
+          "/api/messages",
+          "/api/meta-messaging",
+          "/api/outbox",
+          "/api/recordings",
+          "/api/reply-coverage",
+          "/api/voice-notes"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/meta_messaging/api.py",
+          "backend/clone/meta_messaging/instagram_api.py",
+          "backend/clone/meta_messaging/instagram_publish.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/Messages.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "WhatsApp",
+          "Instagram",
+          "Telegram",
+          "Gmail",
+          "Google Chat",
+          "SMS"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "channels",
+          "sessions"
+        ],
+        "gatewayMethods": [],
+        "extensions": [
+          "whatsapp"
+        ],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/conversations, /api/reply-coverage; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Messages.tsx",
+          "backend/clone/meta_messaging/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Native channels route to agents; a shared human inbox does not exist.",
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "quick-reply",
+      "title": "Quick Reply",
+      "family": "02",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/quick-reply"
+        ],
+        "backendPackages": [
+          "quick_reply"
+        ],
+        "jobPackages": [
+          "quick_reply"
+        ],
+        "apiPrefixes": [
+          "/api/quick-reply"
+        ],
+        "sourceFiles": [
+          "backend/clone/quick_reply/api.py",
+          "web/src/screens/QuickReply.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "WhatsApp",
+          "Instagram"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/quick-reply; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/QuickReply.tsx",
+          "backend/clone/quick_reply/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "people",
+      "title": "People and groups",
+      "family": "03",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/facts",
+          "/api/identities",
+          "/api/people",
+          "/api/social-groups",
+          "/api/subject"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/contact_details_api.py",
+          "backend/clone/history_api.py",
+          "backend/clone/interest_controls.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/People.tsx",
+          "web/src/screens/PersonDetail.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/people, /api/social-groups; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/People.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "social-context",
+      "title": "Social context",
+      "family": "03",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/context",
+          "/api/coverage",
+          "/api/mentions",
+          "/api/social"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/People.tsx",
+          "web/src/screens/PersonDetail.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [
+          "WhatsApp",
+          "Instagram"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/api.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/People.tsx",
+          "web/src/screens/PersonDetail.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "calls-voice",
+      "title": "Calls and voice",
+      "family": "04",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "calls",
+          "phone_lookup"
+        ],
+        "jobPackages": [
+          "calls"
+        ],
+        "apiPrefixes": [
+          "/api/call-requests",
+          "/api/calls",
+          "/api/memory",
+          "/api/phone-lookup",
+          "/api/voice"
+        ],
+        "sourceFiles": [
+          "backend/clone/calls/requests_api.py",
+          "backend/clone/gemini_tts_api.py",
+          "backend/clone/gpt_voice_api.py",
+          "backend/clone/phone_lookup/api.py",
+          "backend/clone/voice_api.py",
+          "web/src/screens/Apps.tsx",
+          "web/src/screens/Calls.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Telnyx",
+          "OpenAI voice"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "talk"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/calls, /api/voice; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Calls.tsx",
+          "backend/clone/calls/",
+          "backend/clone/phone_lookup/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "automations",
+      "title": "Automations",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas/auto"
+        ],
+        "backendPackages": [
+          "auto"
+        ],
+        "jobPackages": [
+          "auto"
+        ],
+        "apiPrefixes": [
+          "/api/auto"
+        ],
+        "sourceFiles": [
+          "backend/clone/auto/api.py",
+          "backend/clone/auto/share_api.py",
+          "web/src/screens/Auto.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "cron"
+        ],
+        "gatewayMethods": [
+          "cron.list"
+        ],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/auto; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Auto.tsx",
+          "backend/clone/auto/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "NSVX task format differs from native cron jobs."
+      ]
+    },
+    {
+      "id": "live-tasks",
+      "title": "Live task view",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas"
+        ],
+        "backendPackages": [
+          "live_tasks"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/live-sessions",
+          "/api/tarefas-ao-vivo"
+        ],
+        "sourceFiles": [
+          "backend/clone/live_sessions_api.py",
+          "backend/clone/live_tasks/api.py",
+          "web/src/screens/LiveTasks.tsx",
+          "web/src/screens/Missions.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "activity",
+          "sessions"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/tarefas-ao-vivo; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/LiveTasks.tsx",
+          "backend/clone/live_tasks/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "missions",
+      "title": "Tasks and missions",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas"
+        ],
+        "backendPackages": [
+          "(root)",
+          "agentos"
+        ],
+        "jobPackages": [
+          "agentos"
+        ],
+        "apiPrefixes": [
+          "/api/missions",
+          "/api/commands"
+        ],
+        "sourceFiles": [
+          "backend/clone/agency_outreach_api.py",
+          "backend/clone/api.py",
+          "web/src/screens/Missions.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "sessions",
+          "new-session"
+        ],
+        "gatewayMethods": [],
+        "extensions": [
+          "workboard"
+        ],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/missions, /api/commands; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Missions.tsx",
+          "backend/clone/agentos/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "autonomy-controls",
+      "title": "Autonomy, plans and fixes",
+      "family": "05",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/autonomy",
+          "/api/fix",
+          "/api/owner-requests",
+          "/api/plans",
+          "/api/standing-rules",
+          "/api/backlog-status",
+          "/api/golive",
+          "/api/obligations"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/autonomy_api.py",
+          "backend/clone/backlog_api.py",
+          "backend/clone/plan_feedback_api.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/Missions.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/api.py",
+          "backend/clone/autonomy_api.py",
+          "backend/clone/backlog_api.py",
+          "backend/clone/plan_feedback_api.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "agenda",
+      "title": "Agenda",
+      "family": "06",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/agenda"
+        ],
+        "backendPackages": [
+          "google_workspace"
+        ],
+        "jobPackages": [
+          "google_workspace"
+        ],
+        "apiPrefixes": [
+          "/api/workspace"
+        ],
+        "sourceFiles": [
+          "backend/clone/google_workspace/api.py",
+          "web/src/screens/Agenda.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Google Calendar",
+          "Google Meet",
+          "Google Tasks"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/workspace; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Agenda.tsx",
+          "backend/clone/google_workspace/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "ai-models",
+      "title": "AI models, routing and keys",
+      "family": "07",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "inference"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai",
+          "/api/claude",
+          "/api/v1"
+        ],
+        "sourceFiles": [
+          "backend/clone/inference/api.py",
+          "backend/clone/inference/api_keys_admin.py",
+          "backend/clone/inference/hermes_api.py",
+          "backend/clone/inference/local_training.py",
+          "backend/clone/inference/ops_api.py",
+          "web/src/screens/Ai.tsx",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Claude",
+          "Codex",
+          "Mac nodes"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "model-providers",
+          "model-setup",
+          "usage"
+        ],
+        "gatewayMethods": [
+          "models.list"
+        ],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Native pages cover providers and usage; NSVX routing rules stay in the inference service.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Ai.tsx",
+          "backend/clone/inference/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "architecture-providers",
+      "title": "Register the clone-ai provider",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "openclaw_admin"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/openclaw/providers"
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/providers_api.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "model-providers"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Native provider list covers reads; registration stays in openclaw_admin.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/openclaw_admin/providers_api.py",
+          "ops/openclaw/clone-ai-shim/README.md"
+        ],
+        "runtime": []
+      },
+      "blockers": [],
+      "unknowns": []
+    },
+    {
+      "id": "clone-ai-training",
+      "title": "clone-ai models and training",
+      "family": "07",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/v1/mac-bench",
+          "/v1/mac-training",
+          "/v1/models",
+          "/v1/chat",
+          "/v1/batches",
+          "/internal/inference"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/clone_ai_bench.py",
+          "backend/clone/inference/gateway.py",
+          "backend/clone/inference/service_api.py",
+          "backend/clone/training_transfer.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "inference service key"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Mac nodes"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/clone_ai_bench.py",
+          "backend/clone/inference/gateway.py",
+          "backend/clone/inference/service_api.py",
+          "backend/clone/training_transfer.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "agentos",
+      "title": "Action contracts and approvals",
+      "family": "08",
+      "priority": "P0",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "agentos"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/actions",
+          "/tasks",
+          "/approvals",
+          "/mcp"
+        ],
+        "sourceFiles": [
+          "backend/clone/agentos/rest_api.py",
+          "backend/clone/mcp_api.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF",
+          "action scopes"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/agentos/rest_api.py",
+          "backend/clone/mcp_api.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
     {
       "id": "architecture-chart",
       "title": "Agent org chart",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P0",
       "status": "missing",
       "nsvx": {
@@ -27,7 +1329,20 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/graph.py",
+          "web/src/components/OpenClawManager.tsx",
+          "web/src/logic/openclawGraph.ts",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [
@@ -39,9 +1354,27 @@
           "node.list",
           "sessions.list"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "None needed: read the same Gateway methods openclaw_admin reads.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -59,7 +1392,7 @@
     {
       "id": "architecture-move",
       "title": "Change who an agent reports to",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P0",
       "status": "missing",
       "nsvx": {
@@ -72,7 +1405,19 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/agents"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/mutations.py",
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
@@ -80,9 +1425,27 @@
           "config.get",
           "config.patch"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Same config.patch shape as openclaw_admin move_patch. Writes made here skip the NSVX version log.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -97,7 +1460,7 @@
     {
       "id": "architecture-assign",
       "title": "Run an agent on a device",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P1",
       "status": "missing",
       "nsvx": {
@@ -110,7 +1473,17 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/agents"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/mutations.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
@@ -118,9 +1491,27 @@
           "config.patch",
           "node.list"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "config.patch on tools.exec.node, as openclaw_admin assign_patch.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -132,52 +1523,9 @@
       "unknowns": []
     },
     {
-      "id": "architecture-pause",
-      "title": "Pause and resume an agent",
-      "category": "OpenClaw admin",
-      "priority": "P1",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/apps"
-        ],
-        "backendPackages": [
-          "openclaw_admin"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/ai/openclaw/agents"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [
-          "config.patch",
-          "sessions.abort"
-        ],
-        "extensions": []
-      },
-      "adapter": "Paused state lives in the NSVX database, so a native control must call NSVX or the Gateway needs its own paused state.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "backend/clone/openclaw_admin/service.py",
-          "backend/clone/openclaw_admin/history.py",
-          "backend/migrations/272_openclaw_admin_paused.sql"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Which owner should hold paused state."
-      ]
-    },
-    {
       "id": "architecture-history",
       "title": "Config history and rollback",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P1",
       "status": "missing",
       "nsvx": {
@@ -190,16 +1538,46 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/history"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/history.py",
+          "backend/migrations/271_openclaw_admin_history.sql",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [
           "audit.activity.list"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Read the NSVX version log through a proxy; rollback stays in openclaw_admin.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -209,14 +1587,87 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": []
     },
     {
+      "id": "architecture-pause",
+      "title": "Pause and resume an agent",
+      "family": "08",
+      "priority": "P1",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "openclaw_admin"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/openclaw/agents"
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/history.py",
+          "backend/clone/openclaw_admin/service.py",
+          "backend/migrations/272_openclaw_admin_paused.sql",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [
+          "config.patch",
+          "sessions.abort"
+        ],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Paused state lives in the NSVX database, so a native control must call NSVX or the Gateway needs its own paused state.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/openclaw_admin/service.py",
+          "backend/clone/openclaw_admin/history.py",
+          "backend/migrations/272_openclaw_admin_paused.sql"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Which owner should hold paused state."
+      ]
+    },
+    {
       "id": "architecture-create",
       "title": "Create and delete agents",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P2",
       "status": "native",
       "nsvx": {
@@ -229,7 +1680,17 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/agents"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [
@@ -239,9 +1700,27 @@
           "agents.create",
           "agents.delete"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "None needed: Control UI already calls these Gateway methods.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -254,9 +1733,78 @@
       "unknowns": []
     },
     {
+      "id": "architecture-devices",
+      "title": "Approve and reject devices",
+      "family": "08",
+      "priority": "P2",
+      "status": "native",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "openclaw_admin"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/openclaw/devices"
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "devices"
+        ],
+        "gatewayMethods": [
+          "device.pair.approve",
+          "device.pair.reject"
+        ],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "None needed: the Devices page already calls these methods.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/openclaw_admin/service.py",
+          "ui/src/pages/devices/view-pairing.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [],
+      "unknowns": []
+    },
+    {
       "id": "architecture-instructions",
       "title": "Agent instructions",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P2",
       "status": "partial",
       "nsvx": {
@@ -269,7 +1817,17 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/agents"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/mutations.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [
@@ -279,9 +1837,27 @@
           "agents.files.get",
           "agents.files.set"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "None for plain files. The NSVX managed block inside an instructions file has no native editor.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -295,7 +1871,7 @@
     {
       "id": "architecture-permissions",
       "title": "Agent tool permissions",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P2",
       "status": "partial",
       "nsvx": {
@@ -308,7 +1884,17 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/agents"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/mutations.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [
@@ -318,9 +1904,27 @@
           "tools.effective",
           "config.patch"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "None needed for reads; NSVX profile presets have no native picker.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -332,49 +1936,9 @@
       "unknowns": []
     },
     {
-      "id": "architecture-devices",
-      "title": "Approve and reject devices",
-      "category": "OpenClaw admin",
-      "priority": "P2",
-      "status": "native",
-      "nsvx": {
-        "webRoutes": [
-          "/apps"
-        ],
-        "backendPackages": [
-          "openclaw_admin"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/ai/openclaw/devices"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "devices"
-        ],
-        "gatewayMethods": [
-          "device.pair.approve",
-          "device.pair.reject"
-        ],
-        "extensions": []
-      },
-      "adapter": "None needed: the Devices page already calls these methods.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "backend/clone/openclaw_admin/service.py",
-          "ui/src/pages/devices/view-pairing.tsx"
-        ],
-        "runtime": []
-      },
-      "blockers": [],
-      "unknowns": []
-    },
-    {
       "id": "architecture-policies",
       "title": "Fleet defaults",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P2",
       "status": "partial",
       "nsvx": {
@@ -387,7 +1951,18 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/policies"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [
@@ -396,9 +1971,27 @@
         "gatewayMethods": [
           "config.patch"
         ],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "None needed: same config paths. The NSVX paid-provider block has no native rule.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -412,7 +2005,7 @@
     {
       "id": "architecture-suggest",
       "title": "AI agent suggestions",
-      "category": "OpenClaw admin",
+      "family": "08",
       "priority": "P2",
       "status": "missing",
       "nsvx": {
@@ -425,14 +2018,43 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai/openclaw/suggest"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Proxy to openclaw_admin suggest; degrade by hiding the control when unavailable.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -441,94 +2063,82 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": []
     },
     {
-      "id": "architecture-providers",
-      "title": "Register the clone-ai provider",
-      "category": "OpenClaw admin",
+      "id": "skills",
+      "title": "Skills",
+      "family": "08",
       "priority": "P2",
-      "status": "partial",
+      "status": "missing",
       "nsvx": {
         "webRoutes": [
           "/apps"
         ],
         "backendPackages": [
-          "openclaw_admin"
+          "(root)"
         ],
         "jobPackages": [],
         "apiPrefixes": [
-          "/api/ai/openclaw/providers"
-        ]
+          "/api/skills",
+          "/api/grow-skills"
+        ],
+        "sourceFiles": [
+          "backend/clone/grow_skills_api.py",
+          "backend/clone/skills_api.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [
-          "model-providers"
-        ],
+        "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Native provider list covers reads; registration stays in openclaw_admin.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "backend/clone/openclaw_admin/providers_api.py",
-          "ops/openclaw/clone-ai-shim/README.md"
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
         ],
-        "runtime": []
-      },
-      "blockers": [],
-      "unknowns": []
-    },
-    {
-      "id": "ai-models",
-      "title": "AI models, routing and keys",
-      "category": "AI",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/apps"
-        ],
-        "backendPackages": [
-          "inference"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/ai"
+        "passed": [
+          "discovery"
         ]
       },
-      "openclaw": {
-        "uiRoutes": [
-          "model-providers",
-          "model-setup",
-          "usage"
-        ],
-        "gatewayMethods": [
-          "models.list"
-        ],
-        "extensions": []
-      },
-      "adapter": "Native pages cover providers and usage; NSVX routing rules stay in the inference service.",
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/Ai.tsx",
-          "backend/clone/inference/"
+          "backend/clone/grow_skills_api.py",
+          "backend/clone/skills_api.py",
+          "web/src/screens/Apps.tsx"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": []
     },
     {
       "id": "group-grow",
       "title": "Development progress board",
-      "category": "Operations",
+      "family": "09",
       "priority": "P1",
       "status": "missing",
       "nsvx": {
@@ -541,16 +2151,47 @@
         "jobPackages": [],
         "apiPrefixes": [
           "/api/grow"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/grow/api.py",
+          "web/src/screens/GroupCompanies.tsx",
+          "web/src/screens/GroupGrow.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [
+          "GitHub"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
         "extensions": [
           "workboard"
-        ]
+        ],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/grow; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -560,564 +2201,160 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether Workboard should display these jobs or keep a separate board."
       ]
     },
     {
-      "id": "live-tasks",
-      "title": "Live task view",
-      "category": "Operations",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/tarefas"
-        ],
-        "backendPackages": [
-          "live_tasks"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/tarefas-ao-vivo"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "activity",
-          "sessions"
-        ],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/tarefas-ao-vivo; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/LiveTasks.tsx",
-          "backend/clone/live_tasks/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": []
-    },
-    {
-      "id": "home-today",
-      "title": "Today and decisions",
-      "category": "Core",
-      "priority": "P1",
-      "status": "partial",
+      "id": "build-me",
+      "title": "Build Me requests",
+      "family": "09",
+      "priority": "P3",
+      "status": "missing",
       "nsvx": {
         "webRoutes": [
           "/"
         ],
         "backendPackages": [
-          "(root)"
-        ],
-        "jobPackages": [
-          "(root)"
-        ],
-        "apiPrefixes": [
-          "/api/today",
-          "/api/approvals"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "dashboard",
-          "approvals"
-        ],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/today, /api/approvals; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/TodayScreen.tsx",
-          "backend/clone/api.py"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Native approvals cover tool runs; NSVX decisions cover business actions. Merging them is undecided."
-      ]
-    },
-    {
-      "id": "missions",
-      "title": "Tasks and missions",
-      "category": "Core",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/tarefas"
-        ],
-        "backendPackages": [
-          "(root)",
-          "agentos"
-        ],
-        "jobPackages": [
-          "agentos"
-        ],
-        "apiPrefixes": [
-          "/api/missions",
-          "/api/commands"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "sessions",
-          "new-session"
-        ],
-        "gatewayMethods": [],
-        "extensions": [
-          "workboard"
-        ]
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/missions, /api/commands; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Missions.tsx",
-          "backend/clone/agentos/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": []
-    },
-    {
-      "id": "automations",
-      "title": "Automations",
-      "category": "Core",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/tarefas/auto"
-        ],
-        "backendPackages": [
-          "auto"
-        ],
-        "jobPackages": [
-          "auto"
-        ],
-        "apiPrefixes": [
-          "/api/auto"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "cron"
-        ],
-        "gatewayMethods": [
-          "cron.list"
-        ],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/auto; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Auto.tsx",
-          "backend/clone/auto/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "NSVX task format differs from native cron jobs."
-      ]
-    },
-    {
-      "id": "settings-apps",
-      "title": "Apps, logins and devices",
-      "category": "Core",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/apps"
-        ],
-        "backendPackages": [
-          "credentials",
-          "browser",
-          "subscriptions"
-        ],
-        "jobPackages": [
-          "credentials"
-        ],
-        "apiPrefixes": [
-          "/api/apps",
-          "/api/credentials"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "apps",
-          "plugins",
-          "devices"
-        ],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/apps, /api/credentials; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Apps.tsx",
-          "backend/clone/credentials/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": []
-    },
-    {
-      "id": "research",
-      "title": "Research",
-      "category": "Work",
-      "priority": "P2",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/pesquisas"
-        ],
-        "backendPackages": [
-          "research"
-        ],
-        "jobPackages": [
-          "research"
-        ],
-        "apiPrefixes": [
-          "/api/research"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/research; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Research.tsx",
-          "backend/clone/research/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "agenda",
-      "title": "Agenda",
-      "category": "Work",
-      "priority": "P2",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/agenda"
-        ],
-        "backendPackages": [
-          "google_workspace"
-        ],
-        "jobPackages": [
-          "google_workspace"
-        ],
-        "apiPrefixes": [
-          "/api/workspace"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/workspace; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Agenda.tsx",
-          "backend/clone/google_workspace/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "messages",
-      "title": "Messages and coverage",
-      "category": "Communication",
-      "priority": "P1",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/mensagens"
-        ],
-        "backendPackages": [
-          "meta_messaging"
+          "build_me"
         ],
         "jobPackages": [],
         "apiPrefixes": [
-          "/api/conversations",
-          "/api/reply-coverage"
-        ]
+          "/api/build-me"
+        ],
+        "sourceFiles": [
+          "backend/clone/build_me/api.py",
+          "backend/clone/build_me/peer.py",
+          "web/src/buildMe/BuildMe.tsx",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [
-          "channels",
-          "sessions"
-        ],
+        "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": [
-          "whatsapp"
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/build-me; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
         ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/conversations, /api/reply-coverage; NSVX stays the owner of data and jobs.",
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/Messages.tsx",
-          "backend/clone/meta_messaging/"
+          "web/src/buildMe/BuildMe.tsx",
+          "backend/clone/build_me/"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
-        "Native channels route to agents; a shared human inbox does not exist.",
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "quick-reply",
-      "title": "Quick Reply",
-      "category": "Communication",
+      "id": "group-companies",
+      "title": "Group companies",
+      "family": "10",
       "priority": "P2",
       "status": "missing",
       "nsvx": {
         "webRoutes": [
-          "/quick-reply"
+          "/empresas-do-grupo"
         ],
         "backendPackages": [
-          "quick_reply"
+          "group_companies",
+          "grupo_doit",
+          "grupo_pay"
         ],
         "jobPackages": [
-          "quick_reply"
+          "grupo_doit",
+          "grupo_pay"
         ],
         "apiPrefixes": [
-          "/api/quick-reply"
-        ]
+          "/api/cross-app",
+          "/api/doit",
+          "/api/group-companies",
+          "/api/pay"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/api.py",
+          "backend/clone/group_companies/mail/api.py",
+          "backend/clone/group_companies/marketing/admin_api.py",
+          "backend/clone/group_companies/servers.py",
+          "backend/clone/grupo_doit/api.py",
+          "web/src/screens/GroupCompanies.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "GitHub",
+          "Group apps"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/quick-reply; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/QuickReply.tsx",
-          "backend/clone/quick_reply/"
+      "adapter": "Plugin Gateway methods proxy NSVX /api/group-companies, /api/doit, /api/pay; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
         ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "people",
-      "title": "People and groups",
-      "category": "Communication",
-      "priority": "P2",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/pessoas"
-        ],
-        "backendPackages": [],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/people",
-          "/api/social-groups"
+        "passed": [
+          "discovery"
         ]
       },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/people, /api/social-groups; NSVX stays the owner of data and jobs.",
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/People.tsx"
+          "web/src/screens/GroupCompanies.tsx",
+          "backend/clone/group_companies/",
+          "backend/clone/grupo_doit/",
+          "backend/clone/grupo_pay/"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "calls-voice",
-      "title": "Calls and voice",
-      "category": "Communication",
-      "priority": "P2",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/apps"
-        ],
-        "backendPackages": [
-          "calls",
-          "phone_lookup"
-        ],
-        "jobPackages": [
-          "calls"
-        ],
-        "apiPrefixes": [
-          "/api/calls",
-          "/api/voice"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "talk"
-        ],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/calls, /api/voice; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Calls.tsx",
-          "backend/clone/calls/",
-          "backend/clone/phone_lookup/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "permissions",
-      "title": "Shared file access",
-      "category": "Core",
-      "priority": "P2",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/permissoes",
-          "/acesso"
-        ],
-        "backendPackages": [],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/permissions",
-          "/api/file-access"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/permissions, /api/file-access; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Permissions.tsx"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "finance",
-      "title": "Finance and accounting",
-      "category": "Business",
-      "priority": "P2",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/financas"
-        ],
-        "backendPackages": [
-          "finance",
-          "ledger"
-        ],
-        "jobPackages": [
-          "finance",
-          "ledger"
-        ],
-        "apiPrefixes": [
-          "/api/finance",
-          "/api/ledger"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/finance, /api/ledger; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Finances.tsx",
-          "backend/clone/finance/",
-          "backend/clone/ledger/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1126,7 +2363,7 @@
     {
       "id": "documents",
       "title": "Documents, forms and signatures",
-      "category": "Business",
+      "family": "11",
       "priority": "P2",
       "status": "missing",
       "nsvx": {
@@ -1146,14 +2383,49 @@
           "/api/documents",
           "/api/signatures",
           "/api/pdf-forms"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/documents/api.py",
+          "backend/clone/documents/quick_documents_api.py",
+          "backend/clone/documents/quick_invoice_api.py",
+          "backend/clone/pdf_forms/api.py",
+          "backend/clone/signatures/api.py",
+          "web/src/screens/Documents.tsx",
+          "web/src/screens/Signatures.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Google Drive"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/documents, /api/signatures, /api/pdf-forms; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1165,7 +2437,7 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1174,7 +2446,7 @@
     {
       "id": "drive",
       "title": "Drive",
-      "category": "Business",
+      "family": "11",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1187,14 +2459,46 @@
         ],
         "apiPrefixes": [
           "/api/drive"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "web/src/screens/Documents.tsx",
+          "web/src/screens/PersonDrive.tsx",
+          "web/src/screens/Signatures.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Google Drive"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/drive; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1203,7 +2507,230 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "finance",
+      "title": "Finance and accounting",
+      "family": "12",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/financas"
+        ],
+        "backendPackages": [
+          "finance",
+          "ledger"
+        ],
+        "jobPackages": [
+          "finance",
+          "ledger"
+        ],
+        "apiPrefixes": [
+          "/api/finance",
+          "/api/ledger"
+        ],
+        "sourceFiles": [
+          "backend/clone/finance/api.py",
+          "backend/clone/finance/bank_api.py",
+          "backend/clone/finance/tax_portals.py",
+          "backend/clone/ledger/api.py",
+          "backend/clone/subscriptions/api.py",
+          "web/src/screens/Finances.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Banks",
+          "Portal das Finanças",
+          "e-Fatura"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/finance, /api/ledger; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Finances.tsx",
+          "backend/clone/finance/",
+          "backend/clone/ledger/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "bank-broker",
+      "title": "Bank broker service",
+      "family": "12",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/financas"
+        ],
+        "backendPackages": [
+          "credentials"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/keys",
+          "/rotate",
+          "/seal",
+          "/sessions",
+          "/transfers",
+          "/validate-envelope"
+        ],
+        "sourceFiles": [
+          "backend/clone/credentials/bank_service.py",
+          "web/src/screens/Finances.tsx"
+        ],
+        "permissions": [
+          "internal service only"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Banks"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/credentials/bank_service.py",
+          "web/src/screens/Finances.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "mortgage",
+      "title": "Mortgage",
+      "family": "13",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/empresarial"
+        ],
+        "backendPackages": [
+          "mortgage"
+        ],
+        "jobPackages": [
+          "mortgage"
+        ],
+        "apiPrefixes": [
+          "/api/mortgage"
+        ],
+        "sourceFiles": [
+          "backend/clone/mortgage/api.py",
+          "web/src/screens/Business.tsx",
+          "web/src/screens/Mortgage.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/mortgage; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Mortgage.tsx",
+          "backend/clone/mortgage/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1212,7 +2739,7 @@
     {
       "id": "real-estate",
       "title": "Real estate",
-      "category": "Business",
+      "family": "13",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1228,16 +2755,51 @@
           "properties"
         ],
         "apiPrefixes": [
+          "/api/properties",
           "/api/realestate",
-          "/api/properties"
-        ]
+          "/realestate"
+        ],
+        "sourceFiles": [
+          "backend/clone/browser/portal_runtime.py",
+          "backend/clone/properties/api.py",
+          "backend/clone/realestate/api.py",
+          "backend/clone/realestate/inspections/api.py",
+          "web/src/screens/Properties.tsx",
+          "web/src/screens/RealEstate.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Real-estate portals"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/realestate, /api/properties; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1248,7 +2810,7 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1257,7 +2819,7 @@
     {
       "id": "rentals",
       "title": "Rentals",
-      "category": "Business",
+      "family": "13",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1274,14 +2836,45 @@
         "apiPrefixes": [
           "/api/arrendamento",
           "/api/rental-contracts"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/arrendamento/api.py",
+          "backend/clone/rental_contracts/api.py",
+          "web/src/screens/Arrendamento.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Portal das Finanças"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/arrendamento, /api/rental-contracts; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1292,216 +2885,89 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "mortgage",
-      "title": "Mortgage",
-      "category": "Business",
+      "id": "short-stay",
+      "title": "Short-stay rentals",
+      "family": "14",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
         "webRoutes": [
-          "/empresarial"
+          "/al",
+          "/equipa"
         ],
         "backendPackages": [
-          "mortgage"
+          "al"
         ],
         "jobPackages": [
-          "mortgage"
+          "al"
         ],
         "apiPrefixes": [
-          "/api/mortgage"
-        ]
+          "/api/al",
+          "/capture",
+          "/chat",
+          "/dictate",
+          "/sheet-access",
+          "/suggest"
+        ],
+        "sourceFiles": [
+          "backend/clone/al/airbnb_api.py",
+          "backend/clone/al/api.py",
+          "backend/clone/al/api_admin.py",
+          "backend/clone/al/assistant.py",
+          "backend/clone/al/management.py",
+          "web/src/screens/al/AlScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Airbnb",
+          "Booking"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/mortgage; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Mortgage.tsx",
-          "backend/clone/mortgage/"
+      "adapter": "Plugin Gateway methods proxy NSVX /api/al; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
         ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "legal",
-      "title": "Legal cases",
-      "category": "Business",
-      "priority": "P3",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/processos"
-        ],
-        "backendPackages": [
-          "cases"
-        ],
-        "jobPackages": [
-          "cases"
-        ],
-        "apiPrefixes": [
-          "/api/cases",
-          "/api/legal-reviews"
+        "passed": [
+          "discovery"
         ]
       },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/cases, /api/legal-reviews; NSVX stays the owner of data and jobs.",
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/LegalCases.tsx",
-          "backend/clone/cases/"
+          "web/src/screens/al/AlScreen.tsx",
+          "backend/clone/al/"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "utilities",
-      "title": "Home utilities",
-      "category": "Business",
-      "priority": "P3",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/utilities"
-        ],
-        "backendPackages": [
-          "utilities"
-        ],
-        "jobPackages": [
-          "utilities"
-        ],
-        "apiPrefixes": [
-          "/api/utilities"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/utilities; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/Utilities.tsx",
-          "backend/clone/utilities/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "orders",
-      "title": "Orders",
-      "category": "Business",
-      "priority": "P3",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/encomendas",
-          "/pessoal"
-        ],
-        "backendPackages": [
-          "orders",
-          "commerce"
-        ],
-        "jobPackages": [
-          "orders"
-        ],
-        "apiPrefixes": [
-          "/api/orders"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/orders; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/screens/OnlineOrders.tsx",
-          "backend/clone/orders/",
-          "backend/clone/commerce/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "warranties",
-      "title": "Warranties",
-      "category": "Business",
-      "priority": "P3",
-      "status": "missing",
-      "nsvx": {
-        "webRoutes": [
-          "/garantias"
-        ],
-        "backendPackages": [
-          "warranties"
-        ],
-        "jobPackages": [
-          "warranties"
-        ],
-        "apiPrefixes": [
-          "/api/warranties"
-        ]
-      },
-      "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/warranties; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/warranties/Warranties.tsx",
-          "backend/clone/warranties/"
-        ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1510,7 +2976,7 @@
     {
       "id": "aviation",
       "title": "Aviation",
-      "category": "Business",
+      "family": "15",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1528,15 +2994,49 @@
         ],
         "apiPrefixes": [
           "/api/aviation",
-          "/api/work"
-        ]
+          "/api/work",
+          "/aviation"
+        ],
+        "sourceFiles": [
+          "backend/clone/airline/api.py",
+          "backend/clone/aviation/api.py",
+          "backend/clone/browser/checkin_runtime.py",
+          "web/src/screens/Aviation.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Airline portal",
+          "Email"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/aviation, /api/work; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1547,7 +3047,79 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "transports",
+      "title": "Transports",
+      "family": "16",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/transportes"
+        ],
+        "backendPackages": [
+          "transports"
+        ],
+        "jobPackages": [
+          "transports"
+        ],
+        "apiPrefixes": [
+          "/api/transports"
+        ],
+        "sourceFiles": [
+          "backend/clone/transports/api.py",
+          "web/src/screens/Transports.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Uber",
+          "Bolt"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/transports; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Transports.tsx",
+          "backend/clone/transports/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
@@ -1556,7 +3128,7 @@
     {
       "id": "tvde",
       "title": "TVDE fleet",
-      "category": "Business",
+      "family": "16",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1572,17 +3144,53 @@
           "tvde"
         ],
         "apiPrefixes": [
-          "/api/tvde",
+          "/api/access",
           "/api/driver",
-          "/api/guest"
-        ]
+          "/api/guest",
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/api.py",
+          "backend/clone/tvde/api_finance.py",
+          "backend/clone/tvde/api_intel.py",
+          "backend/clone/tvde/api_ops.py",
+          "backend/clone/tvde/api_portal.py",
+          "web/src/screens/Tvde.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Uber",
+          "Bolt"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/tvde, /api/driver, /api/guest; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1592,99 +3200,231 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "transports",
-      "title": "Transports",
-      "category": "Business",
+      "id": "legal",
+      "title": "Legal cases",
+      "family": "17",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
         "webRoutes": [
-          "/transportes"
+          "/processos"
         ],
         "backendPackages": [
-          "transports"
+          "cases"
         ],
         "jobPackages": [
-          "transports"
+          "cases"
         ],
         "apiPrefixes": [
-          "/api/transports"
-        ]
+          "/api/cases",
+          "/api/legal-reviews",
+          "/api/procedures"
+        ],
+        "sourceFiles": [
+          "backend/clone/cases/api.py",
+          "backend/clone/legal_reply_api.py",
+          "backend/clone/procedure_api.py",
+          "web/src/screens/LegalCases.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/transports; NSVX stays the owner of data and jobs.",
+      "adapter": "Plugin Gateway methods proxy NSVX /api/cases, /api/legal-reviews; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/Transports.tsx",
-          "backend/clone/transports/"
+          "web/src/screens/LegalCases.tsx",
+          "backend/clone/cases/"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "short-stay",
-      "title": "Short-stay rentals",
-      "category": "Business",
-      "priority": "P3",
+      "id": "research",
+      "title": "Research",
+      "family": "18",
+      "priority": "P2",
       "status": "missing",
       "nsvx": {
         "webRoutes": [
-          "/al",
-          "/equipa"
+          "/pesquisas"
         ],
         "backendPackages": [
-          "al"
+          "research"
         ],
         "jobPackages": [
-          "al"
+          "research"
         ],
         "apiPrefixes": [
-          "/api/al"
-        ]
+          "/api/research"
+        ],
+        "sourceFiles": [
+          "backend/clone/research/api.py",
+          "web/src/screens/Research.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Chrome"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/al; NSVX stays the owner of data and jobs.",
+      "adapter": "Plugin Gateway methods proxy NSVX /api/research; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/al/AlScreen.tsx",
-          "backend/clone/al/"
+          "web/src/screens/Research.tsx",
+          "backend/clone/research/"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
+    },
+    {
+      "id": "marketing",
+      "title": "Marketing",
+      "family": "19",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies",
+          "meta_messaging"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/marketing",
+          "/api/marketing"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/marketing/admin_api.py",
+          "backend/clone/group_companies/marketing/inventory_api.py",
+          "web/src/screens/GroupCompanies.tsx",
+          "web/src/screens/MarketingAdmin.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Instagram"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/marketing/inventory_api.py",
+          "web/src/screens/GroupCompanies.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
     },
     {
       "id": "business",
       "title": "Business workspace",
-      "category": "Business",
+      "family": "20",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1699,14 +3439,50 @@
         ],
         "apiPrefixes": [
           "/api/business"
-        ]
+        ],
+        "sourceFiles": [
+          "backend/clone/business/bolt_api.py",
+          "backend/clone/business/fidelidade_api.py",
+          "backend/clone/business/prio_api.py",
+          "backend/clone/business/workflows_api.py",
+          "backend/clone/transports/business_api.py",
+          "web/src/screens/Business.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Uber",
+          "Bolt",
+          "Prio"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
       "adapter": "Plugin Gateway methods proxy NSVX /api/business; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
@@ -1716,64 +3492,749 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "group-companies",
-      "title": "Group companies",
-      "category": "Operations",
+      "id": "orders",
+      "title": "Orders",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/encomendas",
+          "/pessoal"
+        ],
+        "backendPackages": [
+          "orders",
+          "commerce"
+        ],
+        "jobPackages": [
+          "orders"
+        ],
+        "apiPrefixes": [
+          "/api/orders"
+        ],
+        "sourceFiles": [
+          "backend/clone/commerce/amazon.py",
+          "backend/clone/commerce/amazon_returns.py",
+          "backend/clone/orders/api.py",
+          "web/src/screens/OnlineOrders.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Amazon"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/orders; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/OnlineOrders.tsx",
+          "backend/clone/orders/",
+          "backend/clone/commerce/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "utilities",
+      "title": "Home utilities",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/utilities"
+        ],
+        "backendPackages": [
+          "utilities"
+        ],
+        "jobPackages": [
+          "utilities"
+        ],
+        "apiPrefixes": [
+          "/api/utilities"
+        ],
+        "sourceFiles": [
+          "backend/clone/utilities/api.py",
+          "backend/clone/utilities/endesa_api.py",
+          "backend/clone/utilities/meter_readings/api.py",
+          "web/src/screens/Utilities.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Endesa",
+          "NOS"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/utilities; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Utilities.tsx",
+          "backend/clone/utilities/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "warranties",
+      "title": "Warranties",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/garantias"
+        ],
+        "backendPackages": [
+          "warranties"
+        ],
+        "jobPackages": [
+          "warranties"
+        ],
+        "apiPrefixes": [
+          "/api/warranties"
+        ],
+        "sourceFiles": [
+          "backend/clone/warranties/api.py",
+          "web/src/warranties/Warranties.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/warranties; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/warranties/Warranties.tsx",
+          "backend/clone/warranties/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "owner-auth",
+      "title": "Sign-in and devices",
+      "family": "21",
+      "priority": "P1",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/auth"
+        ],
+        "sourceFiles": [
+          "backend/clone/apple_signin.py",
+          "backend/clone/auth.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "public sign-in",
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Passkeys",
+          "Apple"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/apple_signin.py",
+          "backend/clone/auth.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "settings-apps",
+      "title": "Apps, logins and devices",
+      "family": "21",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "credentials",
+          "browser",
+          "subscriptions"
+        ],
+        "jobPackages": [
+          "credentials"
+        ],
+        "apiPrefixes": [
+          "/api/apps",
+          "/api/credentials",
+          "/api/portal-code-events"
+        ],
+        "sourceFiles": [
+          "backend/clone/api.py",
+          "backend/clone/browser_recovery_api.py",
+          "backend/clone/credentials/api.py",
+          "backend/clone/google_web.py",
+          "backend/clone/social_api.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Chrome",
+          "Google"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "apps",
+          "plugins",
+          "devices"
+        ],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/apps, /api/credentials; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Apps.tsx",
+          "backend/clone/credentials/"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "browser-sessions",
+      "title": "Browser sessions",
+      "family": "21",
       "priority": "P2",
       "status": "missing",
       "nsvx": {
         "webRoutes": [
-          "/empresas-do-grupo"
+          "/apps"
         ],
         "backendPackages": [
-          "group_companies",
-          "grupo_doit",
-          "grupo_pay"
+          "browser"
         ],
-        "jobPackages": [
-          "grupo_doit",
-          "grupo_pay"
-        ],
+        "jobPackages": [],
         "apiPrefixes": [
-          "/api/group-companies",
-          "/api/doit",
-          "/api/pay"
-        ]
+          "/accounts",
+          "/api/browser-challenges",
+          "/challenges",
+          "/observation",
+          "/maintenance"
+        ],
+        "sourceFiles": [
+          "backend/clone/browser/challenge_api.py",
+          "backend/clone/browser/instagram_voice_runtime.py",
+          "backend/clone/browser/recovery.py",
+          "backend/clone/browser/service.py",
+          "backend/clone/browser/whatsapp_capture.py",
+          "web/src/screens/Apps.tsx"
+        ],
+        "permissions": [
+          "internal service only"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Chrome"
+        ],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/group-companies, /api/doit, /api/pay; NSVX stays the owner of data and jobs.",
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/GroupCompanies.tsx",
-          "backend/clone/group_companies/",
-          "backend/clone/grupo_doit/",
-          "backend/clone/grupo_pay/"
+          "backend/clone/browser/challenge_api.py",
+          "backend/clone/browser/instagram_voice_runtime.py",
+          "backend/clone/browser/recovery.py",
+          "backend/clone/browser/service.py"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "permissions",
+      "title": "Shared file access",
+      "family": "21",
+      "priority": "P2",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/permissoes",
+          "/acesso"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/permissions",
+          "/api/file-access"
+        ],
+        "sourceFiles": [
+          "backend/clone/permissions_api.py",
+          "web/src/screens/Permissions.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "Plugin Gateway methods proxy NSVX /api/permissions, /api/file-access; NSVX stays the owner of data and jobs.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Permissions.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
       ]
     },
     {
-      "id": "build-me",
-      "title": "Build Me requests",
-      "category": "Operations",
+      "id": "provider-webhooks",
+      "title": "Provider webhooks",
+      "family": "21",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/hooks",
+          "/oauth"
+        ],
+        "sourceFiles": [
+          "backend/clone/calls/sip_bridge.py",
+          "backend/clone/calls/webhook.py",
+          "backend/clone/documents/api.py",
+          "backend/clone/google_workspace/webhooks.py",
+          "backend/clone/voice_service.py"
+        ],
+        "permissions": [
+          "provider signature"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Telnyx",
+          "Twilio",
+          "WhatsApp",
+          "Google",
+          "OpenAI"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/calls/sip_bridge.py",
+          "backend/clone/calls/webhook.py",
+          "backend/clone/documents/api.py",
+          "backend/clone/google_workspace/webhooks.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "desktop-companion",
+      "title": "Desktop app",
+      "family": "22",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/desktop"
+        ],
+        "sourceFiles": [
+          "backend/clone/desktop_memory.py",
+          "backend/clone/desktop_skills.py",
+          "backend/clone/desktop_tasks.py"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/desktop_memory.py",
+          "backend/clone/desktop_skills.py",
+          "backend/clone/desktop_tasks.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "health-and-legal",
+      "title": "Health and legal pages",
+      "family": "22",
+      "priority": "P3",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/health",
+          "/healthz",
+          "/readyz",
+          "/runtimez",
+          "/api/runtime",
+          "/privacy",
+          "/terms",
+          "/cookies",
+          "/privacidade",
+          "/termos",
+          "/data-deletion"
+        ],
+        "sourceFiles": [
+          "backend/clone/browser/service.py",
+          "backend/clone/credentials/bank_service.py",
+          "backend/clone/legal.py",
+          "backend/clone/main.py",
+          "backend/clone/telnyx_dev_service.py"
+        ],
+        "permissions": [
+          "public"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/browser/service.py",
+          "backend/clone/credentials/bank_service.py",
+          "backend/clone/legal.py",
+          "backend/clone/main.py"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "offline-sync",
+      "title": "Offline sync",
+      "family": "22",
       "priority": "P3",
       "status": "missing",
       "nsvx": {
@@ -1781,76 +4242,59 @@
           "/"
         ],
         "backendPackages": [
-          "build_me"
+          "(root)"
         ],
         "jobPackages": [],
         "apiPrefixes": [
-          "/api/build-me"
-        ]
+          "/api/sync"
+        ],
+        "sourceFiles": [
+          "backend/clone/offline_sync.py",
+          "web/src/screens/TodayScreen.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
       },
       "openclaw": {
         "uiRoutes": [],
         "gatewayMethods": [],
-        "extensions": []
+        "extensions": [],
+        "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/build-me; NSVX stays the owner of data and jobs.",
-      "evidence": {
-        "level": "source",
-        "source": [
-          "web/src/buildMe/BuildMe.tsx",
-          "backend/clone/build_me/"
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
         ],
-        "runtime": []
-      },
-      "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
-      ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
-    },
-    {
-      "id": "activity-log",
-      "title": "Activity log",
-      "category": "Operations",
-      "priority": "P3",
-      "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/"
-        ],
-        "backendPackages": [
-          "oplog"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/ai"
+        "passed": [
+          "discovery"
         ]
       },
-      "openclaw": {
-        "uiRoutes": [
-          "logs",
-          "activity"
-        ],
-        "gatewayMethods": [],
-        "extensions": []
-      },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/ai; NSVX stays the owner of data and jobs.",
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/LiveTasks.tsx",
-          "backend/clone/oplog/"
+          "backend/clone/offline_sync.py",
+          "web/src/screens/TodayScreen.tsx"
         ],
         "runtime": []
       },
       "blockers": [
-        "NSVX routes need the owner session and CSRF token; no service credential exists for a non-browser caller."
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
       ],
-      "unknowns": [
-        "The NSVX log and native logs hold different records.",
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     }
   ]
 }

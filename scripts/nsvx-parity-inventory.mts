@@ -34,6 +34,7 @@ export type NsvxInventory = {
   unresolvedEnqueueCalls: number;
   systemdUnits: string[];
   openclawAdmin: { files: string[]; gatewayRpcs: string[] };
+  files: string[];
 };
 
 export type OpenClawInventory = {
@@ -390,6 +391,7 @@ export function buildNsvxInventory(reader: SourceReader): NsvxInventory {
       files: pySources.filter((f) => f.startsWith("backend/clone/openclaw_admin/")),
       gatewayRpcs: extractGatewayRpcs(text("backend/clone/openclaw_admin/gateway.py")),
     },
+    files: uniqueSorted(files),
   };
 }
 
@@ -468,10 +470,25 @@ export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory 
   };
 }
 
+export const VERIFICATION_DIMENSIONS = [
+  "discovery",
+  "ui",
+  "actions",
+  "chat",
+  "data",
+  "permissions",
+  "feedback",
+  "desktop",
+  "mobile",
+  "evidence",
+] as const;
+
+export type VerificationDimension = (typeof VERIFICATION_DIMENSIONS)[number];
+
 export type RegistryEntry = {
   id: string;
   title: string;
-  category: string;
+  family: string;
   priority: "P0" | "P1" | "P2" | "P3";
   status: "native" | "partial" | "missing" | "blocked";
   nsvx: {
@@ -479,25 +496,49 @@ export type RegistryEntry = {
     backendPackages: string[];
     jobPackages: string[];
     apiPrefixes: string[];
+    sourceFiles: string[];
+    permissions: string[];
+    effect: "read" | "write" | "external";
+    integrations: string[];
+    runtime: (typeof RUNTIME_STATES)[number];
   };
-  openclaw: { uiRoutes: string[]; gatewayMethods: string[]; extensions: string[] };
+  openclaw: {
+    uiRoutes: string[];
+    gatewayMethods: string[];
+    extensions: string[];
+    chatTools: string[];
+  };
   adapter: string;
+  verification: { requires: VerificationDimension[]; passed: VerificationDimension[] };
   evidence: { level: "source" | "runtime"; source: string[]; runtime: string[] };
   blockers: string[];
   unknowns: string[];
 };
 
 export type Registry = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   sources: {
     nsvx: { repo: string; commit: string };
     openclaw: { repo: string; commit: string };
   };
+  families: Record<string, string>;
   entries: RegistryEntry[];
 };
 
 const STATUSES = new Set(["native", "partial", "missing", "blocked"]);
 const PRIORITIES = new Set(["P0", "P1", "P2", "P3"]);
+const EFFECTS = new Set(["read", "write", "external"]);
+// The brief's availability states; `not-checked` means source was read and nothing was run.
+const RUNTIME_STATES = [
+  "production-verified",
+  "development-verified",
+  "broken",
+  "partial",
+  "planned",
+  "unmerged",
+  "disabled",
+  "not-checked",
+] as const;
 const COMMIT = /^[0-9a-f]{40}$/;
 
 function isStringArray(value: unknown): value is string[] {
@@ -507,8 +548,8 @@ function isStringArray(value: unknown): value is string[] {
 /** Shape rules every entry must meet; references are checked by the cross-checks below. */
 export function validateRegistryShape(registry: Registry): string[] {
   const errors: string[] = [];
-  if (registry.schemaVersion !== 1) {
-    errors.push("schemaVersion must be 1");
+  if (registry.schemaVersion !== 2) {
+    errors.push("schemaVersion must be 2");
   }
   for (const side of ["nsvx", "openclaw"] as const) {
     if (!COMMIT.test(registry.sources?.[side]?.commit ?? "")) {
@@ -525,8 +566,8 @@ export function validateRegistryShape(registry: Registry): string[] {
       fail("duplicate id");
     }
     seen.add(entry.id);
-    if (!entry.title || !entry.category) {
-      fail("title and category are required");
+    if (!entry.title || !registry.families?.[entry.family]) {
+      fail("title and a known family are required");
     }
     if (!PRIORITIES.has(entry.priority)) {
       fail("invalid priority");
@@ -534,12 +575,26 @@ export function validateRegistryShape(registry: Registry): string[] {
     if (!STATUSES.has(entry.status)) {
       fail("invalid status");
     }
-    for (const key of ["webRoutes", "backendPackages", "jobPackages", "apiPrefixes"] as const) {
+    for (const key of [
+      "webRoutes",
+      "backendPackages",
+      "jobPackages",
+      "apiPrefixes",
+      "sourceFiles",
+      "permissions",
+      "integrations",
+    ] as const) {
       if (!isStringArray(entry.nsvx?.[key])) {
         fail(`nsvx.${key} must be a string array`);
       }
     }
-    for (const key of ["uiRoutes", "gatewayMethods", "extensions"] as const) {
+    if (!EFFECTS.has(entry.nsvx?.effect)) {
+      fail("invalid nsvx.effect");
+    }
+    if (!(RUNTIME_STATES as readonly string[]).includes(entry.nsvx?.runtime)) {
+      fail("invalid nsvx.runtime");
+    }
+    for (const key of ["uiRoutes", "gatewayMethods", "extensions", "chatTools"] as const) {
       if (!isStringArray(entry.openclaw?.[key])) {
         fail(`openclaw.${key} must be a string array`);
       }
@@ -565,11 +620,33 @@ export function validateRegistryShape(registry: Registry): string[] {
         fail("runtime evidence level needs a recorded runtime entry");
       }
     }
+    const dimensions: readonly string[] = VERIFICATION_DIMENSIONS;
+    const { requires, passed } = entry.verification ?? {};
+    if (
+      !isStringArray(requires) ||
+      !isStringArray(passed) ||
+      ![...requires, ...passed].every((name) => dimensions.includes(name))
+    ) {
+      fail("verification needs requires and passed from the known dimensions");
+    } else {
+      if (passed.some((name) => !requires.includes(name as VerificationDimension))) {
+        fail("verification.passed must be a subset of requires");
+      }
+      // A passed check beyond discovery is a claim about behavior, so it needs a recorded run.
+      if (passed.some((name) => name !== "discovery") && entry.evidence?.runtime?.length === 0) {
+        fail("passed verification beyond discovery needs a recorded runtime entry");
+      }
+    }
     if (entry.status === "blocked" && entry.blockers?.length === 0) {
       fail("blocked status needs a blocker");
     }
     if (entry.status === "native" && entry.openclaw?.uiRoutes?.length === 0) {
       fail("native status needs an OpenClaw route");
+    }
+  }
+  for (const family of Object.keys(registry.families ?? {})) {
+    if (!registry.entries?.some((entry) => entry.family === family)) {
+      errors.push(`family ${family} has no entry`);
     }
   }
   return errors;
@@ -622,7 +699,13 @@ export function crossCheckNsvx(registry: Registry, inventory: NsvxInventory): st
     ...inventory.apiClients.map((client) => client.path),
     ...inventory.backendRoutes.map((route) => route.path),
   ];
+  const files = new Set(inventory.files);
   for (const entry of registry.entries) {
+    for (const file of entry.nsvx.sourceFiles) {
+      if (!files.has(file)) {
+        errors.push(`${entry.id}: no NSVX file ${file}`);
+      }
+    }
     for (const route of entry.nsvx.webRoutes) {
       if (!routes.has(route)) {
         errors.push(`${entry.id}: unknown NSVX web route ${route}`);
@@ -647,6 +730,61 @@ export function crossCheckNsvx(registry: Registry, inventory: NsvxInventory): st
   return errors;
 }
 
+const matchesPrefix = (apiPath: string, prefix: string) =>
+  apiPath === prefix || apiPath.startsWith(`${prefix}/`);
+
+/** Assigns each backend route to the entry with the longest matching prefix. */
+function routeCoverage(registry: Registry, routes: BackendRoute[]) {
+  const prefixes = registry.entries
+    .flatMap((entry) => entry.nsvx.apiPrefixes.map((prefix) => ({ prefix, id: entry.id })))
+    .sort((a, b) => b.prefix.length - a.prefix.length || byText(a.prefix, b.prefix));
+  const owned = new Map<string, BackendRoute[]>();
+  const unassigned: BackendRoute[] = [];
+  for (const route of routes) {
+    const owner = prefixes.find(({ prefix }) => matchesPrefix(route.path, prefix))?.id;
+    if (owner) {
+      owned.set(owner, [...(owned.get(owner) ?? []), route]);
+    } else {
+      unassigned.push(route);
+    }
+  }
+  return { owned, unassigned };
+}
+
+const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
+
+/** One entry's change marker: a pin move that alters its routes changes this value in the diff. */
+function entrySurface(routes: BackendRoute[]) {
+  return {
+    routes: routes.length,
+    reads: routes.filter((route) => route.method === "GET").length,
+    writes: routes.filter((route) => route.method !== "GET").length,
+    digest: digest(routes),
+  };
+}
+
+/** Headline numbers: an entry counts as verified only when every required check passed. */
+export function summarizeParity(registry: Registry) {
+  const isVerified = (entry: RegistryEntry) =>
+    entry.verification.requires.every((name) => entry.verification.passed.includes(name));
+  const summarize = (entries: RegistryEntry[]) => ({
+    discovered: entries.length,
+    native: entries.filter((entry) => entry.status === "native").length,
+    partial: entries.filter((entry) => entry.status === "partial").length,
+    missing: entries.filter((entry) => entry.status === "missing").length,
+    blocked: entries.filter((entry) => entry.status === "blocked").length,
+    verified: entries.filter(isVerified).length,
+  });
+  return {
+    ...summarize(registry.entries),
+    families: Object.entries(registry.families).map(([id, name]) => ({
+      id,
+      name,
+      ...summarize(registry.entries.filter((entry) => entry.family === id)),
+    })),
+  };
+}
+
 function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const item of sortBy([...items], key)) {
@@ -664,6 +802,7 @@ export function renderInventory(
   nsvx: NsvxInventory,
   openclaw: OpenClawInventory,
 ): string {
+  const routes = routeCoverage(registry, nsvx.backendRoutes);
   const covered = {
     webRoutes: new Set(registry.entries.flatMap((entry) => entry.nsvx.webRoutes.map(topRoute))),
     backendPackages: new Set(registry.entries.flatMap((entry) => entry.nsvx.backendPackages)),
@@ -674,11 +813,11 @@ export function renderInventory(
   const jobCounts = countBy(nsvx.jobKinds, (job) => backendPackage(job.file));
   const notIn = (names: string[], set: Set<string>) => names.filter((name) => !set.has(name));
   const document = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generator: "scripts/nsvx-parity-inventory.mts",
     sources: registry.sources,
     nsvx: {
-      fullListDigest: createHash("sha256").update(JSON.stringify(nsvx)).digest("hex"),
+      fullListDigest: digest(nsvx),
       counts: {
         webRoutes: nsvx.webRoutes.length,
         navigation: nsvx.navigation.length,
@@ -702,7 +841,12 @@ export function renderInventory(
       uncoveredWebRoutes: notIn(topRoutes, covered.webRoutes),
       uncoveredBackendPackages: notIn(Object.keys(backendCounts), covered.backendPackages),
       uncoveredJobPackages: notIn(Object.keys(jobCounts), covered.jobPackages),
-      statuses: countBy(registry.entries, (entry) => entry.status),
+      unassignedRoutes: routes.unassigned.length,
+      unassignedRouteAreas: countBy(routes.unassigned, (route) => apiArea(route.path)),
+      byEntry: Object.fromEntries(
+        registry.entries.map((entry) => [entry.id, entrySurface(routes.owned.get(entry.id) ?? [])]),
+      ),
+      parity: summarizeParity(registry),
     },
   };
   return `${JSON.stringify(document, null, 2)}\n`;

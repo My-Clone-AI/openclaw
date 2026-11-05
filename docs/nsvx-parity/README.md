@@ -14,7 +14,7 @@ Tracks which NSVX (`My-Clone-AI/clone`) features exist natively in OpenClaw Cont
 | ----------------------- | --------- | ------------------------------------------------- |
 | `registry.json`         | Hand kept | One entry per feature, with pinned source commits |
 | `source-inventory.json` | Generated | Source counts, OpenClaw lists, registry coverage  |
-| `MASTER-PROMPT.md`      | Missing   | Owner brief; see [Blockers](#blockers)            |
+| `MASTER-PROMPT.md`      | Owner     | Owner brief; see [Brief copy](#brief-copy)        |
 
 ## Regenerate
 
@@ -56,37 +56,61 @@ Portals are covered by the `portals` route and the `portal.*` methods in the inv
 
 ## Registry entries
 
-| Field                                                             | Meaning                                           |
-| ----------------------------------------------------------------- | ------------------------------------------------- |
-| `id`, `title`, `category`, `priority`                             | Identity; `P0` builds first                       |
-| `status`                                                          | `native`, `partial`, `missing`, or `blocked`      |
-| `nsvx.webRoutes`, `backendPackages`, `jobPackages`, `apiPrefixes` | Checked against the NSVX source                   |
-| `openclaw.uiRoutes`, `gatewayMethods`, `extensions`               | Checked against the working tree                  |
-| `adapter`                                                         | How the feature reaches its NSVX or Gateway owner |
-| `evidence.level`, `evidence.source`, `evidence.runtime`           | `runtime` needs a recorded run                    |
-| `blockers`, `unknowns`                                            | What stops the work; what was not determined      |
+Top-level `sources` holds the repository and commit for every entry; `families` holds the brief's 22 groups.
 
-`source` evidence means the code was read. It does not mean the feature was seen working.
+| Field                                                             | Meaning                                                         |
+| ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `id`, `title`, `family`, `priority`                               | Identity and functional group; `P0` builds first                |
+| `status`                                                          | `native`, `partial`, `missing`, or `blocked` in OpenClaw        |
+| `nsvx.webRoutes`, `backendPackages`, `jobPackages`, `apiPrefixes` | Checked against the NSVX source                                 |
+| `nsvx.sourceFiles`                                                | Exact owning files; each must exist at the pin                  |
+| `nsvx.permissions`, `effect`, `integrations`                      | Who may call it; `read`, `write`, or `external`; needs          |
+| `nsvx.runtime`                                                    | NSVX availability; `not-checked` means nothing was run          |
+| `openclaw.uiRoutes`, `gatewayMethods`, `extensions`, `chatTools`  | Matching OpenClaw surface, checked against the tree             |
+| `adapter`                                                         | How the feature reaches its NSVX or Gateway owner               |
+| `verification.requires`, `verification.passed`                    | The brief's ten checks; `passed` beyond `discovery` needs a run |
+| `evidence.level`, `evidence.source`, `evidence.runtime`           | `runtime` needs a recorded run                                  |
+| `blockers`, `unknowns`                                            | What stops the work; what was not determined                    |
+
+`source` evidence means the code was read. It does not mean the feature was seen working. An entry counts as
+verified only when every required check passed, so `coverage.parity` can only rise with recorded runs.
+
+## Coverage
+
+`source-inventory.json` assigns every parsed backend route to the entry with the longest matching prefix.
+`coverage.byEntry` gives read and write counts plus a digest per entry, so moving the NSVX pin shows exactly which
+entries changed in the diff. `coverage.unassignedRouteAreas` lists what no entry owns; those routes are parser gaps
+or internal service endpoints that still need a decision.
+
+## Brief copy
+
+`MASTER-PROMPT.md` matches the owner's chat text except for one word: line 2 drops the owner's surname, because this
+repository is public and the owner is anonymous on Git. The original is
+`002b21df9ff516bd82bd89f3e5190692b2380e32e44f37eff91f72d1c24de8c7`, kept on the Grow host at
+`apps/openclaw/missions/nsvx-parity/MASTER-PROMPT.md`.
 
 ## Blockers
 
-- **`MASTER-PROMPT.md` is absent.** The job pointed at `missions/nsvx-parity/MASTER-PROMPT.md` and
-  `docs/nsvx-parity/MASTER-PROMPT.md`. Neither exists in the worktree, any remote ref of this
-  repository, or the runner's Grow files. A reconstructed copy would not be verbatim, so none was
-  written. The registry fields above were chosen for this audit and may need new fields from the brief.
-- **No NSVX service credential.** NSVX routes need the owner session and CSRF token, so domain
-  features have no safe way to reach NSVX from a Gateway plugin yet.
+- **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
+  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
+  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
+  A stored owner session is not a substitute: it would give chat tools the owner-only views that AgentOS withholds from agents.
+- **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
+  Everything else needs a contract in NSVX.
+- **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.
 
 ## Limits
 
 - **No runtime check of NSVX.** Nothing here came from a running NSVX or from a signed-in browser.
-- **Private detail stays out.** This repository is public and clone is private, so route-level NSVX
-  lists are not tracked. `source-inventory.json` holds counts and a digest; `--full-out <path>` writes
-  the complete lists locally. Registry entries name only the routes and packages they need.
-- **Static parsing.** The generator misses `add_api_route` routes (3 at the pin) and job kinds passed
-  as variables (`unresolvedEnqueueCalls`). Routes in a module that rebinds `router` use the first
-  binding's prefix, so routes added after the rebinding may show a wrong prefix.
-- **Unmatched clients.** 6 of 551 API client paths match no parsed backend route. Each may be a parser
-  gap or a dead client; they were not checked one by one.
-- **Domain status is coarse.** `missing` on a business domain means no native page exists in the source.
-  It does not say that the domain should be built here.
+- **Family-level entries.** An entry covers a group of actions. The action-level list is the `--full-out` output, not
+  the registry, so the brief's "every action" is met through route counts and digests rather than one row per action.
+- **Private detail stays out.** This repository is public and clone is private, so route-level NSVX lists are not
+  tracked. Registry entries name only their owning files and route prefixes; `--full-out <path>` writes the complete
+  lists locally.
+- **Static parsing.** The generator misses `add_api_route` routes (3 at the pin) and job kinds passed as variables
+  (`unresolvedEnqueueCalls`). Sub-applications appear without their mount path, and a module that rebinds `router`
+  uses the first binding's prefix.
+- **Unmatched clients.** 6 of 551 API client paths match no parsed backend route. Each may be a parser gap or a dead
+  client; they were not checked one by one.
+- **Domain status is coarse.** `missing` on a business domain means no native page exists in the source. It does not
+  say that the domain should be built here.

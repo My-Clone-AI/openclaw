@@ -10,6 +10,7 @@ import {
   crossCheckOpenClaw,
   gitReader,
   renderInventory,
+  summarizeParity,
   validateRegistryShape,
   workingTreeReader,
   type Registry,
@@ -101,16 +102,29 @@ function tempGitRepo(files: Record<string, string>) {
   return { dir, commit: execFileSync("git", ["-C", dir, "rev-parse", "HEAD"]).toString().trim() };
 }
 
+const NSVX_FIELDS: RegistryEntry["nsvx"] = {
+  webRoutes: [],
+  backendPackages: [],
+  jobPackages: [],
+  apiPrefixes: [],
+  sourceFiles: [],
+  permissions: [],
+  effect: "read",
+  integrations: [],
+  runtime: "not-checked",
+};
+
 function entry(overrides: Partial<RegistryEntry> = {}): RegistryEntry {
   return {
     id: "tasks",
     title: "Tasks",
-    category: "Core",
+    family: "01",
     priority: "P1",
     status: "missing",
-    nsvx: { webRoutes: [], backendPackages: [], jobPackages: [], apiPrefixes: [] },
-    openclaw: { uiRoutes: [], gatewayMethods: [], extensions: [] },
+    nsvx: NSVX_FIELDS,
+    openclaw: { uiRoutes: [], gatewayMethods: [], extensions: [], chatTools: [] },
     adapter: "",
+    verification: { requires: ["discovery", "ui"], passed: ["discovery"] },
     evidence: { level: "source", source: ["web/src/screens/Tasks.tsx"], runtime: [] },
     blockers: [],
     unknowns: [],
@@ -120,11 +134,12 @@ function entry(overrides: Partial<RegistryEntry> = {}): RegistryEntry {
 
 function registry(entries: RegistryEntry[]): Registry {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     sources: {
       nsvx: { repo: "n", commit: COMMIT },
       openclaw: { repo: "o", commit: COMMIT },
     },
+    families: { "01": "Today" },
     entries,
   };
 }
@@ -192,10 +207,10 @@ describe("nsvx parity inventory", () => {
     const covered = registry([
       entry({
         nsvx: {
+          ...NSVX_FIELDS,
           webRoutes: ["/tasks"],
           backendPackages: ["admin"],
-          jobPackages: [],
-          apiPrefixes: [],
+          apiPrefixes: ["/api/tasks"],
         },
       }),
     ]);
@@ -212,21 +227,31 @@ describe("nsvx parity inventory", () => {
     expect(coverage.uncoveredWebRoutes).toEqual(["/", "/air", "/biz", "/portal", "/work"]);
     expect(coverage.uncoveredBackendPackages).toEqual(["(root)"]);
     expect(coverage.uncoveredJobPackages).toEqual(["admin"]);
+    // Counts and an area name only: the route itself stays out of the public document.
+    expect(coverage.unassignedRouteAreas).toEqual({ "/api/mounted": 1 });
+    expect(coverage.byEntry.tasks).toMatchObject({ routes: 2, reads: 1, writes: 1 });
   });
 
   it("rejects references the source does not contain", () => {
     const bad = registry([
       entry({
         nsvx: {
+          ...NSVX_FIELDS,
           webRoutes: ["/nope"],
           backendPackages: ["nope"],
           jobPackages: ["nope"],
           apiPrefixes: ["/api/nope"],
+          sourceFiles: ["web/src/screens/Nope.tsx"],
         },
-        openclaw: { uiRoutes: ["nope"], gatewayMethods: ["nope"], extensions: ["nope"] },
+        openclaw: {
+          uiRoutes: ["nope"],
+          gatewayMethods: ["nope"],
+          extensions: ["nope"],
+          chatTools: [],
+        },
       }),
     ]);
-    expect(crossCheckNsvx(bad, nsvx)).toHaveLength(4);
+    expect(crossCheckNsvx(bad, nsvx)).toHaveLength(5);
     expect(crossCheckOpenClaw(bad, openclaw)).toHaveLength(3);
   });
 
@@ -237,6 +262,9 @@ describe("nsvx parity inventory", () => {
         entry({ id: "b", status: "blocked" }),
         entry({ id: "c", evidence: { level: "runtime", source: ["x"], runtime: [] } }),
         entry({ id: "d", evidence: { level: "source", source: [], runtime: [] } }),
+        entry({ id: "e", verification: { requires: ["ui"], passed: ["ui"] } }),
+        entry({ id: "f", verification: { requires: ["discovery"], passed: ["ui"] } }),
+        entry({ id: "g", family: "99" }),
       ]),
     );
     expect(errors).toEqual([
@@ -244,7 +272,22 @@ describe("nsvx parity inventory", () => {
       "b: blocked status needs a blocker",
       "c: runtime evidence level needs a recorded runtime entry",
       "d: evidence.source must not be empty",
+      "e: passed verification beyond discovery needs a recorded runtime entry",
+      "f: verification.passed must be a subset of requires",
+      "f: passed verification beyond discovery needs a recorded runtime entry",
+      "g: title and a known family are required",
     ]);
+  });
+
+  it("counts an entry as verified only when every required check passed", () => {
+    const summary = summarizeParity(
+      registry([
+        entry({ id: "a", verification: { requires: ["discovery"], passed: ["discovery"] } }),
+        entry({ id: "b" }),
+      ]),
+    );
+    expect(summary).toMatchObject({ discovered: 2, missing: 2, verified: 1 });
+    expect(summary.families).toEqual([expect.objectContaining({ id: "01", verified: 1 })]);
   });
 });
 
@@ -266,5 +309,7 @@ describe("committed nsvx parity registry", () => {
     expect(inventory.coverage.uncoveredWebRoutes).toEqual([]);
     expect(inventory.coverage.uncoveredBackendPackages).toEqual([]);
     expect(inventory.coverage.uncoveredJobPackages).toEqual([]);
+    expect(inventory.coverage.parity).toEqual(summarizeParity(committed));
+    expect(Object.keys(committed.families)).toHaveLength(22);
   });
 });

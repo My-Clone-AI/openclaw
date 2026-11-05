@@ -32,6 +32,8 @@
     "test/fixtures/beam-live-handoff-client/beam-handoff.js",
     "test/fixtures/beam-live-handoff-client/beam-session.js",
     "/apps/",
+    // Owner brief kept word for word.
+    "docs/nsvx-parity/MASTER-PROMPT.md",
     "CHANGELOG.md",
     "CHANGELOG/**",
     "CLAUDE.md",

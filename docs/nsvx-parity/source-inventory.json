@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "generator": "scripts/nsvx-parity-inventory.mts",
   "sources": {
     "nsvx": {
@@ -12,7 +12,7 @@
     }
   },
   "nsvx": {
-    "fullListDigest": "7a3cb21b4042fdfcc7a65f4330b0c091a7cec39eb1b8e584bb2d8e58db21360a",
+    "fullListDigest": "fde6100c18fdedebb38b9bdfa0355f415772f6760d00721b8f7a5eccbb6d91d3",
     "counts": {
       "webRoutes": 39,
       "navigation": 27,
@@ -4794,10 +4794,612 @@
     "uncoveredWebRoutes": [],
     "uncoveredBackendPackages": [],
     "uncoveredJobPackages": [],
-    "statuses": {
-      "missing": 29,
+    "unassignedRoutes": 30,
+    "unassignedRouteAreas": {
+      "/agents": 1,
+      "/api/api": 1,
+      "/api/jobs": 1,
+      "/api/settings": 4,
+      "/api/test": 1,
+      "/assets/{name}": 1,
+      "/calls/leases": 1,
+      "/commands": 2,
+      "/compare": 1,
+      "/dashboard": 1,
+      "/errors": 1,
+      "/export": 1,
+      "/history": 1,
+      "/internal/active": 1,
+      "/internal/sideband": 1,
+      "/internal/social": 3,
+      "/internal/status": 1,
+      "/internal/whatsapp": 1,
+      "/metrics": 1,
+      "/models": 1,
+      "/report": 1,
+      "/status": 1,
+      "/sync": 1,
+      "/{path:path}": 1
+    },
+    "byEntry": {
+      "home-today": {
+        "routes": 7,
+        "reads": 3,
+        "writes": 4,
+        "digest": "311e7967c1fa9a4920508075adbec8d633bda1dda8bafd58427dab6071122492"
+      },
+      "unified-search": {
+        "routes": 2,
+        "reads": 1,
+        "writes": 1,
+        "digest": "65fb5eea3a6045d0ea25e0a7af90954f9dad539083dd24f6ac547e9f624f9527"
+      },
+      "activity-log": {
+        "routes": 59,
+        "reads": 22,
+        "writes": 37,
+        "digest": "818c6957db07a9953b4e6558ad663359b828394b3598405c0da5ab6881f0df05"
+      },
+      "messages": {
+        "routes": 74,
+        "reads": 27,
+        "writes": 47,
+        "digest": "ee0a1ded74ee88961ef5efe1e5a68a6df5b9bc228255c90594976a5697c297c6"
+      },
+      "quick-reply": {
+        "routes": 28,
+        "reads": 10,
+        "writes": 18,
+        "digest": "2b91e1d926c1c683a7b29cfbbe32d1679cd6035660027d3ff2da16bae6c145bf"
+      },
+      "people": {
+        "routes": 56,
+        "reads": 19,
+        "writes": 37,
+        "digest": "43d41bed75def5ae2ff9ff9893ef56af09a7552f97d186b96b76feb05354a64f"
+      },
+      "social-context": {
+        "routes": 4,
+        "reads": 3,
+        "writes": 1,
+        "digest": "5437f12c8579b5cb7b81a20d406dede543af2cc17eb12b7a3cd0d8f609016dc7"
+      },
+      "calls-voice": {
+        "routes": 81,
+        "reads": 27,
+        "writes": 54,
+        "digest": "79165c599f2c3c6cfe3aa04fe3490c163750f4c99011063e944da02f147d173a"
+      },
+      "automations": {
+        "routes": 25,
+        "reads": 13,
+        "writes": 12,
+        "digest": "d7f3721495e00115d37f2b97df115f6874e4157d9c43f369c4631f1870722f24"
+      },
+      "live-tasks": {
+        "routes": 12,
+        "reads": 9,
+        "writes": 3,
+        "digest": "1fafd1c3495314003146430b63a0d6493a81fadcfe74bbff23ba47d8ce4b5e8f"
+      },
+      "missions": {
+        "routes": 25,
+        "reads": 8,
+        "writes": 17,
+        "digest": "77e19cd015ee27d88e852f05e537063e9d6a3270a87af79c4fa41a3f0f1a60fb"
+      },
+      "autonomy-controls": {
+        "routes": 18,
+        "reads": 7,
+        "writes": 11,
+        "digest": "df063b5136f4b5c1c3a56428be700b803fdf008dfaf170a0b190119e4f2ed974"
+      },
+      "agenda": {
+        "routes": 38,
+        "reads": 18,
+        "writes": 20,
+        "digest": "dfb7ba0ab993ce85e3f43be62a232a3e512618c840204a59752e1cb73f7d4f6a"
+      },
+      "ai-models": {
+        "routes": 7,
+        "reads": 3,
+        "writes": 4,
+        "digest": "d12cb34b28977aaf17e3660a260ff802baed1121a18425129e08f430a743a4cd"
+      },
+      "architecture-providers": {
+        "routes": 2,
+        "reads": 1,
+        "writes": 1,
+        "digest": "b1f0896108c74872157fd1115a867bb2d7b22b4d29031af88b00a6223e450098"
+      },
+      "clone-ai-training": {
+        "routes": 8,
+        "reads": 1,
+        "writes": 7,
+        "digest": "6b1cf47ee3e833bd6d39cab712d80b49527f2d513a3cae508adfa88be4ee95c5"
+      },
+      "agentos": {
+        "routes": 10,
+        "reads": 5,
+        "writes": 5,
+        "digest": "3ea90c04647cdd18d6524da90e72678583d92cbb79da58ff0404fa9a302558f9"
+      },
+      "architecture-chart": {
+        "routes": 2,
+        "reads": 2,
+        "writes": 0,
+        "digest": "d0e8e2acb1d8c859acf329f7a43fc30d5775336b25deb1c99b51de2f42c58f38"
+      },
+      "architecture-move": {
+        "routes": 11,
+        "reads": 1,
+        "writes": 10,
+        "digest": "8c1ecfa7efb99c20e26a0927dd47f9c2b0bc584d228dd6a310f8c733a7e895c9"
+      },
+      "architecture-assign": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "architecture-history": {
+        "routes": 2,
+        "reads": 1,
+        "writes": 1,
+        "digest": "8de1389a59498b0dcf951931154751e3b90723c0bc52192c93f128fa2e103890"
+      },
+      "architecture-pause": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "architecture-create": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "architecture-devices": {
+        "routes": 2,
+        "reads": 0,
+        "writes": 2,
+        "digest": "e41c2389a0400f22bf0e3fa74cd0f44f63c4d85c0d610d3c5026496888a6869c"
+      },
+      "architecture-instructions": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "architecture-permissions": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "architecture-policies": {
+        "routes": 1,
+        "reads": 0,
+        "writes": 1,
+        "digest": "84f9012284f09ca16f661090ff80ef7c9adc7be2480c969d5a67b59e0fab8840"
+      },
+      "architecture-suggest": {
+        "routes": 1,
+        "reads": 0,
+        "writes": 1,
+        "digest": "7ebf1b550bdac9a9525280dca268168cfa7247251d3df7750a5c77b7a17db3fc"
+      },
+      "skills": {
+        "routes": 18,
+        "reads": 11,
+        "writes": 7,
+        "digest": "32f93a8016d4f6feb42bb258b84b99b74c7c6568a1f3c53c61709cf020a96e81"
+      },
+      "group-grow": {
+        "routes": 14,
+        "reads": 8,
+        "writes": 6,
+        "digest": "d55527c0aa1757c153050fec6ca6d5675555203612066043da85d27b9a7d6498"
+      },
+      "build-me": {
+        "routes": 18,
+        "reads": 11,
+        "writes": 7,
+        "digest": "8098ef93674a0121bdd4976ba54909062d5523df082a26eaffc8107222e0f089"
+      },
+      "group-companies": {
+        "routes": 71,
+        "reads": 40,
+        "writes": 31,
+        "digest": "fb736ebd5aca20ba2de63d6d8d395f94ddf2478e7af695935dd9e3aa667e5240"
+      },
+      "documents": {
+        "routes": 104,
+        "reads": 49,
+        "writes": 55,
+        "digest": "56a176b470b25970566779696fd7dd73231676396fb30ce941c647f95ee63418"
+      },
+      "drive": {
+        "routes": 1,
+        "reads": 1,
+        "writes": 0,
+        "digest": "549237cfce4c8bee0bc60f5a412224639048099fbafb343869307620edd0acd3"
+      },
+      "finance": {
+        "routes": 183,
+        "reads": 86,
+        "writes": 97,
+        "digest": "4d07c8cff6a83b7c19bd9453ba83f26fdb85c2f4a7e7fc461de69103ce677924"
+      },
+      "bank-broker": {
+        "routes": 9,
+        "reads": 0,
+        "writes": 9,
+        "digest": "9bedfa28333241758b4713257607a85da5e02945070eb92557407a7a9540b3fb"
+      },
+      "mortgage": {
+        "routes": 20,
+        "reads": 8,
+        "writes": 12,
+        "digest": "90744a37f79b65ebb193dab9eca738c338e0f8b5b1854553016db5df40e60d03"
+      },
+      "real-estate": {
+        "routes": 161,
+        "reads": 49,
+        "writes": 112,
+        "digest": "677a5b9947bc4a579d4ca2bcd4095162d45f7aa4514d3b79104728d393800bba"
+      },
+      "rentals": {
+        "routes": 27,
+        "reads": 8,
+        "writes": 19,
+        "digest": "81802fb00523064cd0d11b63ab125a0418a4c1fd55883ec707aadf4b2fbdbe82"
+      },
+      "short-stay": {
+        "routes": 129,
+        "reads": 49,
+        "writes": 80,
+        "digest": "72bba9cf17445f27926889bb49a79b342d05fe18cdc4924af2fec2fe650ecb54"
+      },
+      "aviation": {
+        "routes": 59,
+        "reads": 33,
+        "writes": 26,
+        "digest": "db01ad22faf4e5c32a2e4905d476b9eb6be2792221cfb2e926f05a735288f483"
+      },
+      "transports": {
+        "routes": 5,
+        "reads": 2,
+        "writes": 3,
+        "digest": "62cac241dfbf5299e178791592c28e578a1d20101fe864cde0252fa0562a05dc"
+      },
+      "tvde": {
+        "routes": 140,
+        "reads": 57,
+        "writes": 83,
+        "digest": "458544589323001f544c6de3102b91e18332e6e921609da9a6baf1ffd58a6e99"
+      },
+      "legal": {
+        "routes": 84,
+        "reads": 32,
+        "writes": 52,
+        "digest": "8154f7d746461d67edee49a915c43c347b840eb3e69e7898b96b1dd132c642d0"
+      },
+      "research": {
+        "routes": 8,
+        "reads": 4,
+        "writes": 4,
+        "digest": "c2fc56c1273928eb83e3b2da7a77c783d553e284841e8de5b90e82b557b98677"
+      },
+      "marketing": {
+        "routes": 21,
+        "reads": 9,
+        "writes": 12,
+        "digest": "f53e5603ffe53b4dbe32b722596c75c8ed9b9939bd24bd7d0e8adac7ac77f648"
+      },
+      "business": {
+        "routes": 36,
+        "reads": 14,
+        "writes": 22,
+        "digest": "05f3fb6c7f0e0a94fb942bbb248cff6665935ee04a73592042c190773f9a8d56"
+      },
+      "orders": {
+        "routes": 18,
+        "reads": 4,
+        "writes": 14,
+        "digest": "dd453bff5f880be1171c6777d13bf3688e3f137f01443b583709d32068f0b267"
+      },
+      "utilities": {
+        "routes": 25,
+        "reads": 8,
+        "writes": 17,
+        "digest": "8d4805a5bd3657f91220f7a11172c604874b95d30d90d94f9a4f1f21da1df649"
+      },
+      "warranties": {
+        "routes": 10,
+        "reads": 4,
+        "writes": 6,
+        "digest": "c395a420f58ecbd11750dedf1396318746808d829fac4ab734ad7b65c90447c7"
+      },
+      "owner-auth": {
+        "routes": 17,
+        "reads": 5,
+        "writes": 12,
+        "digest": "04a73ef629989df96a7c6497729e9359c7bf6f133eadd721602214ba098214ac"
+      },
+      "settings-apps": {
+        "routes": 30,
+        "reads": 14,
+        "writes": 16,
+        "digest": "c35c147437ea7cd43fb315e05fc7c179cb0187ae7a39253d24dccacc07159bf0"
+      },
+      "browser-sessions": {
+        "routes": 91,
+        "reads": 11,
+        "writes": 80,
+        "digest": "00631759d77f38b742d43af5f9638727014efa4286234eb241a940019f703bb5"
+      },
+      "permissions": {
+        "routes": 13,
+        "reads": 8,
+        "writes": 5,
+        "digest": "8074d3a0711d992037c7652fd8746af1314d02fd35fcda86d022ba0940e087cc"
+      },
+      "provider-webhooks": {
+        "routes": 11,
+        "reads": 2,
+        "writes": 9,
+        "digest": "1c48468a2deb516a21542052ae892494297ff05fe24e9f05e8bbc3a4ed30ce1a"
+      },
+      "desktop-companion": {
+        "routes": 14,
+        "reads": 10,
+        "writes": 4,
+        "digest": "2ebf426b5fdc8a54d16d9934a31ae476cc7e7643fcfb9338e08ccb1f8c2a825e"
+      },
+      "health-and-legal": {
+        "routes": 14,
+        "reads": 14,
+        "writes": 0,
+        "digest": "d6bdba560157e1e69d36670971f6c1009617b2cf13e5cd1f3ac67e95509ed779"
+      },
+      "offline-sync": {
+        "routes": 5,
+        "reads": 1,
+        "writes": 4,
+        "digest": "7b720a68075100221d352d27779dcae2964408fbc942691bdf8794be90215391"
+      }
+    },
+    "parity": {
+      "discovered": 58,
       "native": 2,
-      "partial": 13
+      "partial": 13,
+      "missing": 43,
+      "blocked": 0,
+      "verified": 0,
+      "families": [
+        {
+          "id": "10",
+          "name": "Group companies",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "11",
+          "name": "Documents and Drive",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "12",
+          "name": "Finance",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "13",
+          "name": "Real estate",
+          "discovered": 3,
+          "native": 0,
+          "partial": 0,
+          "missing": 3,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "14",
+          "name": "Short-stay rentals",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "15",
+          "name": "Aviation",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "16",
+          "name": "TVDE and transport",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "17",
+          "name": "Legal",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "18",
+          "name": "Research and web",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "19",
+          "name": "Marketing and social",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "20",
+          "name": "Business and personal",
+          "discovered": 4,
+          "native": 0,
+          "partial": 0,
+          "missing": 4,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "21",
+          "name": "Permissions and integrations",
+          "discovered": 5,
+          "native": 0,
+          "partial": 1,
+          "missing": 4,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "22",
+          "name": "Everything else",
+          "discovered": 3,
+          "native": 0,
+          "partial": 0,
+          "missing": 3,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "01",
+          "name": "Today, search and commands",
+          "discovered": 3,
+          "native": 0,
+          "partial": 2,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "02",
+          "name": "Messages",
+          "discovered": 2,
+          "native": 0,
+          "partial": 1,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "03",
+          "name": "People",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "04",
+          "name": "Calls and voice",
+          "discovered": 1,
+          "native": 0,
+          "partial": 1,
+          "missing": 0,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "05",
+          "name": "Tasks and automation",
+          "discovered": 4,
+          "native": 0,
+          "partial": 3,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "06",
+          "name": "Calendar and Google",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "07",
+          "name": "AI and inference",
+          "discovered": 3,
+          "native": 0,
+          "partial": 2,
+          "missing": 1,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "08",
+          "name": "Agents",
+          "discovered": 13,
+          "native": 2,
+          "partial": 3,
+          "missing": 8,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "09",
+          "name": "Grow and development",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        }
+      ]
     }
   }
 }
