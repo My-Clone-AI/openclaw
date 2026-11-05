@@ -1,4 +1,4 @@
-import type { BigIntStats, Stats } from "node:fs";
+import fsSync, { type BigIntStats, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { sameFileIdentity, type FileIdentityStat } from "@openclaw/fs-safe/advanced";
@@ -9,9 +9,9 @@ import { SQLITE_SIDECAR_SUFFIXES } from "../infra/sqlite-files.js";
 import { assertSqliteIntegrity } from "../infra/sqlite-integrity.js";
 import { readSqliteUserVersion } from "../infra/sqlite-user-version.js";
 import { assertDirectory } from "./local-repository-directory-policy.js";
-import { copySnapshotArtifact, hashSnapshotArtifact, type SnapshotArtifactDigest } from "./manifest.js";
+import { copySnapshotArtifact, hashSnapshotArtifact, readSnapshotManifest, type SnapshotArtifactDigest } from "./manifest.js";
 import { buildSnapshotValidator } from "./openclaw-snapshot-copy.js";
-import { SNAPSHOT_SQLITE_FILENAME, type SnapshotDatabaseIdentity, type SnapshotManifest } from "./snapshot-provider.js";
+import { SNAPSHOT_MANIFEST_FILENAME, SNAPSHOT_SQLITE_FILENAME, type SnapshotDatabaseIdentity, type SnapshotManifest } from "./snapshot-provider.js";
 
 const VALIDATION_STAGING_ENTRIES = new Set([
   SNAPSHOT_SQLITE_FILENAME,
@@ -136,4 +136,60 @@ export async function verifySnapshotDatabaseFile(
     throw new Error(`Snapshot artifact changed after SQLite verification: ${artifactPath}`);
   }
   assertArtifactMatchesManifest(artifactPath, verifiedArtifact, manifest);
+}
+
+const SNAPSHOT_PENDING_FILENAME = ".pending";
+
+export async function readVerifiedSnapshotManifest(snapshotDir: string): Promise<SnapshotManifest> {
+  await assertSnapshotContents(snapshotDir);
+  return await readSnapshotManifest(snapshotDir);
+}
+
+export async function assertSnapshotContents(snapshotDir: string, allowPending = false): Promise<void> {
+  const expected = new Set([SNAPSHOT_MANIFEST_FILENAME, SNAPSHOT_SQLITE_FILENAME]);
+  const entries = await fs.readdir(snapshotDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (allowPending && entry.name === SNAPSHOT_PENDING_FILENAME) {
+      readPendingSnapshotIdentity(path.join(snapshotDir, entry.name));
+      continue;
+    }
+    if (!expected.delete(entry.name)) {
+      throw new Error(
+        `SQLite snapshot contains unexpected entry: ${path.join(snapshotDir, entry.name)}`,
+      );
+    }
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error(
+        `SQLite snapshot entry must be a regular file: ${path.join(snapshotDir, entry.name)}`,
+      );
+    }
+    const stat = await fs.lstat(path.join(snapshotDir, entry.name));
+    if (stat.nlink > 1) {
+      throw new Error(
+        `SQLite snapshot entry must not be hardlinked: ${path.join(snapshotDir, entry.name)}`,
+      );
+    }
+  }
+  if (expected.size > 0) {
+    throw new Error(`SQLite snapshot is missing ${[...expected].join(", ")}: ${snapshotDir}`);
+  }
+}
+
+export function readPendingSnapshotIdentity(pendingPath: string): BigIntStats | undefined {
+  const identity = lstatIfExistsSync(pendingPath);
+  if (identity && (identity.isSymbolicLink() || !identity.isFile() || identity.nlink > 1n)) {
+    throw new Error(`SQLite snapshot pending marker is unsafe: ${pendingPath}`);
+  }
+  return identity;
+}
+
+function lstatIfExistsSync(pathname: string): BigIntStats | undefined {
+  try {
+    return fsSync.lstatSync(pathname, { bigint: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  }
 }

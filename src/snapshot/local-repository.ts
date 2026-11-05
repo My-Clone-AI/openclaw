@@ -61,7 +61,7 @@ import {
   createOpenClawSnapshotCopy,
   normalizeSnapshotIdentity,
 } from "./openclaw-snapshot-copy.js";
-import { assertArtifactMatchesManifest, assertAllowedDatabaseRole, verifySnapshotDatabaseFile } from "./local-repository-verification.js";
+import { assertArtifactMatchesManifest, assertAllowedDatabaseRole, assertSnapshotContents, readPendingSnapshotIdentity, readVerifiedSnapshotManifest, verifySnapshotDatabaseFile } from "./local-repository-verification.js";
 import { assertFreshRestoreTarget, assertNoSqliteSidecarsSync } from "./restore-paths.js";
 import {
   SNAPSHOT_MANIFEST_FILENAME,
@@ -571,12 +571,6 @@ class LocalSqliteSnapshotProvider {
   }
 }
 
-async function readVerifiedSnapshotManifest(snapshotDir: string): Promise<SnapshotManifest> {
-  await assertSnapshotContents(snapshotDir);
-  return await readSnapshotManifest(snapshotDir);
-}
-
-
 function buildDatabaseManifest(
   identity: SnapshotDatabaseIdentity,
   sourcePath: string,
@@ -709,36 +703,6 @@ async function publishSnapshotEntryNoOverwrite(
   }
 }
 
-async function assertSnapshotContents(snapshotDir: string, allowPending = false): Promise<void> {
-  const expected = new Set([SNAPSHOT_MANIFEST_FILENAME, SNAPSHOT_SQLITE_FILENAME]);
-  const entries = await fs.readdir(snapshotDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (allowPending && entry.name === SNAPSHOT_PENDING_FILENAME) {
-      readPendingSnapshotIdentity(path.join(snapshotDir, entry.name));
-      continue;
-    }
-    if (!expected.delete(entry.name)) {
-      throw new Error(
-        `SQLite snapshot contains unexpected entry: ${path.join(snapshotDir, entry.name)}`,
-      );
-    }
-    if (entry.isSymbolicLink() || !entry.isFile()) {
-      throw new Error(
-        `SQLite snapshot entry must be a regular file: ${path.join(snapshotDir, entry.name)}`,
-      );
-    }
-    const stat = await fs.lstat(path.join(snapshotDir, entry.name));
-    if (stat.nlink > 1) {
-      throw new Error(
-        `SQLite snapshot entry must not be hardlinked: ${path.join(snapshotDir, entry.name)}`,
-      );
-    }
-  }
-  if (expected.size > 0) {
-    throw new Error(`SQLite snapshot is missing ${[...expected].join(", ")}: ${snapshotDir}`);
-  }
-}
-
 type SnapshotDirectoryState = "committed" | "complete-pending" | "incomplete";
 
 async function classifySnapshotDirectory(snapshotDir: string): Promise<SnapshotDirectoryState> {
@@ -866,28 +830,9 @@ async function commitPendingSnapshot(
   return committedManifest;
 }
 
-function readPendingSnapshotIdentity(pendingPath: string): BigIntStats | undefined {
-  const identity = lstatIfExistsSync(pendingPath);
-  if (identity && (identity.isSymbolicLink() || !identity.isFile() || identity.nlink > 1n)) {
-    throw new Error(`SQLite snapshot pending marker is unsafe: ${pendingPath}`);
-  }
-  return identity;
-}
-
 async function lstatIfExists(pathname: string): Promise<BigIntStats | undefined> {
   try {
     return await fs.lstat(pathname, { bigint: true });
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return undefined;
-    }
-    throw error;
-  }
-}
-
-function lstatIfExistsSync(pathname: string): BigIntStats | undefined {
-  try {
-    return fsSync.lstatSync(pathname, { bigint: true });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return undefined;
