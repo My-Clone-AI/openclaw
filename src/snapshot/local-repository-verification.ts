@@ -137,4 +137,3 @@ export async function verifySnapshotDatabaseFile(
   }
   assertArtifactMatchesManifest(artifactPath, verifiedArtifact, manifest);
 }
-

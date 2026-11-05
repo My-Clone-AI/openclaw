@@ -49,4 +49,3 @@ export function applySecurityAuditSuppressions(
   }
   return { findings: active, suppressedFindings };
 }
-

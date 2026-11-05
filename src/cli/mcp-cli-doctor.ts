@@ -222,4 +222,3 @@ export async function collectMcpDoctorIssues(params: {
   }
   return issues;
 }
-
