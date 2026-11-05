@@ -5639,8 +5639,8 @@
     "parity": {
       "discovered": 65,
       "native": 9,
-      "partial": 21,
-      "missing": 34,
+      "partial": 22,
+      "missing": 33,
       "blocked": 1,
       "verified": 0,
       "families": [
@@ -5829,8 +5829,8 @@
           "name": "Calendar and Google",
           "discovered": 1,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 1,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

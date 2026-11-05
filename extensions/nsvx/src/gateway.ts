@@ -1,6 +1,15 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
+import {
+  agendaSummary,
+  freeSlots,
+  meetingFollowUp,
+  meetingHelp,
+  previewChange,
+  selectCalendar,
+  submitChange,
+} from "./agenda.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import {
@@ -140,6 +149,15 @@ export function registerNsvxGatewayMethods(
     regenerateQuickReply(client, params),
   );
   method("nsvx.quickReply.delete", "operator.write", (params) => deleteQuickReply(client, params));
+  // Agenda reads through nsvx.view (calendars, events, one event, an intent); these are its POST reads and taps.
+  method("nsvx.agenda.summary", "operator.read", (params) => agendaSummary(client, params));
+  method("nsvx.agenda.slots", "operator.read", (params) => freeSlots(client, params));
+  method("nsvx.agenda.preview", "operator.read", (params) => previewChange(client, params));
+  method("nsvx.agenda.help", "operator.read", (params) => meetingHelp(client, params));
+  // Booking, moving, and cancelling can invite or notify real people, so they need write scope like chat.send.
+  method("nsvx.agenda.submit", "operator.write", (params) => submitChange(client, params));
+  method("nsvx.agenda.select", "operator.write", (params) => selectCalendar(client, params));
+  method("nsvx.agenda.meeting", "operator.write", (params) => meetingFollowUp(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

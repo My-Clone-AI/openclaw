@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import manifest from "../openclaw.plugin.json" with { type: "json" };
 import type { NsvxClient } from "./client.js";
 import {
+  createNsvxAgendaTool,
   createNsvxFinanceTool,
   createNsvxMessagesTool,
   createNsvxOwnerTools,
@@ -42,7 +43,7 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     stop: async () => ({}),
     pause: async () => ({}),
     resume: async () => ({}),
-    history: async () => ([]),
+    history: async () => [],
     undo: async () => ({}),
   };
   const ctx = { senderIsOwner: true };
@@ -52,10 +53,13 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     ...createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name),
     createNsvxMessagesTool({} as NsvxClient, ctx as never).name,
     createNsvxFinanceTool({} as NsvxClient, ctx as never).name,
+    createNsvxAgendaTool({} as NsvxClient, ctx as never).name,
   ];
   expect(NSVX_OWNER_TOOL_NAMES.toSorted()).toEqual(
-    createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name).toSorted(),
+    createNsvxOwnerTools({} as NsvxClient, ctx as never)
+      .map((tool) => tool.name)
+      .toSorted(),
   );
   expect(manifest.contracts.tools.toSorted()).toEqual([...new Set(names)].toSorted());
-  expect(manifest.contracts.tools).toHaveLength(8);
+  expect(manifest.contracts.tools).toHaveLength(9);
 });
