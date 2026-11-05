@@ -18,7 +18,7 @@ import {
 import { getPluginRegistryForContext } from "../plugins/runtime/gateway-request-scope.js";
 import { getPluginRuntimeGenerationRegistry } from "../plugins/runtime/generation-state.js";
 import { resolveAgentConfig, resolveAgentModelConfigForRuntime } from "./agent-scope-config.js";
-import { brainAgentOnlyCandidate, isBrainAgentId } from "./brain-agent-model-lock.js";
+import { brainAgentDefaultCandidate, isBrainAgentId } from "./brain-agent-model-default.js";
 import {
   allowsPluginModelNormalization,
   hasExactConfiguredProviderModel,
@@ -294,11 +294,18 @@ function resolveFallbackCandidateModelProviderCacheParts(cfg: OpenClawConfig | u
 }
 
 function resolveFallbackCandidatesUncached(
-  params: ModelCandidateChainParams,
+  input: ModelCandidateChainParams,
 ): ModelFallbackCandidate[] {
-  if (isBrainAgentId(params.agentId)) {
-    return [brainAgentOnlyCandidate()];
+  const brainAgent = isBrainAgentId(input.agentId);
+  if (brainAgent) {
+    const provider = normalizeOptionalString(input.provider);
+    const model = normalizeOptionalString(input.model);
+    // No selection yet: Terra is the default, and configured fallbacks do not run.
+    if (!provider && !model) {
+      return [brainAgentDefaultCandidate()];
+    }
   }
+  const params = brainAgent ? { ...input, fallbacksOverride: [] } : input;
   const primary = params.cfg
     ? resolveConfiguredModelRef({
         cfg: params.cfg,

@@ -8,6 +8,7 @@ import { MODEL_APIS } from "../config/model-config-vocabulary.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { ProviderThinkingPolicySource } from "../plugins/provider-thinking.types.js";
 import { resolveAgentEntry } from "./agent-scope-config.js";
+import { BRAIN_THINKING_LEVEL, isBrainAgentId } from "./brain-agent-model-default.js";
 import { createBundledStaticCatalogModelResolver } from "./embedded-agent-runner/model.static-catalog.js";
 import { mergeConfiguredThinkingLevelMap } from "./model-catalog-metadata.js";
 import type { ModelCatalogEntry } from "./model-catalog.types.js";
@@ -78,6 +79,9 @@ export function resolveConfiguredThinkingDefaultCore(params: {
   model: string;
   agentId?: string;
 }): ThinkLevel | undefined {
+  if (isBrainAgentId(params.agentId)) {
+    return BRAIN_THINKING_LEVEL;
+  }
   const agentThinking = params.agentId
     ? resolveAgentEntry(params.cfg, params.agentId)?.thinkingDefault
     : undefined;

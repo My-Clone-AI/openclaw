@@ -1,5 +1,4 @@
 import type { SessionsPatchParams } from "../../packages/gateway-protocol/src/index.js";
-import { brainAgentPatchError } from "../agents/brain-agent-model-lock.js";
 import { assertRequiredWorkerSelection } from "../config/required-worker-profile.js";
 import type { InternalSessionEntry as SessionEntry } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
@@ -20,7 +19,6 @@ export function validateSessionPatchAdmission(params: {
   patch: SessionsPatchParams;
   existingEntry?: SessionEntry;
   authorizedAgentHarnessId?: string;
-  agentId?: string;
 }): ReturnType<typeof invalid> | undefined {
   const { cfg, storeKey, patch } = params;
   try {
@@ -58,14 +56,6 @@ export function validateSessionPatchAdmission(params: {
   }
   if (typeof patch.agentRuntime === "string" && typeof patch.model !== "string") {
     return invalid("agentRuntime requires an explicit provider/model selection using full IDs");
-  }
-  const brainLock = brainAgentPatchError({
-    agentId: params.agentId,
-    sessionKey: storeKey,
-    patch,
-  });
-  if (brainLock) {
-    return invalid(brainLock);
   }
   return undefined;
 }

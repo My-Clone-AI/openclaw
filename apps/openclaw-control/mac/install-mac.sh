@@ -1,6 +1,7 @@
 #!/bin/bash
 # Install OpenClaw Control on this Mac. Run it on the Mac, from a checkout of this repo.
-# It does not SSH to Master, deploy the gateway, or edit ~/.openclaw/openclaw.json.
+# It does not SSH to Master, deploy the gateway, edit ~/.openclaw/openclaw.json,
+# or stop a running panel, tunnel, or gateway session.
 set -euo pipefail
 
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
@@ -19,12 +20,6 @@ if [ ! -f "$STATE/env" ]; then
 OPENCLAW_GATEWAY_URL=ws://127.0.0.1:18789
 EOF
   chmod 600 "$STATE/env"
-fi
-
-# The old Hermes panel was reached through a tunnel on this same port.
-# Stop that tunnel so this Mac serves the OpenClaw panel locally.
-if launchctl print "gui/$(id -u)/com.openclaw.hermes-ui-tunnel" >/dev/null 2>&1; then
-  launchctl bootout "gui/$(id -u)/com.openclaw.hermes-ui-tunnel" || true
 fi
 
 WRAPPER="$STATE/start.sh"
@@ -67,10 +62,16 @@ cat > "$PLIST" <<EOF
 </plist>
 EOF
 
-launchctl bootout "gui/$(id -u)/com.openclaw.control" >/dev/null 2>&1 || true
-launchctl bootstrap "gui/$(id -u)" "$PLIST"
-launchctl enable "gui/$(id -u)/com.openclaw.control"
-launchctl kickstart -k "gui/$(id -u)/com.openclaw.control"
-
-echo "OpenClaw Control is running at http://127.0.0.1:$PORT/app/"
+# Leave a running panel, tunnel, and gateway alone. Stopping them drops live sessions.
+LABEL="gui/$(id -u)/com.openclaw.control"
+if launchctl print "$LABEL" >/dev/null 2>&1; then
+  echo "OpenClaw Control is already running at http://127.0.0.1:$PORT/app/"
+  echo "Left it running so current sessions stay connected."
+  echo "Updated files apply the next time the panel starts."
+else
+  launchctl bootstrap "gui/$(id -u)" "$PLIST"
+  launchctl enable "$LABEL"
+  launchctl kickstart "$LABEL"
+  echo "OpenClaw Control is running at http://127.0.0.1:$PORT/app/"
+fi
 echo "OpenClaw Control.app loads that address. The Control UI asks for the gateway token in the browser."
