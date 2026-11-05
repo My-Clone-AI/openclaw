@@ -11,15 +11,6 @@
     }
   },
   "families": {
-    "01": "Today, search and commands",
-    "02": "Messages",
-    "03": "People",
-    "04": "Calls and voice",
-    "05": "Tasks and automation",
-    "06": "Calendar and Google",
-    "07": "AI and inference",
-    "08": "Agents",
-    "09": "Grow and development",
     "10": "Group companies",
     "11": "Documents and Drive",
     "12": "Finance",
@@ -32,7 +23,16 @@
     "19": "Marketing and social",
     "20": "Business and personal",
     "21": "Permissions and integrations",
-    "22": "Everything else"
+    "22": "Everything else",
+    "01": "Today, search and commands",
+    "02": "Messages",
+    "03": "People",
+    "04": "Calls and voice",
+    "05": "Tasks and automation",
+    "06": "Calendar and Google",
+    "07": "AI and inference",
+    "08": "Agents",
+    "09": "Grow and development"
   },
   "entries": [
     {
@@ -68,14 +68,19 @@
       },
       "openclaw": {
         "uiRoutes": [
+          "approvals",
           "dashboard",
-          "approvals"
+          "plugin"
         ],
-        "gatewayMethods": [],
-        "extensions": [],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/today, /api/approvals; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin: Gateway method nsvx.view reads /api/today with GET only (OWNER_VIEWS in extensions/nsvx/src/client.ts); the page is native Solid in extensions/nsvx/src/owner-tabs.tsx. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -90,7 +95,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -99,13 +108,17 @@
           "web/src/screens/TodayScreen.tsx",
           "backend/clone/api.py"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390: decide, for-you, working, alerts and done tiles with counts; rows open their task; sign-in state in pt-PT"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
-        "Native approvals cover tool runs; NSVX decisions cover business actions. Merging them is undecided."
+        "Native approvals cover tool runs; NSVX decisions cover business actions. Merging them is undecided.",
+        "Approve and deny stay in NSVX until AgentOS exposes them as actions."
       ]
     },
     {
@@ -755,13 +768,18 @@
       "openclaw": {
         "uiRoutes": [
           "activity",
+          "plugin",
           "sessions"
         ],
-        "gatewayMethods": [],
-        "extensions": [],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/tarefas-ao-vivo; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin: Gateway method nsvx.view reads /api/tarefas-ao-vivo/summary and /tasks with GET only (OWNER_VIEWS in extensions/nsvx/src/client.ts); the page is native Solid in extensions/nsvx/src/owner-tabs.tsx. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -776,7 +794,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -785,12 +807,17 @@
           "web/src/screens/LiveTasks.tsx",
           "backend/clone/live_tasks/"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390: running, queue, review, failed and done totals; per-server counts; state filter; 30 s refresh while visible"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Task logs and prompts (/tasks/{key}/log) are not shown yet."
+      ]
     },
     {
       "id": "missions",
@@ -827,16 +854,20 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "sessions",
-          "new-session"
+          "new-session",
+          "plugin",
+          "sessions"
         ],
-        "gatewayMethods": [],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
         "extensions": [
+          "nsvx",
           "workboard"
         ],
         "chatTools": []
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/missions, /api/commands; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin: Gateway method nsvx.view reads /api/missions and /api/missions/{id}/events with GET only (OWNER_VIEWS in extensions/nsvx/src/client.ts); the page is native Solid in extensions/nsvx/src/owner-tabs.tsx. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -851,7 +882,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -860,12 +895,17 @@
           "web/src/screens/Missions.tsx",
           "backend/clone/agentos/"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390: active, for-you, done and all filters; stuck and waiting badges; task history; ?tab=tasks&mission= deep link"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Creating tasks from commands (/api/commands) is not built yet."
+      ]
     },
     {
       "id": "autonomy-controls",
@@ -1247,7 +1287,7 @@
       "title": "Action contracts and approvals",
       "family": "08",
       "priority": "P0",
-      "status": "missing",
+      "status": "blocked",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1276,12 +1316,27 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.actions.get",
+          "nsvx.actions.list",
+          "nsvx.actions.run",
+          "nsvx.approvals.decide",
+          "nsvx.approvals.list",
+          "nsvx.status",
+          "nsvx.tasks.list"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_actions",
+          "nsvx_run"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin Actions tab and chat tools call /api/agentos/v1 with NSVX_AGENTOS_TOKEN as a bearer token, an Idempotency-Key per intent, and approval decisions by people only (extensions/nsvx/src/client.ts, tools.ts).",
       "verification": {
         "requires": [
           "discovery",
@@ -1309,7 +1364,7 @@
         "runtime": []
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": []
     },
@@ -1318,7 +1373,7 @@
       "title": "Agent org chart",
       "family": "08",
       "priority": "P0",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1346,7 +1401,7 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "agents"
+          "plugin"
         ],
         "gatewayMethods": [
           "agents.list",
@@ -1354,10 +1409,12 @@
           "node.list",
           "sessions.list"
         ],
-        "extensions": [],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "None needed: read the same Gateway methods openclaw_admin reads.",
+      "adapter": "None: the nsvx Team tab reads this Gateway's agents.list, config.get, sessions.list and node.list, the same methods openclaw_admin reads (extensions/nsvx/src/org.ts).",
       "verification": {
         "requires": [
           "discovery",
@@ -1372,7 +1429,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -1382,7 +1443,9 @@
           "web/src/components/OpenClawManager.tsx",
           "web/src/logic/openclawGraph.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390: Team tab renders the default agent from agents.list"
+        ]
       },
       "blockers": [],
       "unknowns": [
@@ -1394,7 +1457,7 @@
       "title": "Change who an agent reports to",
       "family": "08",
       "priority": "P0",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1420,15 +1483,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [
-          "config.get",
-          "config.patch"
+        "uiRoutes": [
+          "plugin"
         ],
-        "extensions": [],
+        "gatewayMethods": [
+          "agents.list",
+          "config.get",
+          "config.patch",
+          "node.list",
+          "sessions.list"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "Same config.patch shape as openclaw_admin move_patch. Writes made here skip the NSVX version log.",
+      "adapter": "nsvx Team tab: Reports to select writes config.patch with the same shape as openclaw_admin move_patch, against a fresh config.get hash (moveAgentPatch in extensions/nsvx/src/org.ts, unit tested in org.test.ts). Writes made here skip the NSVX version log.",
       "verification": {
         "requires": [
           "discovery",
@@ -1455,14 +1525,16 @@
         "runtime": []
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Unit tested only; the save was not driven in a browser yet."
+      ]
     },
     {
       "id": "architecture-assign",
       "title": "Run an agent on a device",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1486,15 +1558,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [
-          "config.patch",
-          "node.list"
+        "uiRoutes": [
+          "plugin"
         ],
-        "extensions": [],
+        "gatewayMethods": [
+          "agents.list",
+          "config.get",
+          "config.patch",
+          "node.list",
+          "sessions.list"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "config.patch on tools.exec.node, as openclaw_admin assign_patch.",
+      "adapter": "nsvx Team tab: Runs on select writes config.patch on tools.exec.node, as openclaw_admin assign_patch (assignAgentPatch in extensions/nsvx/src/org.ts).",
       "verification": {
         "requires": [
           "discovery",
@@ -1520,7 +1599,9 @@
         "runtime": []
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Unit tested only; the save was not driven in a browser yet."
+      ]
     },
     {
       "id": "architecture-history",
