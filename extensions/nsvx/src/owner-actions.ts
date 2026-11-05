@@ -1,7 +1,7 @@
 import { NsvxError } from "./nsvx-client-core.js";
 
 /**
- * The AgentOS read action behind each Access, Legal, Research, Marketing, AI, and Homes read, so a Gateway with only the bearer
+ * The AgentOS read action behind each Access, Legal, Research, Marketing, AI, Homes, and Calls read, so a Gateway with only the bearer
  * token can open those tabs (NSVX's map: `docs/agentos/OPENCLAW_OWNER_TABS.md`). A view with no entry, or whose action
  * NSVX does not serve yet, stays `token-pending` by itself. Owner writes never go through here.
  */
@@ -92,6 +92,13 @@ export const OWNER_VIEW_ACTIONS = {
   stayTasks: "clone.homes.stay.tasks",
   stayMaintenance: "clone.homes.stay.maintenance",
   stayInventory: "clone.homes.stay.inventory",
+  callsStatus: "clone.calls.status",
+  calls: "clone.calls.list",
+  call: "clone.calls.get",
+  callContext: "clone.calls.context",
+  callRecordings: "clone.calls.recordings",
+  callsSocial: "clone.calls.social",
+  phoneCards: "clone.phone.cards",
 } as const;
 
 export const OWNER_FILE_ACTIONS = {
