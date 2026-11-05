@@ -85,13 +85,14 @@ or internal service endpoints that still need a decision.
 
 ## Built in Control
 
-The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page with eight tabs.
+The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page with these tabs.
 
 | Tab         | What it does                                                 | Data owner                       |
 | ----------- | ------------------------------------------------------------ | -------------------------------- |
 | Today       | Decisions, questions, running and done tasks, alerts         | NSVX owner screens (read only)   |
 | Messages    | Inbox by channel, thread, approve drafts, reply, take over   | NSVX owner screens and changes   |
 | Quick reply | Paste, write with AI, change, copy, history                  | NSVX Quick Reply drafts          |
+| People      | People, person page, interests, places, memory, groups       | NSVX owner screens and changes   |
 | Tasks       | Task list with filters and each task's history               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
@@ -112,6 +113,14 @@ rules; the draft lands in the composer or on screen and is never sent by itself.
 owner's own turns: unanswered, find, read, draft, take over, and auto replies. It never sends, because message text
 from other people reaches the model and could carry instructions. `ui/src/e2e/nsvx-messages.e2e.test.ts` covers the
 list, filters, thread, AI draft, send, approve, take over, and Quick reply at 1280 and 390 wide.
+
+People reads NSVX `/api/people`, each person, their interests, places, contact details, and private groups through
+`nsvx.view`, and changes them only through `nsvx.people.change` and `nsvx.groups.change`, one fixed NSVX route
+each. Group changes carry the revision the owner saw, so NSVX answers a stale one with `conflict` and the tab
+reloads; proposing a place carries an idempotency key. Nothing there sends a message: the participant invite and
+the participant's own page stay in NSVX. Chat gets `nsvx_people` on the owner's own turns: find, read, places,
+groups, mode, topic, and group members. `ui/src/e2e/nsvx-people.e2e.test.ts` covers the list, person page, mode,
+interests, memory, and group confirm at 1280 and 390 wide.
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
@@ -134,8 +143,9 @@ repository is public and the owner is anonymous on Git. The original is
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`, and
-  optional `nsvx_finance` tools (`nsvx_messages` never sends; finance is read-only).
+  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`,
+  `nsvx_people`, and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never send; finance is
+  read-only).
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.

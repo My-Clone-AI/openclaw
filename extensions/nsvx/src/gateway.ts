@@ -14,6 +14,7 @@ import {
   startQuickReply,
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
+import { changeGroup, changePerson } from "./people.js";
 import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
 
@@ -140,6 +141,10 @@ export function registerNsvxGatewayMethods(
     regenerateQuickReply(client, params),
   );
   method("nsvx.quickReply.delete", "operator.write", (params) => deleteQuickReply(client, params));
+  // People and groups read through nsvx.view; these are the owner's changes, each on one fixed NSVX route.
+  // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
+  method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));
+  method("nsvx.groups.change", "operator.write", (params) => changeGroup(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.
