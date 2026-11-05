@@ -215,6 +215,7 @@ suite.define(() => {
                   response: { events, fresh_at: new Date().toISOString(), errors: [] },
                 },
                 { match: { view: "calendarEvent" }, response: detail },
+                { match: { view: "ownerReminders" }, response: { reminders: [] } },
                 {
                   match: { view: "workspaceIntent" },
                   response: {
@@ -331,6 +332,148 @@ suite.define(() => {
         });
         expect(typeof submitted.clientKey).toBe("string");
         expect(await gateway.getRequests("nsvx.agenda.submit")).toHaveLength(1);
+        expect(pageErrors).toEqual([]);
+      },
+    );
+  });
+
+  it("follows up by email, reminds, and exports NSVX's calendar file", async () => {
+    await suite.withPage(
+      { viewport: desktop, locale: "en-US", timezoneId: zone, serviceWorkers: "block" },
+      async ({ page }) => {
+        const pageErrors: string[] = [];
+        page.on("pageerror", (error) => pageErrors.push(error.message));
+        const gateway = await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          featureMethods: [
+            ...defaultControlUiFeatureMethods,
+            "nsvx.view",
+            "nsvx.agenda.preview",
+            "nsvx.agenda.submit",
+            "nsvx.agenda.remind",
+            "nsvx.agenda.ics",
+          ],
+          methodResponses: {
+            "plugins.list": { plugins: [], diagnostics: [], mutationAllowed: true },
+            "nsvx.view": {
+              cases: [
+                { match: { view: "workspaceStatus" }, response: status },
+                { match: { view: "calendars" }, response: calendars },
+                {
+                  match: { view: "calendarEvents" },
+                  response: { events, fresh_at: new Date().toISOString(), errors: [] },
+                },
+                { match: { view: "calendarEvent" }, response: detail },
+                {
+                  match: { view: "ownerReminders" },
+                  response: {
+                    reminders: [
+                      {
+                        target_id: "e1",
+                        label: "Design review",
+                        due_at: new Date(Date.now() - 60_000).toISOString(),
+                      },
+                    ],
+                  },
+                },
+                {
+                  match: { view: "workspaceIntent" },
+                  response: {
+                    id: "i2",
+                    operation: "gmail.send",
+                    state: "accepted",
+                    lifecycle: "accepted_by_google",
+                    lifecycle_label: "Aceite pelo Google",
+                    error: null,
+                  },
+                },
+              ],
+            },
+            "nsvx.agenda.ics": {
+              fileName: "agenda.ics",
+              ics: "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n",
+            },
+            "nsvx.agenda.remind": { saved: true },
+            "nsvx.agenda.preview": {
+              operation: "gmail.send",
+              effect: "external",
+              summary: "Send «Follow-up: Design review» to ana@example.com, rui@example.com",
+              account: "me@example.com",
+              terms_hash: "d".repeat(64),
+            },
+            "nsvx.agenda.submit": {
+              id: "i2",
+              operation: "gmail.send",
+              state: "pending",
+              lifecycle: "queued",
+              lifecycle_label: "Na fila",
+              error: null,
+            },
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx&tab=agenda`);
+        const surface = page.locator(".nsvx");
+
+        // A due NSVX reminder shows above the week and opens its event.
+        const due = surface.locator(".nsvx-agenda__due");
+        await due.getByText("Design review", { exact: true }).waitFor();
+        const fileButton = surface.getByRole("button", { name: "Calendar file" });
+        await fileButton.waitFor();
+        await capture(page, surface, "reminders", [due, fileButton]);
+        const download = page.waitForEvent("download");
+        await fileButton.click();
+        expect((await download).suggestedFilename()).toBe("agenda.ics");
+        await gateway.waitForRequest("nsvx.agenda.ics");
+
+        await due.getByRole("button", { name: /Design review/ }).click();
+        await surface.getByText("Ana Costa", { exact: true }).waitFor();
+
+        // Reminder: the browser's wall time goes to NSVX as one instant.
+        await surface.getByRole("button", { name: "Remind", exact: true }).click();
+        await surface.getByLabel("Remind me").fill(`${day(1)}T09:30`);
+        await capture(page, surface, "remind", [surface.getByLabel("Remind me")]);
+        await surface.getByRole("button", { name: "Save", exact: true }).click();
+        const reminded = (await gateway.waitForRequest("nsvx.agenda.remind")).params as Record<
+          string,
+          unknown
+        >;
+        expect(reminded).toMatchObject({ eventId: "e1", action: "set", label: "Design review" });
+        expect(reminded.at).toBe(new Date(at(1, "09:30")).toISOString());
+        await surface.getByText("Reminder set", { exact: true }).waitFor();
+
+        // Follow-up: to every guest, reviewed with NSVX's terms, sent once.
+        await surface.getByRole("button", { name: /Follow up$/ }).click();
+        expect(await surface.getByLabel("Subject", { exact: true }).inputValue()).toBe(
+          "Follow-up: Design review",
+        );
+        await surface.getByLabel("Message", { exact: true }).fill("Thanks all. Notes to follow.");
+        await capture(page, surface, "followup", [surface.getByLabel("Message", { exact: true })]);
+        await surface.getByRole("button", { name: "Review", exact: true }).click();
+        const send = surface.getByRole("button", { name: "Send", exact: true });
+        await send.waitFor();
+        await surface.getByText("They get this email", { exact: true }).waitFor();
+        const previewed = (await gateway.waitForRequest("nsvx.agenda.preview")).params as {
+          operation: string;
+          payload: Record<string, unknown>;
+        };
+        expect(previewed).toMatchObject({
+          operation: "gmail.send",
+          payload: {
+            to: ["ana@example.com", "rui@example.com"],
+            subject: "Follow-up: Design review",
+            body: "Thanks all. Notes to follow.",
+            event_ref: "e1",
+          },
+        });
+        await capture(page, surface, "followup-review", [send]);
+        await send.click();
+        await surface.getByText("Done", { exact: true }).waitFor({ timeout: 10_000 });
+        expect(await gateway.getRequests("nsvx.agenda.submit")).toHaveLength(1);
+        expect((await gateway.waitForRequest("nsvx.agenda.submit")).params).toMatchObject({
+          operation: "gmail.send",
+          termsHash: "d".repeat(64),
+        });
         expect(pageErrors).toEqual([]);
       },
     );

@@ -1,7 +1,7 @@
 import {
-  CALENDAR_OPERATIONS,
+  AGENDA_OPERATIONS,
   REPLY_STANCES,
-  type CalendarOperation,
+  type AgendaOperation,
   type Intent,
   type MeetingAiKind,
   type Preview,
@@ -37,11 +37,11 @@ function zone(value: unknown): string {
   return value;
 }
 
-function operation(value: unknown): CalendarOperation {
-  if (!CALENDAR_OPERATIONS.includes(value as CalendarOperation)) {
-    throw new NsvxError("invalid", `operation must be one of ${CALENDAR_OPERATIONS.join(", ")}.`);
+function operation(value: unknown): AgendaOperation {
+  if (!AGENDA_OPERATIONS.includes(value as AgendaOperation)) {
+    throw new NsvxError("invalid", `operation must be one of ${AGENDA_OPERATIONS.join(", ")}.`);
   }
-  return value as CalendarOperation;
+  return value as AgendaOperation;
 }
 
 /** NSVX validates the payload itself; this only bounds what crosses the socket. */
@@ -158,4 +158,32 @@ export async function meetingFollowUp(client: NsvxClient, params: Record<string,
     default:
       throw new NsvxError("invalid", "action must be refresh, agenda, or minutes.");
   }
+}
+
+/**
+ * Sets, moves, or dismisses NSVX's own reminder for one event. NSVX keeps one per event (a new time replaces the
+ * old), so repeating a call is harmless.
+ */
+export async function eventReminder(client: NsvxClient, params: Record<string, unknown>) {
+  const target = { kind: "calendar", target_id: id(params.eventId, "eventId") };
+  const label = typeof params.label === "string" ? params.label.trim().slice(0, 300) : "";
+  if (!label) {
+    throw new NsvxError("invalid", "label is required.");
+  }
+  if (params.action === "dismiss") {
+    // NSVX's dismiss route reads the same body shape as setting one; only kind and target_id matter.
+    return client.writeOwner<{ dismissed: boolean }>("reminderDismiss", undefined, {
+      ...target,
+      label,
+      due_at: new Date().toISOString(),
+    });
+  }
+  if (params.action !== "set") {
+    throw new NsvxError("invalid", "action must be set or dismiss.");
+  }
+  return client.writeOwner<{ saved: boolean }>("reminderSet", undefined, {
+    ...target,
+    label,
+    due_at: new Date(instant(params.at, "at")).toISOString(),
+  });
 }

@@ -94,6 +94,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts          |
 | People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes   |
 | Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace) |
+| Agenda      | Day, week, month; book, move, cancel; follow up, remind, calendar file       | NSVX Google Calendar (workspace) |
 | Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)   |
 | Group       | Apps, app page, Errors, Visits, Servers, Mail                                | NSVX owner screens and changes   |
@@ -105,6 +106,34 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Grow        | Coding apps (mode, run, stop all, log), ideas, brain, timers, model chains   | NSVX Grow, Build Me, and brain   |
 | Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)      |
 | Progress    | This registry by family                                                      | `registry.json`, copied at build |
+| Tab         | What it does                                                                 | Data owner                        |
+| ----------- | ---------------------------------------------------------------------------- | --------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)    |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes    |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts           |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)    |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)    |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions       |
+| Aviation    | Logbook, yesterday's flights, docs, check-in, roster, settings, exports      | NSVX `/api/aviation`, `/api/work` |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`  |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages      |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)       |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build  |
+| Tab         | What it does                                                                 | Data owner                          |
+| ----------- | ---------------------------------------------------------------------------- | ----------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)      |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes      |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts             |
+| People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes      |
+| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace)    |
+| Fleet       | TVDE home, drivers, cars, plan, money, km, ask, driver portal, Uber trips    | NSVX `/api/tvde`, `/api/transports` |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`    |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages        |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)         |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build    |
 
 Every Team tree change (move, device, pause, resume, undo) goes through the plugin's `nsvx.team.*` methods, which log
 the `agents` config section before the change in plugin state (`nsvx-team-history`, last 100). History lists them and
@@ -141,9 +170,12 @@ Agenda reads NSVX `/api/workspace` (status, calendars, events, one event, an int
 live Google read on open as the NSVX screen does. Booking, moving, and cancelling go through `nsvx.agenda.preview`,
 then `nsvx.agenda.submit` with the preview's terms hash and one client key per intent, so NSVX refuses changed terms
 and an uncertain result is followed, never resubmitted. Chat gets `nsvx_agenda` on the owner's own turns: events,
-event, free, summary, book, move, and cancel; a change Google would announce to guests returns `needsOwner` with the
-terms instead of running. `ui/src/e2e/nsvx-agenda.e2e.test.ts` covers week, month, event, booking, and review at
-1280 and 390 wide.
+event, free, summary, book, move, cancel, followup, remind, and reminders; a change Google would announce to guests
+and an email send return `needsOwner` with the terms instead of running. The follow-up email to an event's guests uses
+the same preview and submit (`gmail.draft`, `gmail.send`); reminders use NSVX's owner reminders through
+`nsvx.agenda.remind`; the calendar file is NSVX's own `calendar.ics` feed through `nsvx.agenda.ics`.
+`ui/src/e2e/nsvx-agenda.e2e.test.ts` covers week, month, event, booking, review, reminders, the calendar file, and the
+follow-up email at 1280 and 390 wide.
 Device and Health read NSVX through `nsvx.view`, `nsvx.sync.overview`, `nsvx.health`, and `nsvx.legal`, and change it
 only through `nsvx.desktop.*` and `nsvx.sync.*`, each one fixed `OWNER_WRITES` route. Sync sends NSVX's own four
 replayable changes (task, draft, rename task, rename person) with the caller's key and time, so a retry after an
@@ -169,6 +201,14 @@ revision and version), `nsvx.brain.task`, and `nsvx.brain.roles`, each one fixed
 text only and its tracking link stays in NSVX; a brain task has no NSVX idempotency key, so an uncertain answer is
 reported, never repeated. Chat gets `nsvx_grow` on the owner's own turns. `ui/src/e2e/nsvx-grow.e2e.test.ts` covers
 all four sections at 1280 and 390 wide (`ui/e2e-shots/nsvx-grow`).
+Aviation reads NSVX `/api/aviation` (overview, logbook, previous-day flights, Flight Log, documents, check-ins,
+settings, compliance) and `/api/work` (HiFly roster, mail, portal) through `nsvx.view`, and changes them only through
+`nsvx.aviation.change`, one fixed `OWNER_WRITES` route per action. NSVX validates every flight and keeps revisions, so
+Control never fills a field the pilot did not state. Exports and document downloads come through `nsvx.aviation.file`;
+document pages are NSVX's own page images. A second check-in for a booking that is still active comes back as
+`conflict` instead of a duplicate airline run. Chat gets `nsvx_aviation` on the owner's own turns: overview, logbook,
+entry, missing, pending, confirm, checkYesterday, compare, documents, checkins, airlines, checkin, cancelCheckin, and
+roster. `ui/src/e2e/nsvx-aviation.e2e.test.ts` covers every section at 1280 and 390 wide (`ui/e2e-shots/nsvx-aviation`).
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
