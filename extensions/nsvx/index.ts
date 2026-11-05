@@ -2,7 +2,7 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
-import { createTeamService, openPausedStore } from "./src/team.js";
+import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import { createNsvxTeamTool, createNsvxTools } from "./src/tools.js";
 
 export default definePluginEntry({
@@ -16,7 +16,10 @@ export default definePluginEntry({
       token: process.env.NSVX_AGENTOS_TOKEN,
       ownerSession: process.env.NSVX_OWNER_SESSION,
     });
-    const team = createTeamService(api.runtime, () => openPausedStore(api.runtime));
+    const team = createTeamService(api.runtime, () => ({
+      paused: openPausedStore(api.runtime),
+      history: openHistoryStore(api.runtime),
+    }));
     registerNsvxGatewayMethods(api, client, team);
     for (const tool of createNsvxTools(client)) {
       api.registerTool(tool);

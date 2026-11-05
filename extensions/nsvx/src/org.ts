@@ -4,7 +4,7 @@ export type AgentEntry = {
   name?: string;
   identity?: { name?: string; emoji?: string };
   subagents?: { allowAgents?: string[] };
-  tools?: { exec?: { node?: string } };
+  tools?: { exec?: { host?: string; node?: string } };
 };
 
 export type TeamSession = {
@@ -97,8 +97,6 @@ export function buildTeamChart(params: {
   };
 }
 
-export type ConfigPatch = { raw: string; baseHash: string; replacePaths: string[] };
-
 export class TeamMoveError extends Error {
   constructor(readonly reason: "unknown" | "self" | "loop") {
     super(reason);
@@ -107,13 +105,9 @@ export class TeamMoveError extends Error {
 }
 
 /** Gives `agent` exactly one supervisor. Reparenting under a descendant would orphan the branch. */
-export function moveAgentPatch(
-  entries: Record<string, AgentEntry>,
-  agent: string,
-  supervisor: string,
-  baseHash: string,
-): ConfigPatch {
-  if (!entries[supervisor]) {
+export function moveAgent(entries: Record<string, AgentEntry>, agent: string, supervisor: string) {
+  const target = entries[supervisor];
+  if (!target) {
     throw new TeamMoveError("unknown");
   }
   if (agent === supervisor) {
@@ -132,38 +126,28 @@ export function moveAgentPatch(
   if (reachable.has(supervisor)) {
     throw new TeamMoveError("loop");
   }
-  const changes: Record<string, unknown> = {};
-  const replacePaths: string[] = [];
-  const set = (parent: string, allowAgents: string[]) => {
-    changes[parent] = { subagents: { allowAgents } };
-    replacePaths.push(`agents.entries.${parent}.subagents.allowAgents`);
-  };
   for (const [parent, entry] of Object.entries(entries)) {
     const children = entry.subagents?.allowAgents ?? [];
     if (parent !== supervisor && children.includes(agent)) {
-      set(
-        parent,
-        children.filter((child) => child !== agent),
-      );
+      entry.subagents = { ...entry.subagents, allowAgents: children.filter((id) => id !== agent) };
     }
   }
-  const target = entries[supervisor].subagents?.allowAgents ?? [];
-  if (!target.includes(agent)) {
-    set(supervisor, [...target, agent]);
+  const children = target.subagents?.allowAgents ?? [];
+  if (!children.includes(agent)) {
+    target.subagents = { ...target.subagents, allowAgents: [...children, agent] };
   }
-  return { raw: JSON.stringify({ agents: { entries: changes } }), baseHash, replacePaths };
 }
 
 /** Runs an agent's commands on a paired device, or back on the Gateway host with null. */
-export function assignAgentPatch(
+export function assignAgent(
+  entries: Record<string, AgentEntry>,
   agent: string,
   node: string | null,
-  baseHash: string,
-): ConfigPatch {
-  const exec = node ? { host: "node", node } : { host: null, node: null };
-  return {
-    raw: JSON.stringify({ agents: { entries: { [agent]: { tools: { exec } } } } }),
-    baseHash,
-    replacePaths: [],
-  };
+) {
+  const entry = entries[agent];
+  if (!entry) {
+    throw new TeamMoveError("unknown");
+  }
+  const { host: _host, node: _node, ...exec } = entry.tools?.exec ?? {};
+  entry.tools = { ...entry.tools, exec: node ? { ...exec, host: "node", node } : exec };
 }

@@ -17,7 +17,6 @@ const en = {
   error: "Error",
   idle: "Idle",
   saved: "Saved",
-  changedElsewhere: "Changed elsewhere. Try again.",
   moveLoop: "That would create a loop.",
   noPermission: "No permission",
   connected: "Connected",
@@ -97,6 +96,13 @@ const en = {
   resume: "Resume",
   paused: "Paused",
   resumed: "Resumed",
+  history: "History",
+  undo: "Undo",
+  restored: "Restored",
+  unconfirmed: "Not confirmed",
+  c_move: "Move",
+  c_assign: "Device",
+  chat: "Chat",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -120,7 +126,6 @@ const pt: Record<MessageKey, string> = {
   error: "Erro",
   idle: "Parado",
   saved: "Guardado",
-  changedElsewhere: "Alterado noutro local. Tente de novo.",
   moveLoop: "Isso criaria um ciclo.",
   noPermission: "Sem permissão",
   connected: "Ligado",
@@ -200,6 +205,13 @@ const pt: Record<MessageKey, string> = {
   resume: "Retomar",
   paused: "Em pausa",
   resumed: "Retomado",
+  history: "Histórico",
+  undo: "Anular",
+  restored: "Reposto",
+  unconfirmed: "Não confirmado",
+  c_move: "Mover",
+  c_assign: "Dispositivo",
+  chat: "Chat",
 };
 
 const es: Record<MessageKey, string> = {
@@ -221,7 +233,6 @@ const es: Record<MessageKey, string> = {
   error: "Error",
   idle: "Inactivo",
   saved: "Guardado",
-  changedElsewhere: "Cambiado en otro sitio. Inténtalo de nuevo.",
   moveLoop: "Eso crearía un bucle.",
   noPermission: "Sin permiso",
   connected: "Conectado",
@@ -301,6 +312,13 @@ const es: Record<MessageKey, string> = {
   resume: "Reanudar",
   paused: "En pausa",
   resumed: "Reanudado",
+  history: "Historial",
+  undo: "Deshacer",
+  restored: "Restaurado",
+  unconfirmed: "No confirmado",
+  c_move: "Mover",
+  c_assign: "Dispositivo",
+  chat: "Chat",
 };
 
 const CATALOGS: Record<string, Record<MessageKey, string>> = { en, pt, es };

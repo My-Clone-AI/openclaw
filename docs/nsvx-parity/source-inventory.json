@@ -5626,9 +5626,9 @@
     },
     "parity": {
       "discovered": 61,
-      "native": 8,
+      "native": 9,
       "partial": 13,
-      "missing": 39,
+      "missing": 38,
       "blocked": 1,
       "verified": 0,
       "families": [
@@ -5836,9 +5836,9 @@
           "id": "08",
           "name": "Agents",
           "discovered": 15,
-          "native": 8,
+          "native": 9,
           "partial": 3,
-          "missing": 3,
+          "missing": 2,
           "blocked": 1,
           "verified": 0
         },

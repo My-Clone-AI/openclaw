@@ -26,6 +26,8 @@ const ICONS = {
   stop: "M6 6h12v12H6z",
   resume: "M7 4v16l13-8z",
   task: "M4 12 20 4l-4 16-4-7zm8 1 8-9",
+  history: "M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5m4-1v5l3 2",
+  undo: "M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3",
 } as const;
 
 export type IconName = keyof typeof ICONS;

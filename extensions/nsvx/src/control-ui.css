@@ -756,3 +756,25 @@
 .nsvx-tile--bad .nsvx-tile__count {
   color: var(--danger);
 }
+
+.nsvx-team__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+}
+
+.nsvx-team__bar .nsvx__notice {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.nsvx-history {
+  margin: 0 0 var(--space-4);
+}
+
+.nsvx-history .nsvx-row__detail {
+  white-space: normal;
+}

@@ -64,7 +64,13 @@ export function createNsvxTools(client: NsvxClient): AnyAgentTool[] {
   ] as AnyAgentTool[];
 }
 
-/** Pause changes who may delegate to an agent, so only the owner's own turns may use it. */
+type TeamToolParams = {
+  action: "paused" | "pause" | "resume" | "history" | "rollback";
+  agentId?: string;
+  version?: string;
+};
+
+/** Pause and rollback change who may delegate to an agent, so only the owner's own turns may use them. */
 export function createNsvxTeamTool(
   team: TeamService,
   context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
@@ -73,27 +79,46 @@ export function createNsvxTeamTool(
     name: "nsvx_team",
     label: "NSVX team",
     description:
-      "List paused agents, or pause or resume one. Pause removes the agent from its leads and stops its runs; resume puts it back under the same leads. Only the owner may pause or resume.",
+      "List paused agents or recent team changes; pause or resume an agent; or roll the team back to before a change. Pause removes the agent from its leads and stops its runs; resume puts it back under the same leads. Rollback restores the agents config as it was before the given history version. Only the owner may pause, resume, or roll back.",
     parameters: Type.Object(
       {
-        action: Type.Union([Type.Literal("paused"), Type.Literal("pause"), Type.Literal("resume")]),
+        action: Type.Union([
+          Type.Literal("paused"),
+          Type.Literal("pause"),
+          Type.Literal("resume"),
+          Type.Literal("history"),
+          Type.Literal("rollback"),
+        ]),
         agentId: Type.Optional(Type.String({ description: "Agent id, for pause and resume." })),
+        version: Type.Optional(Type.String({ description: "History version id, for rollback." })),
       },
       { additionalProperties: false },
     ),
-    execute: (_toolCallId, params: { action: "paused" | "pause" | "resume"; agentId?: string }) =>
+    execute: (_toolCallId, params: TeamToolParams) =>
       outcome(async () => {
         if (params.action === "paused") {
           return team.listPaused();
         }
+        if (params.action === "history") {
+          return team.history();
+        }
         if (context.senderIsOwner !== true) {
-          throw new NsvxError("denied", "Only the owner may pause or resume agents.");
+          throw new NsvxError("denied", "Only the owner may change the team.");
+        }
+        if (params.action === "rollback") {
+          if (!params.version) {
+            throw new NsvxError("invalid", "version is required.");
+          }
+          context.assertInvocationCurrent?.();
+          return team.rollback(params.version, "chat");
         }
         if (!params.agentId) {
           throw new NsvxError("invalid", "agentId is required.");
         }
         context.assertInvocationCurrent?.();
-        return params.action === "pause" ? team.pause(params.agentId) : team.resume(params.agentId);
+        return params.action === "pause"
+          ? team.pause(params.agentId, "chat")
+          : team.resume(params.agentId, "chat");
       }),
   } as AnyAgentTool;
 }

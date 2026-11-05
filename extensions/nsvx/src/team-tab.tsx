@@ -1,17 +1,25 @@
 /** @jsxImportSource @solidjs/web */
 import type { ControlUiHost } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
+import type { MessageKey } from "./i18n.js";
 import {
-  assignAgentPatch,
   buildTeamChart,
-  moveAgentPatch,
-  TeamMoveError,
   type AgentEntry,
   type TeamAgent,
   type TeamChart,
   type TeamSession,
 } from "./org.js";
-import { createSource, errorMessage, Icon, matches, SourceView, type T } from "./ui-kit.js";
+import type { TeamVersion } from "./team.js";
+import {
+  age,
+  createSource,
+  errorMessage,
+  Icon,
+  matches,
+  SourceView,
+  type IconName,
+  type T,
+} from "./ui-kit.js";
 
 type TeamData = {
   chart: TeamChart;
@@ -126,40 +134,138 @@ function TaskBox(props: { host: ControlUiHost; t: T; agent: string; onSent: () =
   );
 }
 
+type Version = Omit<TeamVersion, "before"> & { id: string };
+
+const CHANGE: Record<TeamVersion["change"], { icon: IconName; label: MessageKey }> = {
+  move: { icon: "team", label: "c_move" },
+  assign: { icon: "plug", label: "c_assign" },
+  pause: { icon: "pause", label: "pause" },
+  resume: { icon: "resume", label: "resume" },
+  rollback: { icon: "undo", label: "undo" },
+};
+
+/** Recent team changes, newest first; Undo restores the team as it was before one. */
+function HistoryList(props: {
+  source: ReturnType<typeof createSource<{ versions: Version[] }>>;
+  t: T;
+  data: TeamData;
+  canUndo: boolean;
+  undoing: string | undefined;
+  onUndo: (version: string) => void;
+}) {
+  const agentName = (id: string) =>
+    [...props.data.chart.agents, ...props.data.chart.unlinked].find((agent) => agent.id === id)
+      ?.name ?? id;
+  const title = (version: Version) => {
+    switch (version.change) {
+      case "move":
+        return `${agentName(version.agent)} → ${agentName(version.target ?? "")}`;
+      case "assign":
+        return `${agentName(version.agent)} → ${
+          props.data.nodes.find((node) => node.nodeId === version.target)?.displayName ??
+          version.target ??
+          props.t("gatewayHost")
+        }`;
+      case "rollback":
+        return props.t("restored");
+      default:
+        return agentName(version.agent);
+    }
+  };
+  return (
+    <SourceView source={props.source} t={props.t}>
+      {(loaded) => (
+        <Show
+          when={loaded().versions.length > 0}
+          fallback={<p class="nsvx__empty">{props.t("nothing")}</p>}
+        >
+          <ul class="nsvx-list nsvx-history">
+            <For each={loaded().versions} keyed={(version) => version.id}>
+              {(version) => (
+                <li class="nsvx-row">
+                  <Icon name={CHANGE[version().change].icon} class="nsvx-row__icon" />
+                  <span class="nsvx-row__main">
+                    <span class="nsvx-row__title">{title(version())}</span>
+                    <span
+                      class={[
+                        "nsvx-row__detail",
+                        { "nsvx-row__detail--bad": version().afterHash === null },
+                      ]}
+                    >
+                      {[
+                        props.t(CHANGE[version().change].label),
+                        version().by === "chat" ? props.t("chat") : "",
+                        version().afterHash === null ? props.t("unconfirmed") : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </span>
+                  <span class="nsvx-row__age">{age(new Date(version().at).toISOString())}</span>
+                  <button
+                    type="button"
+                    class={[
+                      "nsvx__button",
+                      { "nsvx__button--danger": props.undoing === version().id },
+                    ]}
+                    disabled={!props.canUndo}
+                    onClick={() => props.onUndo(version().id)}
+                  >
+                    <Icon name="undo" />
+                    {props.t(props.undoing === version().id ? "confirm" : "undo")}
+                  </button>
+                </li>
+              )}
+            </For>
+          </ul>
+        </Show>
+      )}
+    </SourceView>
+  );
+}
+
 export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
   const team = createSource(props.host, () => loadTeam(props.host));
   const [notice, setNotice] = createSignal("");
   const [saving, setSaving] = createSignal(false);
   void team.refresh();
 
-  /** Always patches against a fresh read, so a stale page cannot overwrite a newer edit. */
-  const save = async (buildPatch: (snapshot: ConfigSnapshot) => unknown) => {
+  const [showHistory, setShowHistory] = createSignal(false);
+  const history = createSource(props.host, () =>
+    props.host.request<{ versions: Version[] }>("nsvx.team.history"),
+  );
+
+  /** Tree changes go through the plugin, which logs each one so Undo can restore it. */
+  const change = async (method: string, params: Record<string, unknown>, done: MessageKey) => {
     setSaving(true);
     setNotice("");
     try {
-      const snapshot = await props.host.request<ConfigSnapshot>("config.get");
-      await props.host.request("config.patch", buildPatch(snapshot) as Record<string, unknown>);
-      setNotice(props.t("saved"));
+      await props.host.request(method, params);
+      setNotice(props.t(done));
     } catch (cause) {
-      const conflict = /hash|changed|conflict|stale/i.test(errorMessage(props.host, cause));
+      const code = (cause as { gatewayCode?: string }).gatewayCode;
       setNotice(
-        cause instanceof TeamMoveError
+        method === "nsvx.team.move" && code === "invalid"
           ? props.t("moveLoop")
-          : conflict
-            ? props.t("changedElsewhere")
-            : errorMessage(props.host, cause),
+          : errorMessage(props.host, cause),
       );
     } finally {
       setSaving(false);
-      await team.refresh();
+      await Promise.all([team.refresh(), showHistory() ? history.refresh() : undefined]);
     }
   };
-  const move = (agent: string, supervisor: string) =>
-    save((snapshot) =>
-      moveAgentPatch(snapshot.parsed?.agents?.entries ?? {}, agent, supervisor, snapshot.hash),
-    );
-  const assign = (agent: string, node: string) =>
-    save((snapshot) => assignAgentPatch(agent, node || null, snapshot.hash));
+  const move = (agentId: string, supervisorId: string) =>
+    change("nsvx.team.move", { agentId, supervisorId }, "saved");
+  const assign = (agentId: string, nodeId: string) =>
+    change("nsvx.team.assign", { agentId, nodeId }, "saved");
+  const toggleHistory = () => {
+    // Solid 2 does not read a written signal back until the next flush, so use the new value.
+    const open = !showHistory();
+    setShowHistory(open);
+    if (open) {
+      void history.refresh();
+    }
+  };
   const [stopping, setStopping] = createSignal<string>();
   const [tasking, setTasking] = createSignal<string>();
   /** NSVX "restart": end the agent's live runs and drop what is queued behind them. */
@@ -193,19 +299,20 @@ export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
       return;
     }
     setPausing(undefined);
-    setSaving(true);
-    setNotice("");
-    try {
-      await props.host.request(paused ? "nsvx.team.resume" : "nsvx.team.pause", {
-        agentId: agent.id,
-      });
-      setNotice(props.t(paused ? "resumed" : "paused"));
-    } catch (cause) {
-      setNotice(errorMessage(props.host, cause));
-    } finally {
-      setSaving(false);
-      await team.refresh();
+    await change(
+      paused ? "nsvx.team.resume" : "nsvx.team.pause",
+      { agentId: agent.id },
+      paused ? "resumed" : "paused",
+    );
+  };
+  const [undoing, setUndoing] = createSignal<string>();
+  const undo = async (version: string) => {
+    if (undoing() !== version) {
+      setUndoing(version);
+      return;
     }
+    setUndoing(undefined);
+    await change("nsvx.team.rollback", { version }, "restored");
   };
 
   const canEdit = () => props.host.connection.canAdmin && !saving();
@@ -319,9 +426,30 @@ export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
     <SourceView source={team} t={props.t}>
       {(data) => (
         <>
-          <p class="nsvx__notice" role="status">
-            {notice()}
-          </p>
+          <div class="nsvx-team__bar">
+            <p class="nsvx__notice" role="status">
+              {notice()}
+            </p>
+            <button
+              type="button"
+              class={["nsvx__button", { "nsvx__tab--active": showHistory() }]}
+              aria-expanded={showHistory() ? "true" : "false"}
+              onClick={toggleHistory}
+            >
+              <Icon name="history" />
+              {props.t("history")}
+            </button>
+          </div>
+          <Show when={showHistory()}>
+            <HistoryList
+              source={history}
+              t={props.t}
+              data={data()}
+              canUndo={canEdit()}
+              undoing={undoing()}
+              onUndo={(version) => void undo(version)}
+            />
+          </Show>
           <ul class="nsvx-team">
             <For each={visible(data().chart.agents)} keyed={(agent) => agent.id}>
               {(agent) => <AgentRow agent={agent()} data={data()} />}

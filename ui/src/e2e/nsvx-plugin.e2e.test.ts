@@ -347,6 +347,90 @@ suite.define(() => {
     );
   });
 
+  it("moves an agent through the plugin and undoes a change from history", async () => {
+    await suite.withPage(
+      { viewport: desktop, locale: "en-US", serviceWorkers: "block" },
+      async ({ page }) => {
+        const at = Date.now();
+        const gateway = await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          methodResponses: {
+            ...teamResponses([]),
+            "nsvx.team.move": { id: "tester", supervisor: "main", version: "v3" },
+            "nsvx.team.history": {
+              versions: [
+                {
+                  id: "v2",
+                  at: at - 60_000,
+                  change: "assign",
+                  agent: "coder",
+                  target: "mac",
+                  by: "control",
+                  beforeHash: "a",
+                  afterHash: "b",
+                },
+                {
+                  id: "v1",
+                  at: at - 7_200_000,
+                  change: "move",
+                  agent: "tester",
+                  target: "coder",
+                  by: "chat",
+                  beforeHash: null,
+                  afterHash: null,
+                },
+              ],
+            },
+            "nsvx.team.rollback": { version: "v4", restored: "v1", skipped: [] },
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx&tab=team`);
+        const surface = page.locator(".nsvx");
+        const tester = surface
+          .locator(".nsvx-agent")
+          .filter({ has: page.locator(".nsvx-agent__name", { hasText: /^Tester$/ }) });
+        await tester.getByRole("combobox", { name: "Reports to" }).selectOption("main");
+        expect((await gateway.waitForRequest("nsvx.team.move")).params).toEqual({
+          agentId: "tester",
+          supervisorId: "main",
+        });
+        await surface.locator(".nsvx__notice", { hasText: "Saved" }).waitFor();
+
+        await surface.getByRole("button", { name: "History" }).click();
+        const rows = surface.locator(".nsvx-history .nsvx-row");
+        await rows.first().getByText("Coder → Mac", { exact: true }).waitFor();
+        await rows.nth(1).getByText("Move · Chat · Not confirmed", { exact: true }).waitFor();
+
+        if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
+          await rows.nth(1).getByRole("button", { name: "Undo" }).click();
+          for (const viewport of [desktop, { width: 390, height: 844 }]) {
+            const frame = await takeControlUiScreenshotFrame(
+              page,
+              surface,
+              [surface.getByRole("button", { name: "History" }), rows.nth(1)],
+              { animations: "disabled", viewport },
+            );
+            await writeFile(
+              path.join(suite.artifactDir, `nsvx-history-${viewport.width}.png`),
+              frame.png,
+            );
+          }
+          await page.setViewportSize(desktop);
+        } else {
+          await rows.nth(1).getByRole("button", { name: "Undo" }).click();
+        }
+
+        // Undo asks once, then restores exactly that version.
+        await rows.nth(1).getByRole("button", { name: "Confirm" }).click();
+        expect((await gateway.waitForRequest("nsvx.team.rollback")).params).toEqual({
+          version: "v1",
+        });
+        await surface.locator(".nsvx__notice", { hasText: "Restored" }).waitFor();
+      },
+    );
+  });
+
   it("asks for the NSVX sign-in instead of showing an error when the Gateway has none", async () => {
     await suite.withPage(
       { viewport: { width: 390, height: 844 }, locale: "pt-PT", serviceWorkers: "block" },

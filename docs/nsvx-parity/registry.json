@@ -1491,15 +1491,14 @@
           "plugin"
         ],
         "gatewayMethods": [
-          "config.get",
-          "config.patch"
+          "nsvx.team.move"
         ],
         "extensions": [
           "nsvx"
         ],
         "chatTools": []
       },
-      "adapter": "Team tab: same config.patch shape as openclaw_admin move_patch, pinned to the read hash.",
+      "adapter": "Team tab Reports to calls nsvx.team.move: the plugin service applies the openclaw_admin move_patch rules to Gateway config and logs the change for Undo.",
       "verification": {
         "requires": [
           "discovery",
@@ -1514,23 +1513,31 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/mutations.py",
           "backend/clone/openclaw_admin/service.py",
           "extensions/nsvx/src/org.test.ts",
-          "extensions/nsvx/src/org.ts"
+          "extensions/nsvx/src/org.ts",
+          "extensions/nsvx/src/team.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/team.test.ts: change logged with its before-image against fake config, 2026-11-05",
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [],
       "unknowns": [
-        "Changes made here are not written to the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
-        "NSVX refuses to move a paused agent; this page cannot see NSVX pause state.",
+        "Changes made here are logged in this plugin's history, not in the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
         "Not yet run against the live Gateway."
       ]
     },
@@ -1567,15 +1574,15 @@
           "plugin"
         ],
         "gatewayMethods": [
-          "config.patch",
-          "node.list"
+          "node.list",
+          "nsvx.team.assign"
         ],
         "extensions": [
           "nsvx"
         ],
         "chatTools": []
       },
-      "adapter": "Team tab: config.patch on tools.exec, as openclaw_admin assign_patch.",
+      "adapter": "Team tab Runs on calls nsvx.team.assign: the plugin service sets tools.exec like openclaw_admin assign_patch and logs the change for Undo.",
       "verification": {
         "requires": [
           "discovery",
@@ -1594,17 +1601,20 @@
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/mutations.py",
           "extensions/nsvx/src/org.test.ts",
-          "extensions/nsvx/src/org.ts"
+          "extensions/nsvx/src/org.ts",
+          "extensions/nsvx/src/team.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/team.test.ts: change logged with its before-image against fake config, 2026-11-05"
+        ]
       },
       "blockers": [],
       "unknowns": [
-        "Changes made here are not written to the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
+        "Changes made here are logged in this plugin's history, not in the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
         "Not yet run against the live Gateway."
       ]
     },
@@ -1613,7 +1623,7 @@
       "title": "Config history and rollback",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1639,14 +1649,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [
-          "audit.activity.list"
+        "uiRoutes": [
+          "plugin"
         ],
-        "extensions": [],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.team.history",
+          "nsvx.team.rollback"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_team"
+        ]
       },
-      "adapter": "Read the NSVX version log through a proxy; rollback stays in openclaw_admin.",
+      "adapter": "Team tab History and Undo, and the nsvx_team tool (history; rollback on owner turns only): every Team change goes through one plugin service that logs the agents config section before it, as openclaw_admin history.begin, and rollback restores that section like openclaw_admin rollback.",
       "verification": {
         "requires": [
           "discovery",
@@ -1661,21 +1678,36 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/history.py",
-          "backend/migrations/271_openclaw_admin_history.sql"
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/team.ts",
+          "extensions/nsvx/src/team-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/team.test.ts: logged before-images, rollback, added and deleted agents against fake config, 2026-11-05",
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "NSVX keeps its own version log (openclaw_admin_history) until AgentOS bearer sign-in lands; then openclaw_admin should read and roll back through nsvx.team.history and nsvx.team.rollback, so one log covers both."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Not yet run against the live Gateway.",
+        "Changes made in NSVX's own manager or the Gateway config editor are not in this history; Undo still restores over them.",
+        "Rollback cannot recreate agents deleted since the version; it reports them as skipped. NSVX recreates them with agents.create.",
+        "Managed AGENTS.md blocks that NSVX snapshots are not changed by Team here, so they are not logged."
+      ]
     },
     {
       "id": "architecture-pause",

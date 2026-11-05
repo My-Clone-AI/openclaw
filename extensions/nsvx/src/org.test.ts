@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignAgentPatch, buildTeamChart, moveAgentPatch, type AgentEntry } from "./org.js";
+import { assignAgent, buildTeamChart, moveAgent, type AgentEntry } from "./org.js";
 
 const ENTRIES: Record<string, AgentEntry> = {
   boss: { identity: { name: "Boss", emoji: "B" }, subagents: { allowAgents: ["head", "ghost"] } },
@@ -49,38 +49,27 @@ describe("buildTeamChart", () => {
   });
 });
 
-describe("moveAgentPatch", () => {
-  it("replaces the old link and pins the base revision", () => {
-    const patch = moveAgentPatch(ENTRIES, "worker", "boss", "rev");
-    expect(patch.baseHash).toBe("rev");
-    expect(patch.replacePaths.toSorted()).toEqual([
-      "agents.entries.boss.subagents.allowAgents",
-      "agents.entries.head.subagents.allowAgents",
-    ]);
-    expect(JSON.parse(patch.raw).agents.entries).toEqual({
-      boss: { subagents: { allowAgents: ["head", "ghost", "worker"] } },
-      head: { subagents: { allowAgents: [] } },
-    });
+describe("moveAgent", () => {
+  it("replaces the old link", () => {
+    const entries = structuredClone(ENTRIES);
+    moveAgent(entries, "worker", "boss");
+    expect(entries.boss?.subagents?.allowAgents).toEqual(["head", "ghost", "worker"]);
+    expect(entries.head?.subagents?.allowAgents).toEqual([]);
   });
 
   it("refuses a loop, a self link, and an unknown supervisor", () => {
-    expect(() => moveAgentPatch(ENTRIES, "head", "worker", "rev")).toThrow("loop");
-    expect(() => moveAgentPatch(ENTRIES, "head", "head", "rev")).toThrow("self");
-    expect(() => moveAgentPatch(ENTRIES, "head", "nope", "rev")).toThrow("unknown");
+    expect(() => moveAgent(structuredClone(ENTRIES), "head", "worker")).toThrow("loop");
+    expect(() => moveAgent(structuredClone(ENTRIES), "head", "head")).toThrow("self");
+    expect(() => moveAgent(structuredClone(ENTRIES), "head", "nope")).toThrow("unknown");
   });
 });
 
-describe("assignAgentPatch", () => {
-  it("clears the device when none is chosen", () => {
-    expect(JSON.parse(assignAgentPatch("a", null, "rev").raw).agents.entries.a.tools.exec).toEqual({
-      host: null,
-      node: null,
-    });
-    expect(JSON.parse(assignAgentPatch("a", "mac", "rev").raw).agents.entries.a.tools.exec).toEqual(
-      {
-        host: "node",
-        node: "mac",
-      },
-    );
+describe("assignAgent", () => {
+  it("sets the device and clears it when none is chosen", () => {
+    const entries: Record<string, AgentEntry> = { a: { tools: { exec: { node: "old" } } } };
+    assignAgent(entries, "a", "mac");
+    expect(entries.a?.tools?.exec).toEqual({ host: "node", node: "mac" });
+    assignAgent(entries, "a", null);
+    expect(entries.a?.tools?.exec).toEqual({});
   });
 });

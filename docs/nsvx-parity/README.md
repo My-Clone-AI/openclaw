@@ -92,15 +92,18 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Today    | Decisions, questions, running and done tasks, alerts         | NSVX owner screens (read only)   |
 | Tasks    | Task list with filters and each task's history               | NSVX owner screens (read only)   |
 | Work     | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
-| Team     | Agent tree; Reports to, Runs on, Task, Stop, Pause, Resume   | Gateway config and sessions      |
+| Team     | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
 | Actions  | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
 | Progress | This registry by family                                      | `registry.json`, copied at build |
 
-Pause keeps the agent's old leads in plugin state (`nsvx-paused`), so Resume restores the same tree. Chat gets the
-same through `nsvx_team`, which pauses or resumes only on the owner's own turns.
+Every Team tree change (move, device, pause, resume, undo) goes through the plugin's `nsvx.team.*` methods, which log
+the `agents` config section before the change in plugin state (`nsvx-team-history`, last 100). History lists them and
+Undo restores the team as it was before one, as NSVX rollback does; agents deleted since stay deleted. Pause keeps the
+agent's old leads (`nsvx-paused`), so Resume restores the same tree. Chat gets the same through `nsvx_team`, which
+changes the team only on the owner's own turns.
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
-Today, Tasks, Work, and the Stop, Task, Pause, and Resume requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
+Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
 counts toward `ui`, `desktop`, and `mobile`; `data` and `chat` stay open until a live Gateway run is recorded.
 
 ## Brief copy

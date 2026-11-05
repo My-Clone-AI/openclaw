@@ -98,11 +98,24 @@ export function registerNsvxGatewayMethods(
     return client.decideApproval(requiredText(params, "approvalId"), decision);
   });
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
-  // Pause and resume rewrite the agent tree, so they need the same scope as config.patch.
+  method("nsvx.team.history", "operator.read", () => team.history());
+  // Tree changes rewrite agent config, so they need the same scope as config.patch.
+  method("nsvx.team.move", "operator.admin", (params) =>
+    team.move(requiredText(params, "agentId"), requiredText(params, "supervisorId")),
+  );
+  method("nsvx.team.assign", "operator.admin", (params) =>
+    team.assign(
+      requiredText(params, "agentId"),
+      typeof params.nodeId === "string" && params.nodeId ? requiredText(params, "nodeId") : null,
+    ),
+  );
   method("nsvx.team.pause", "operator.admin", (params) =>
     team.pause(requiredText(params, "agentId")),
   );
   method("nsvx.team.resume", "operator.admin", (params) =>
     team.resume(requiredText(params, "agentId")),
+  );
+  method("nsvx.team.rollback", "operator.admin", (params) =>
+    team.rollback(requiredText(params, "version")),
   );
 }
