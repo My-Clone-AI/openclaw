@@ -9,7 +9,10 @@ import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { AgendaTab } from "./agenda-tab.js";
+import { deviceTranslator, type DT } from "./device-i18n.js";
+import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
+import { HealthTab } from "./health-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
@@ -46,7 +49,9 @@ type Tab =
   | "money"
   | "team"
   | "actions"
-  | "progress";
+  | "progress"
+  | "device"
+  | "health";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -383,6 +388,8 @@ const TABS: Tab[] = [
   "team",
   "actions",
   "progress",
+  "device",
+  "health",
 ];
 
 const mountNsvx: ControlUiView = (container, context) => {
@@ -392,6 +399,7 @@ const mountNsvx: ControlUiView = (container, context) => {
   const t: T = (key) => translator(locale())(key);
   const mt: MT = (key) => messagesTranslator(locale())(key);
   const pt: PT = (key) => peopleTranslator(locale())(key);
+  const dt: DT = (key) => deviceTranslator(locale())(key);
   const label = (id: Tab) =>
     id === "agenda"
       ? agendaTranslator(locale())("agenda")
@@ -399,7 +407,9 @@ const mountNsvx: ControlUiView = (container, context) => {
         ? mt(id)
         : id === "people"
           ? pt(id)
-          : t(id);
+          : id === "device" || id === "health"
+            ? dt(id)
+            : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
@@ -661,6 +671,12 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "device"}>
+              <DeviceTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
+            <Show when={tab() === "health"}>
+              <HealthTab host={host} t={t} dt={dt} query={query()} />
             </Show>
 
             <Show when={tab() === "team"}>

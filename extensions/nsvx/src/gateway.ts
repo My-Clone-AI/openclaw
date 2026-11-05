@@ -12,6 +12,7 @@ import {
 } from "./agenda.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
+import { registerDeviceMethods } from "./device.js";
 import {
   approveDraft,
   deleteQuickReply,
@@ -163,6 +164,7 @@ export function registerNsvxGatewayMethods(
   // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
   method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));
   method("nsvx.groups.change", "operator.write", (params) => changeGroup(client, params));
+  registerDeviceMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.
