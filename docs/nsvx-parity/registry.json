@@ -1600,7 +1600,9 @@
           "nsvx.agenda.help",
           "nsvx.agenda.submit",
           "nsvx.agenda.select",
-          "nsvx.agenda.meeting"
+          "nsvx.agenda.meeting",
+          "nsvx.agenda.ics",
+          "nsvx.agenda.remind"
         ],
         "extensions": [
           "nsvx"
@@ -1609,7 +1611,7 @@
           "nsvx_agenda"
         ]
       },
-      "adapter": "nsvx plugin Agenda tab and the nsvx_agenda tool use NSVX /api/workspace with the owner session: reads through nsvx.view (status, calendars, events with live=1 on open, one event, an intent); free times, day summary, meeting prep, agenda and reply drafts, and the exact terms preview as CSRF POST reads; create, change, and cancel only through NSVX preview then /api/workspace/actions with the preview terms hash and one client key per intent, so NSVX keeps its own approval, idempotency, and audit. Chat never runs a change Google would announce to guests: it returns needsOwner with the terms.",
+      "adapter": "nsvx plugin Agenda tab and the nsvx_agenda tool use NSVX /api/workspace with the owner session: reads through nsvx.view (status, calendars, events with live=1 on open, one event, an intent, owner reminders); free times, day summary, meeting prep, agenda and reply drafts, and the exact terms preview as CSRF POST reads; NSVX's own calendar.ics feed relayed by nsvx.agenda.ics as a file download; create, change, cancel, and the follow-up email (gmail.draft, gmail.send to the event's guests) only through NSVX preview then /api/workspace/actions with the preview terms hash and one client key per intent, so NSVX keeps its own approval, idempotency, and audit; event reminders set and dismissed on NSVX's owner-reminders routes (one per event). Chat never runs a change Google would announce to guests or an email send: it returns needsOwner with the terms; it may save a Gmail draft and set a reminder.",
       "verification": {
         "requires": [
           "discovery",
@@ -1640,15 +1642,18 @@
           "extensions/nsvx/src/agenda-tab.tsx",
           "extensions/nsvx/src/agenda.ts",
           "extensions/nsvx/src/client.ts",
-          "extensions/nsvx/src/tools.ts"
+          "extensions/nsvx/src/tools.ts",
+          "extensions/nsvx/src/agenda-event.tsx",
+          "extensions/nsvx/src/agenda-data.ts"
         ],
         "runtime": [
-          "ui/src/e2e/nsvx-agenda.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/workspace payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-agenda/): week view with clash and Meet marks, one live read on open, day summary, month grid with day list, event guests and replies, agenda draft, booking from a free time through preview, Book, and the tracked NSVX intent (submitted once with the preview hash); not-connected state in pt-PT. extensions/nsvx/src/agenda.test.ts: operation allowlist, terms hash, client key, owner-only chat tool that never invites."
+          "ui/src/e2e/nsvx-agenda.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/workspace payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-agenda/): week view with clash and Meet marks, one live read on open, day summary, month grid with day list, event guests and replies, agenda draft, booking from a free time through preview, Book, and the tracked NSVX intent (submitted once with the preview hash); not-connected state in pt-PT. extensions/nsvx/src/agenda.test.ts: operation allowlist, terms hash, client key, owner-only chat tool that never invites.",
+          "ui/src/e2e/nsvx-agenda.e2e.test.ts, 2026-11-05 (follow-up job 20261105T043740-0d21c7d2): Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-agenda/nsvx-agenda-{reminders,remind,followup,followup-review}-*.png): due NSVX reminder above the week opens its event, calendar file downloads agenda.ics from nsvx.agenda.ics, reminder saved as one instant through nsvx.agenda.remind, follow-up email to every guest reviewed with NSVX's terms (They get this email) and sent once with the preview hash. extensions/nsvx/src/agenda.test.ts: gmail.draft/gmail.send allowed and chat.* refused, reminder routes and bounds, ICS relay, chat follow-up drafts but a send returns needsOwner."
         ]
       },
       "blockers": [
         "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX or Google account.",
-        "Not native yet: follow-up Gmail send/draft from an event, Google Tasks and Contacts panels, ICS feed download, and owner reminders."
+        "Not native in the Agenda tab: the ICS subscription address (NSVX's feed needs the owner's browser session, so a calendar app cannot subscribe through Control) and the aviation check-in reminders NSVX also lists on its Agenda (owned by the aviation entry). NSVX's /api/workspace tasks, contacts, and chat routes have no NSVX web screen at clone 02fb14f (backend only) and are outside this entry."
       ],
       "unknowns": [
         "Sources were read at clone develop 02fb14f6f5efbc51b24e664249aff6288953b98d (this runner lacks the pinned commit); Agenda.tsx and google_workspace/api.py exist there."

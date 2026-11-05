@@ -7,7 +7,7 @@ import {
   zonedIso,
   type CalendarEvent,
 } from "./agenda-data.js";
-import { meetingHelp, selectCalendar, submitChange } from "./agenda.js";
+import { eventReminder, meetingHelp, selectCalendar, submitChange } from "./agenda.js";
 import { createNsvxClient, type NsvxErrorKind } from "./client.js";
 import { createNsvxAgendaTool } from "./tools.js";
 
@@ -144,7 +144,7 @@ describe("agenda data", () => {
 });
 
 describe("agenda gateway operations", () => {
-  it("submits only calendar operations, with the preview's hash and the caller's key", async () => {
+  it("submits only Agenda operations, with the preview's hash and the caller's key", async () => {
     const { client, calls } = fakeNsvx({
       "GET /api/auth/state": signedIn,
       "POST /api/workspace/actions": () => json(200, { id: "i1", state: "pending" }),
@@ -169,7 +169,7 @@ describe("agenda gateway operations", () => {
     const before = calls.length;
     expect(
       await kindOf(
-        submitChange(client, { operation: "gmail.send", payload: {}, clientKey: "key-2" }),
+        submitChange(client, { operation: "chat.send", payload: {}, clientKey: "key-2" }),
       ),
     ).toBe("invalid");
     expect(
@@ -201,6 +201,42 @@ describe("agenda gateway operations", () => {
       body: { selected: false },
     });
     expect(await kindOf(meetingHelp(client, { eventId: "e1", kind: "send" }))).toBe("invalid");
+  });
+
+  it("sets and dismisses NSVX's one reminder per event, and relays NSVX's own feed", async () => {
+    const { client, calls } = fakeNsvx({
+      "GET /api/auth/state": signedIn,
+      "POST /api/workspace/owner-reminders": () => json(200, { saved: true }),
+      "POST /api/workspace/owner-reminders/dismiss": () => json(200, { dismissed: true }),
+      "GET /api/workspace/calendar.ics": () =>
+        new Response("BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n", { status: 200 }),
+    });
+    await eventReminder(client, {
+      eventId: "e1",
+      action: "set",
+      label: "Dentist",
+      at: "2026-11-10T14:30:00+00:00",
+    });
+    expect(calls.at(-1)).toMatchObject({
+      path: "/api/workspace/owner-reminders",
+      body: {
+        kind: "calendar",
+        target_id: "e1",
+        label: "Dentist",
+        due_at: "2026-11-10T14:30:00.000Z",
+      },
+    });
+    await eventReminder(client, { eventId: "e1", action: "dismiss", label: "Dentist" });
+    expect(calls.at(-1)).toMatchObject({
+      path: "/api/workspace/owner-reminders/dismiss",
+      body: { kind: "calendar", target_id: "e1" },
+    });
+    const before = calls.length;
+    expect(
+      await kindOf(eventReminder(client, { eventId: "e1", action: "set", label: "x", at: "soon" })),
+    ).toBe("invalid");
+    expect(calls).toHaveLength(before);
+    expect(await client.exportCalendar()).toMatch(/^BEGIN:VCALENDAR/);
   });
 });
 
@@ -236,6 +272,72 @@ describe("nsvx_agenda", () => {
       client_key: "openclaw-call-7",
       terms_hash: "b".repeat(64),
     });
+  });
+
+  it("drafts a follow-up to the guests but leaves sending to the owner", async () => {
+    const detail = {
+      event: event({
+        summary: "Review",
+        attendees: [
+          {
+            email: "me@example.com",
+            response: "accepted",
+            organizer: true,
+            self: true,
+            optional: false,
+            name: null,
+          },
+          {
+            email: "ana@example.com",
+            response: "accepted",
+            organizer: false,
+            self: false,
+            optional: false,
+            name: "Ana",
+          },
+        ],
+      }),
+    };
+    const { client, calls } = fakeNsvx({
+      "GET /api/auth/state": signedIn,
+      "GET /api/workspace/events/e1": () => json(200, detail),
+      "POST /api/workspace/preview": (call) =>
+        json(200, {
+          operation: call.body?.operation,
+          effect: call.body?.operation === "gmail.send" ? "external" : "private",
+          summary: "Email",
+          account: "me@example.com",
+          terms_hash: "c".repeat(64),
+        }),
+      "POST /api/workspace/actions": () =>
+        json(200, { id: "i2", state: "accepted", lifecycle_label: "Feito" }),
+    });
+    const tool = createNsvxAgendaTool(client, { senderIsOwner: true });
+    const drafted = await tool.execute("call-10", {
+      action: "followup",
+      eventId: "e1",
+      text: "Thanks, notes attached.",
+    });
+    expect(drafted.details).toMatchObject({ ok: true, state: "accepted" });
+    expect(calls.find((call) => call.path === "/api/workspace/actions")?.body).toMatchObject({
+      operation: "gmail.draft",
+      payload: {
+        to: ["ana@example.com"],
+        subject: "Follow-up: Review",
+        body: "Thanks, notes attached.",
+        event_ref: "e1",
+      },
+      client_key: "openclaw-call-10",
+    });
+    const before = calls.filter((call) => call.path === "/api/workspace/actions").length;
+    const sent = await tool.execute("call-11", {
+      action: "followup",
+      eventId: "e1",
+      text: "Thanks.",
+      send: true,
+    });
+    expect(sent.details).toMatchObject({ ok: false, needsOwner: true });
+    expect(calls.filter((call) => call.path === "/api/workspace/actions")).toHaveLength(before);
   });
 
   it("never invites guests from chat and refuses other senders", async () => {

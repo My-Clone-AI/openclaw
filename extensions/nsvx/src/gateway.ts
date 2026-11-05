@@ -4,6 +4,7 @@ import { activityRange, findRequest } from "./activity-requests.js";
 import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import {
   agendaSummary,
+  eventReminder,
   freeSlots,
   meetingFollowUp,
   meetingHelp,
@@ -172,10 +173,15 @@ export function registerNsvxGatewayMethods(
   method("nsvx.agenda.slots", "operator.read", (params) => freeSlots(client, params));
   method("nsvx.agenda.preview", "operator.read", (params) => previewChange(client, params));
   method("nsvx.agenda.help", "operator.read", (params) => meetingHelp(client, params));
-  // Booking, moving, and cancelling can invite or notify real people, so they need write scope like chat.send.
+  method("nsvx.agenda.ics", "operator.read", async () => ({
+    fileName: "agenda.ics",
+    ics: await client.exportCalendar(),
+  }));
+  // Booking, moving, cancelling, and the follow-up email can reach real people, so they need write scope like chat.send.
   method("nsvx.agenda.submit", "operator.write", (params) => submitChange(client, params));
   method("nsvx.agenda.select", "operator.write", (params) => selectCalendar(client, params));
   method("nsvx.agenda.meeting", "operator.write", (params) => meetingFollowUp(client, params));
+  method("nsvx.agenda.remind", "operator.write", (params) => eventReminder(client, params));
   // People and groups read through nsvx.view; these are the owner's changes, each on one fixed NSVX route.
   // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
   method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));

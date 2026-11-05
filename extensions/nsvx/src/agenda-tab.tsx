@@ -15,6 +15,7 @@ import {
   type Calendar,
   type CalendarEvent,
   type EventsPage,
+  type Reminder,
   type WorkspaceStatus,
 } from "./agenda-data.js";
 import { Editor } from "./agenda-editor.js";
@@ -43,8 +44,8 @@ function rangeLabel(ctx: Ctx, mode: View, anchor: string) {
   return `${format(start, { day: "numeric", month: "short" })} – ${format(addDays(start, 6), { day: "numeric", month: "short" })}`;
 }
 
-function download(name: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+function download(name: string, text: string, type = "text/csv") {
+  const url = URL.createObjectURL(new Blob([text], { type: `${type};charset=utf-8` }));
   const link = document.createElement("a");
   link.href = url;
   link.download = name;
@@ -71,8 +72,28 @@ export function AgendaTab(props: {
     view<WorkspaceStatus>(props.host, "workspaceStatus"),
   );
   const calendars = createSource(props.host, () => view<Calendar[]>(props.host, "calendars"));
+  const reminders = createSource(props.host, () =>
+    view<{ reminders: Reminder[] }>(props.host, "ownerReminders", { kind: "calendar" }),
+  );
   void status.refresh();
   void calendars.refresh();
+  void reminders.refresh();
+  const due = createMemo(() =>
+    (reminders.state().data?.reminders ?? []).filter(
+      (reminder) => Date.parse(reminder.due_at) <= Date.now(),
+    ),
+  );
+  const dismiss = async (reminder: Reminder) => {
+    try {
+      await props.host.request("nsvx.agenda.remind", {
+        eventId: reminder.target_id,
+        action: "dismiss",
+        label: reminder.label,
+      });
+    } finally {
+      await reminders.refresh();
+    }
+  };
   const connected = createMemo(
     () =>
       status.state().data?.products.find((product) => product.product === "calendar")
@@ -130,6 +151,34 @@ export function AgendaTab(props: {
                   when={props.open}
                   fallback={
                     <>
+                      <Show when={due().length > 0}>
+                        <ul class="nsvx-agenda__due" aria-label={ctx.at("remind")}>
+                          <For each={due()} keyed={(reminder) => reminder.target_id}>
+                            {(reminder) => (
+                              <li>
+                                <button
+                                  type="button"
+                                  class="nsvx-agenda__due-open"
+                                  onClick={() => props.onOpen(reminder().target_id)}
+                                >
+                                  <Glyph name="bell" />
+                                  <span>{reminder().label}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  class="nsvx__button nsvx__button--icon"
+                                  aria-label={ctx.at("dismiss")}
+                                  title={ctx.at("dismiss")}
+                                  disabled={!props.host.connection.canWrite}
+                                  onClick={() => void dismiss(reminder())}
+                                >
+                                  <Glyph name="check" />
+                                </button>
+                              </li>
+                            )}
+                          </For>
+                        </ul>
+                      </Show>
                       <div class="nsvx-agenda__bar">
                         <Seg
                           items={VIEWS}
@@ -309,6 +358,19 @@ function Window(props: {
   );
   const [picked, setPicked] = createSignal<string>();
   const [summary, setSummary] = createSignal<{ text: string | null; busy: boolean }>();
+  const [ics, setIcs] = createSignal(false);
+  // NSVX's own feed, so a calendar app gets exactly what NSVX would export; failures show in the summary line.
+  const exportIcs = async () => {
+    setIcs(true);
+    try {
+      const file = await ctx.host.request<{ fileName: string; ics: string }>("nsvx.agenda.ics", {});
+      download(file.fileName, file.ics, "text/calendar");
+    } catch (cause) {
+      setSummary({ text: errorMessage(ctx.host, cause), busy: false });
+    } finally {
+      setIcs(false);
+    }
+  };
   const summarize = async () => {
     setSummary({ text: null, busy: true });
     try {
@@ -384,6 +446,16 @@ function Window(props: {
                 }
               >
                 <Glyph name="download" />
+              </button>
+              <button
+                type="button"
+                class="nsvx__button nsvx__button--icon"
+                aria-label={ctx.at("ics")}
+                title={ctx.at("ics")}
+                disabled={ics()}
+                onClick={() => void exportIcs()}
+              >
+                <Glyph name="calendar" />
               </button>
             </span>
           </div>

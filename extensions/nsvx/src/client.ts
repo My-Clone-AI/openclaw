@@ -186,6 +186,7 @@ const OWNER_VIEWS = {
   calendarEvents: { path: "/api/workspace/events", query: ["start", "end", "tz", "live"] },
   calendarEvent: { path: "/api/workspace/events/{id}" },
   workspaceIntent: { path: "/api/workspace/intents/{id}" },
+  ownerReminders: { path: "/api/workspace/owner-reminders", query: ["kind"] },
   // People (`/pessoas`): the reads the NSVX People, person, and group screens make.
   people: { path: "/api/people" },
   person: { path: "/api/people/{id}" },
@@ -350,6 +351,8 @@ const OWNER_WRITES = {
   calendarAction: { method: "POST", path: "/api/workspace/actions" },
   meetingRefresh: { method: "POST", path: "/api/workspace/events/{id}/refresh-meeting" },
   meetingDocument: { method: "POST", path: "/api/workspace/meeting-documents" },
+  reminderSet: { method: "POST", path: "/api/workspace/owner-reminders" },
+  reminderDismiss: { method: "POST", path: "/api/workspace/owner-reminders/dismiss" },
   // People and groups: the changes the NSVX People screens make, nothing that sends a message.
   personCreate: { method: "POST", path: "/api/people" },
   personUpdate: { method: "PATCH", path: "/api/people/{id}" },
@@ -526,6 +529,8 @@ const FILE_LIMIT = 12 * 1024 * 1024;
 
 /** The CSV export streams; larger ranges than this must be split by the owner. */
 const EXPORT_MAX_CHARS = 5_000_000;
+/** NSVX caps its calendar feed at 2000 events, well below this. */
+const ICS_MAX_CHARS = 5_000_000;
 
 const OWNER_COOKIE = "clone_session";
 
@@ -863,6 +868,16 @@ export function createNsvxClient(options: {
         throw new NsvxError("invalid", "Too much activity for one file. Pick fewer days.");
       }
       return csv;
+    },
+    /** NSVX's Agenda feed (`calendar.ics`): selected calendars, 30 days back to a year ahead, without guests. */
+    async exportCalendar(): Promise<string> {
+      const ics = await (
+        await ownerFetch("/api/workspace/calendar.ics", { accept: "text/calendar" })
+      ).text();
+      if (ics.length > ICS_MAX_CHARS || !ics.startsWith("BEGIN:VCALENDAR")) {
+        throw new NsvxError("failed", "NSVX did not send a calendar file.");
+      }
+      return ics;
     },
     /** One owner change on a fixed NSVX route; `body` must already be validated by the caller. */
     writeOwner<T = unknown>(
