@@ -8,6 +8,7 @@ import {
 import { createSignal, For, Show } from "solid-js";
 import { translator, type MessageKey } from "./i18n.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
+import { FinanceTab } from "./finance-tab.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
 import { QuickReplyTab } from "./quick-reply-tab.js";
@@ -26,8 +27,9 @@ import {
 } from "./ui-kit.js";
 import "./control-ui.css";
 import "./messages.css";
+import "./finance.css";
 
-type Tab = "today" | "find" | "tasks" | "work" | "activity" | "messages" | "reply" | "team" | "actions" | "progress";
+type Tab = "today" | "find" | "tasks" | "work" | "activity" | "messages" | "reply" | "money" | "team" | "actions" | "progress";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -350,7 +352,7 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "messages", "reply", "team", "actions", "progress"];
+const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "messages", "reply", "money", "team", "actions", "progress"];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -471,6 +473,9 @@ const mountNsvx: ControlUiView = (container, context) => {
                 open={mission()}
                 onOpen={openMission}
               />
+            </Show>
+            <Show when={tab() === "money"}>
+              <FinanceTab host={host} t={t} query={query()} />
             </Show>
 
             <Show when={tab() === "team"}>

@@ -4,7 +4,7 @@ import { filterActivity, type ActivityPage, type ActivitySummary } from "./activ
 import type { AnyAgentTool, OpenClawPluginToolContext } from "openclaw/plugin-sdk/plugin-entry";
 import { Type } from "typebox";
 import type { NsvxClient } from "./client.js";
-import { NsvxError } from "./client.js";
+import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
   authorOf,
   conversationName,
@@ -392,5 +392,51 @@ export function createNsvxMessagesTool(
         }
         throw new NsvxError("invalid", "Unknown action.");
       }),
+  } as AnyAgentTool;
+}
+
+/** Finance reads for chat: every finance owner view except page images and files, which are for the page. */
+export const FINANCE_VIEWS = OWNER_VIEW_NAMES.filter(
+  (view) => /^(finance|bank|docs?|ledger)/.test(view) && view !== "docPage" && view !== "docImage",
+);
+
+/**
+ * The owner's own finance screens, read-only. Optional, so it loads only when the operator allows
+ * `nsvx_finance`, and it answers only the owner: NSVX owner data never reaches another sender.
+ */
+export function createNsvxFinanceTool(client: NsvxClient, context: OpenClawPluginToolContext) {
+  return {
+    name: "nsvx_finance",
+    label: "NSVX finance",
+    description:
+      "Read the owner's NSVX finance data: summary, deadlines, banks, accounts, cards, bank movements, invoices, finance documents, and the accounting ledger. Read-only: it never pays, transfers, or changes anything. entity is owner or fortune_comet; scope is personal, eni, or company; book is eni or company; years are four digits. Pass every param as text.",
+    parameters: Type.Object(
+      {
+        view: Type.Union(
+          FINANCE_VIEWS.map((view) => Type.Literal(view)),
+          {
+            description:
+              "financeDashboard for totals, financeObligations for deadlines, financeInvoices for e-Fatura, bankTransactions for movements, docsSearch to find a document, ledgerOverview for the books.",
+          },
+        ),
+        params: Type.Optional(
+          Type.Record(Type.String(), Type.String(), {
+            description:
+              "Query values, e.g. {entity: 'fortune_comet', year: '2026'}; docPreview needs id; ledgerReport needs kind.",
+          }),
+        ),
+      },
+      { additionalProperties: false },
+    ),
+    execute: (_toolCallId: string, params: { view: string; params?: Record<string, string> }) =>
+      context.senderIsOwner
+        ? outcome(() => client.readOwnerView(params.view, params.params ?? {}))
+        : Promise.resolve(
+            jsonResult({
+              ok: false,
+              reason: "denied",
+              message: "Only the owner can read NSVX finance.",
+            }),
+          ),
   } as AnyAgentTool;
 }

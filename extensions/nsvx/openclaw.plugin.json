@@ -17,7 +17,8 @@
       "nsvx_team",
       "nsvx_search",
       "nsvx_activity",
-      "nsvx_messages"
+      "nsvx_messages",
+      "nsvx_finance"
     ]
   },
   "uiCapabilities": [

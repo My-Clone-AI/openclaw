@@ -126,10 +126,16 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, and Quick reply read NSVX
-  owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with `NSVX_OWNER_SESSION`;
-  Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those tabs show a sign-in card.
-  They were proven against a mock Gateway with synthetic NSVX payloads, not against a live NSVX.
+- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply, and Money
+  read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
+  `NSVX_OWNER_SESSION`; Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those
+  tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live
+  NSVX.
+- **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
+  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
+  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
+  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`, and
+  optional `nsvx_finance` tools (`nsvx_messages` never sends; finance is read-only).
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.

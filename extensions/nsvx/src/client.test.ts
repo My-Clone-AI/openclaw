@@ -112,6 +112,30 @@ describe("nsvx owner views", () => {
     expect(await kindOf(answer(401).readOwnerView("today"))).toBe("signed-out");
     await expect(answer(503).readOwnerView("workSummary")).rejects.toThrow("NSVX answered 503.");
   });
+
+  it("fills every path slot of a finance view and keeps only its own query names", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { report: null }));
+    await ownerClient(fetchImpl).readOwnerView("ledgerReport", {
+      kind: "income_statement",
+      book: "eni",
+      year: "2026",
+      account: "62",
+    });
+    const [url] = fetchImpl.mock.calls[0] as unknown as [string];
+    expect(url).toBe("https://nsvx.test/api/ledger/reports/income_statement?book=eni&year=2026");
+    expect(await kindOf(ownerClient(fetchImpl).readOwnerView("docPage", { id: "d" }))).toBe(
+      "invalid",
+    );
+  });
+
+  it("relays a document page as an image data URL and refuses anything else", async () => {
+    const image = (type: string) =>
+      ownerClient(
+        async () => new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": type } }),
+      ).readOwnerView<{ src: string }>("docPage", { id: "d1", page: "2" });
+    await expect(image("image/jpeg")).resolves.toEqual({ src: "data:image/jpeg;base64,AQID" });
+    expect(await kindOf(image("text/html"))).toBe("invalid");
+  });
 });
 
 describe("nsvx owner read posts", () => {

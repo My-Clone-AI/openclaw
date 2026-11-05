@@ -3142,32 +3142,30 @@
     },
     {
       "id": "finance",
-      "title": "Finance and accounting",
+      "title": "Finance summary, deadlines, and e-Fatura",
       "family": "12",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/financas"
         ],
         "backendPackages": [
           "finance",
-          "ledger"
+          "subscriptions"
         ],
         "jobPackages": [
-          "finance",
-          "ledger"
+          "finance"
         ],
         "apiPrefixes": [
-          "/api/finance",
-          "/api/ledger"
+          "/api/finance"
         ],
         "sourceFiles": [
           "backend/clone/finance/api.py",
-          "backend/clone/finance/bank_api.py",
           "backend/clone/finance/tax_portals.py",
-          "backend/clone/ledger/api.py",
           "backend/clone/subscriptions/api.py",
+          "web/src/components/FinanceToday.tsx",
+          "web/src/logic/finance.ts",
           "web/src/screens/Finances.tsx"
         ],
         "permissions": [
@@ -3182,12 +3180,20 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_finance"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/finance, /api/ledger; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Money tab and the optional nsvx_finance tool read NSVX /api/finance (dashboard, today, obligations, alerts, invoices) through nsvx.view with the owner session, GET only.",
       "verification": {
         "requires": [
           "discovery",
@@ -3202,40 +3208,51 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
           "web/src/screens/Finances.tsx",
-          "backend/clone/finance/",
-          "backend/clone/ledger/"
+          "backend/clone/finance/api.py",
+          "extensions/nsvx/src/finance-tab.tsx",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-finance.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-finance/): Summary KPIs, overdue deadline first, e-Fatura buy/sell bars, area switch to Fortune Comet sends entity=fortune_comet; invoices list; sign-in state in pt-PT."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Writes (sync, connect, mark paid, classify, decide, rebuild) need NSVX CSRF with the owner session or an AgentOS contract; none exists yet, so Control is read-only here.",
+        "Portal das Finan\u00e7as, subscriptions, fiscal execution, and settings tabs are not native yet."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Source files are unchanged between the pin and clone develop 68978f9f91620832707fe0a0a5d6db1deb7868ed."
       ]
     },
     {
       "id": "bank-broker",
-      "title": "Bank broker service",
+      "title": "Banks, accounts, cards, movements, and bank access",
       "family": "12",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/financas"
         ],
         "backendPackages": [
-          "credentials"
+          "credentials",
+          "finance"
         ],
         "jobPackages": [],
         "apiPrefixes": [
+          "/api/finance/banking",
           "/keys",
           "/rotate",
           "/seal",
@@ -3245,6 +3262,10 @@
         ],
         "sourceFiles": [
           "backend/clone/credentials/bank_service.py",
+          "backend/clone/finance/bank_api.py",
+          "backend/clone/finance/bank_capabilities.py",
+          "backend/clone/finance/cards.py",
+          "backend/clone/finance/calc.py",
           "web/src/screens/Finances.tsx"
         ],
         "permissions": [
@@ -3257,12 +3278,20 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_finance"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "Money tab, Banks section: accounts and balances (/api/finance/accounts), connections, cards, stored movements (/api/finance/banking/transactions), bank capabilities and broker tasks; read-only. The broker's own /keys, /seal, /transfers routes stay internal to NSVX.",
       "verification": {
         "requires": [
           "discovery",
@@ -3277,21 +3306,210 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
-          "backend/clone/credentials/bank_service.py",
-          "web/src/screens/Finances.tsx"
+          "backend/clone/finance/bank_api.py",
+          "backend/clone/finance/bank_capabilities.py",
+          "extensions/nsvx/src/finance-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-finance.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-finance/): accounts with bank marks and own balances, unread account shown as unknown, credit and debit cards with use bar, movements with pending state, per-bank access chips (available or locked)."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "No transfers, connects, or syncs from Control: NSVX keeps bank authorisation with the owner, and no AgentOS bank contract exists.",
+        "The isolated broker service (credentials/bank_service.py) is internal and is never called from OpenClaw."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Source files are unchanged between the pin and clone develop 68978f9f91620832707fe0a0a5d6db1deb7868ed."
+      ]
+    },
+    {
+      "id": "accounting-ledger",
+      "title": "Accounting ledger",
+      "family": "12",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/financas"
+        ],
+        "backendPackages": [
+          "ledger"
+        ],
+        "jobPackages": [
+          "ledger"
+        ],
+        "apiPrefixes": [
+          "/api/ledger"
+        ],
+        "sourceFiles": [
+          "backend/clone/ledger/api.py",
+          "backend/clone/ledger/reports.py",
+          "web/src/logic/accounting.ts",
+          "web/src/screens/Accounting.tsx",
+          "web/src/screens/accounting/Statements.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_finance"
+        ]
+      },
+      "adapter": "Money tab, Books section: ENI and Fortune Comet books, overview KPIs and monthly income, items to review, journal with lines, income statement; read-only.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Accounting.tsx",
+          "backend/clone/ledger/api.py",
+          "extensions/nsvx/src/finance-tab.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-finance.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-finance/): KPIs, coverage bar, monthly income bars, review list sent as ledgerReview book=eni status=needs_review."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Rebuild, decisions, assets, openings, audit freeze, and exports need NSVX CSRF or an AgentOS contract; balance sheet, trial balance, VAT, and tax views are not native yet."
+      ],
+      "unknowns": [
+        "Source files are unchanged between the pin and clone develop 68978f9f91620832707fe0a0a5d6db1deb7868ed."
+      ]
+    },
+    {
+      "id": "finance-docs",
+      "title": "Finance documents",
+      "family": "12",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/financas"
+        ],
+        "backendPackages": [
+          "finance"
+        ],
+        "jobPackages": [
+          "finance"
+        ],
+        "apiPrefixes": [
+          "/api/finance/docs"
+        ],
+        "sourceFiles": [
+          "backend/clone/finance/api.py",
+          "backend/clone/finance/docview.py",
+          "backend/clone/finance/explorer.py",
+          "web/src/logic/financeDocs.ts",
+          "web/src/screens/FinanceDocs.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Google Drive"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_finance"
+        ]
+      },
+      "adapter": "Money tab, Docs section: month coverage (/docs/overview), folder browse, NSVX document search, and a native viewer with PDF pages relayed by the Gateway as images; read-only.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/FinanceDocs.tsx",
+          "backend/clone/finance/explorer.py",
+          "extensions/nsvx/src/finance-tab.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-finance.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-finance/): statement and SAF-T month grids, invoice quarters, folder browse, PDF page viewer with page turn (docPage page 2), header search sent as docsSearch."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Placing, renaming, uploading, and Drive sync need NSVX CSRF or an AgentOS contract."
+      ],
+      "unknowns": [
+        "Source files are unchanged between the pin and clone develop 68978f9f91620832707fe0a0a5d6db1deb7868ed."
+      ]
     },
     {
       "id": "mortgage",
