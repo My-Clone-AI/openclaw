@@ -9,7 +9,6 @@ import {
   type FindResult,
 } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
-import { parseDefaults, parseIdea, parseToolAccess, type AgentSettings } from "./agent-settings.js";
 import {
   cancelPayload,
   dayKey,
@@ -22,6 +21,7 @@ import {
   type EventsPage,
 } from "./agenda-data.js";
 import { agendaSummary, freeSlots, previewChange, submitChange } from "./agenda.js";
+import { parseDefaults, parseIdea, parseToolAccess, type AgentSettings } from "./agent-settings.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
@@ -460,6 +460,50 @@ export function createNsvxFinanceTool(client: NsvxClient, context: OpenClawPlugi
   } as AnyAgentTool;
 }
 
+type AgendaToolParams = {
+  action: "events" | "event" | "free" | "summary" | "book" | "move" | "cancel";
+  from?: string;
+  days?: number;
+  time?: string;
+  minutes?: number;
+  title?: string;
+  attendees?: string[];
+  location?: string;
+  meet?: boolean;
+  eventId?: string;
+  timeZone?: string;
+};
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+function agendaDay(value: string | undefined, zone: string) {
+  if (value === undefined) {
+    return todayKey(zone);
+  }
+  if (!DAY.test(value)) {
+    throw new NsvxError("invalid", "from must be YYYY-MM-DD.");
+  }
+  return value;
+}
+
+const eventRow = (event: CalendarEvent, zone: string) => ({
+  id: event.id ?? event.event_id,
+  title: event.summary,
+  day: dayKey(event, zone),
+  start: event.all_day ? null : event.start,
+  end: event.all_day ? null : event.end,
+  allDay: event.all_day,
+  location: event.location,
+  guests: event.attendees.filter((attendee) => !attendee.self).map((attendee) => attendee.email),
+  meet: Boolean(event.meet_url),
+  canChange: event.can_edit,
+});
+
+/**
+ * The owner's NSVX Agenda (Google Calendar). Reads freely; books, moves, or cancels only changes nobody else sees.
+ * Anything Google would announce to guests returns `needsOwner` with the exact terms for the owner to confirm in Control.
+ */
 type AgentsToolParams = {
   action: "get" | "defaults" | "suggest" | "instructions" | "tools" | "setDefaults" | "add";
   agentId?: string;
@@ -589,149 +633,7 @@ type SkillsToolParams = {
  * The owner's NSVX skills. Enabling changes what clone does, so only the owner's own turn may; approving a
  * learned skill stays a person's tap in Control, like AgentOS approvals.
  */
-export function createNsvxSkillsTool(
-  client: NsvxClient,
-  context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
-): AnyAgentTool {
-  return {
-    name: "nsvx_skills",
-    label: "NSVX skills",
-    description:
-      "The owner's NSVX skills (what clone knows how to do). list with filter all|on|off|review|failing and optional query; read one skill's steps and latest runs; enable or disable one. Learned skills waiting for review can only be approved by the owner in Control.",
-    parameters: Type.Object(
-      {
-        action: Type.Union([
-          Type.Literal("list"),
-          Type.Literal("read"),
-          Type.Literal("enable"),
-          Type.Literal("disable"),
-        ]),
-        filter: Type.Optional(
-          Type.Union([
-            Type.Literal("all"),
-            Type.Literal("on"),
-            Type.Literal("off"),
-            Type.Literal("review"),
-            Type.Literal("failing"),
-          ]),
-        ),
-        query: Type.Optional(Type.String()),
-        skillId: Type.Optional(Type.String({ description: "Skill slug or id." })),
-      },
-      { additionalProperties: false },
-    ),
-    execute: (_toolCallId, params: SkillsToolParams) =>
-      outcome(async () => {
-        context.assertInvocationCurrent?.();
-        if (context.senderIsOwner !== true) {
-          throw new NsvxError("denied", "Only the owner may use NSVX skills.");
-        }
-        if (params.action === "list") {
-          const { items } = await client.readOwnerView<{ items: Skill[] }>("skills");
-          const needle = params.query?.trim().toLowerCase() ?? "";
-          const keep = (skill: Skill) => {
-            switch (params.filter) {
-              case "on":
-                return skill.enabled;
-              case "off":
-                return !skill.enabled;
-              case "review":
-                return skill.review_state === "pending";
-              case "failing":
-                return skill.latest_verification?.verified === "failed";
-              default:
-                return true;
-            }
-          };
-          const rows = items.filter(
-            (skill) =>
-              keep(skill) &&
-              (!needle ||
-                `${skill.name} ${skill.slug} ${skill.when_to_use ?? ""}`
-                  .toLowerCase()
-                  .includes(needle)),
-          );
-          return {
-            total: rows.length,
-            skills: rows.slice(0, 50).map((skill) => ({
-              id: skill.slug,
-              name: skill.name,
-              on: skill.enabled,
-              review: skill.review_state ?? null,
-              lastRun: skill.last_run_ts,
-              lastCheck: skill.latest_verification?.verified ?? null,
-            })),
-          };
-        }
-        if (!params.skillId) {
-          throw new NsvxError("invalid", "skillId is required.");
-        }
-        if (params.action === "read") {
-          const skill = await client.readOwnerView<SkillDetail>("skill", { id: params.skillId });
-          return {
-            id: skill.slug,
-            name: skill.name,
-            on: skill.enabled,
-            whenToUse: skill.when_to_use ?? null,
-            steps: skill.steps.map((step) => step.text),
-            runs: skill.runs.slice(0, 10).map((run) => ({
-              at: run.ts,
-              app: run.app,
-              outcome: run.outcome,
-              verified: run.verified ?? null,
-            })),
-          };
-        }
-        const updated = await setSkillState(client, {
-          skillId: params.skillId,
-          enabled: params.action === "enable",
-        });
-        return { id: updated.slug, on: updated.enabled };
 
-type AgendaToolParams = {
-  action: "events" | "event" | "free" | "summary" | "book" | "move" | "cancel";
-  from?: string;
-  days?: number;
-  time?: string;
-  minutes?: number;
-  title?: string;
-  attendees?: string[];
-  location?: string;
-  meet?: boolean;
-  eventId?: string;
-  timeZone?: string;
-};
-
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function agendaDay(value: string | undefined, zone: string) {
-  if (value === undefined) {
-    return todayKey(zone);
-  }
-  if (!DAY.test(value)) {
-    throw new NsvxError("invalid", "from must be YYYY-MM-DD.");
-  }
-  return value;
-}
-
-const eventRow = (event: CalendarEvent, zone: string) => ({
-  id: event.id ?? event.event_id,
-  title: event.summary,
-  day: dayKey(event, zone),
-  start: event.all_day ? null : event.start,
-  end: event.all_day ? null : event.end,
-  allDay: event.all_day,
-  location: event.location,
-  guests: event.attendees.filter((attendee) => !attendee.self).map((attendee) => attendee.email),
-  meet: Boolean(event.meet_url),
-  canChange: event.can_edit,
-});
-
-/**
- * The owner's NSVX Agenda (Google Calendar). Reads freely; books, moves, or cancels only changes nobody else sees.
- * Anything Google would announce to guests returns `needsOwner` with the exact terms for the owner to confirm in Control.
- */
 export function createNsvxAgendaTool(
   client: NsvxClient,
   context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
