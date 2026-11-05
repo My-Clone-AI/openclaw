@@ -152,8 +152,9 @@ export function createSource<V>(host: ControlUiHost, load: () => Promise<V>) {
 
 /** Connection states that need the owner, not a retry of the same request. */
 const CONNECT_COPY: Record<string, { title: MessageKey; help: MessageKey }> = {
-  unconfigured: { title: "unconfigured", help: "ownerUnconfiguredHelp" },
-  "signed-out": { title: "signedOut", help: "ownerSignedOutHelp" },
+  unconfigured: { title: "unconfigured", help: "unconfiguredHelp" },
+  "signed-out": { title: "signedOut", help: "signedOutHelp" },
+  "token-pending": { title: "tokenPending", help: "tokenPendingHelp" },
   offline: { title: "offline", help: "offlineHelp" },
 };
 

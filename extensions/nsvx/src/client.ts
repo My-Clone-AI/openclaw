@@ -7,12 +7,14 @@ const TIMEOUT_MS = 30_000;
 /**
  * - `unconfigured`: this Gateway has no token.
  * - `signed-out`: NSVX rejected the token.
+ * - `token-pending`: this Gateway has a token, but NSVX has no AgentOS action for this owner screen yet.
  * - `off`: NSVX hides AgentOS while its `agentos.gateway` flag is off.
  * - `uncertain`: a write may have happened; never repeat it with a new key.
  */
 export type NsvxErrorKind =
   | "unconfigured"
   | "signed-out"
+  | "token-pending"
   | "off"
   | "offline"
   | "denied"
@@ -748,19 +750,26 @@ export type NsvxClient = ReturnType<typeof createNsvxClient>;
 
 export function createNsvxClient(options: {
   baseUrl: string;
-  token: string | undefined;
-  /** The owner's own NSVX session, for owner screens only; never reaches chat tools. */
+  /** A function is asked on every AgentOS call, so a rotated token file applies without a restart. */
+  token: string | undefined | (() => string | undefined);
+  /**
+   * @deprecated Lifted browser cookie, kept only until NSVX serves owner screens through AgentOS actions; then this
+   * option and the human `/api` routes it reaches go away. Never reaches AgentOS.
+   */
   ownerSession?: string | undefined;
   fetchImpl?: Fetch;
 }) {
   const fetchImpl = options.fetchImpl ?? guardedFetch;
+  const readToken = () => (typeof options.token === "function" ? options.token() : options.token);
 
   async function ownerFetch(
     path: string,
     init: { body?: unknown; csrf?: string; accept?: string } = {},
   ): Promise<Response> {
     if (!options.ownerSession) {
-      throw new NsvxError("unconfigured", "NSVX owner sign-in is not set up on this Gateway.");
+      throw readToken()
+        ? new NsvxError("token-pending", "NSVX does not offer this screen to a token yet.")
+        : new NsvxError("unconfigured", "NSVX sign-in is not set up on this Gateway.");
     }
     let response: Response;
     try {
@@ -877,10 +886,6 @@ export function createNsvxClient(options: {
     return (response.status === 204 ? { ok: true } : await response.json()) as T;
   }
 
-  /**
-   * AgentOS as the agent (bearer token) or, for the owner's own taps in Control, as the owner. NSVX accepts only the
-   * owner's browser session today (`get_principal`), so Control uses that session when it is set; chat tools never do.
-   */
   async function publicFetch(path: string, accept: string, alsoOk?: number): Promise<Response> {
     let response: Response;
     try {
@@ -906,12 +911,13 @@ export function createNsvxClient(options: {
     init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {},
     _principal: "agent" | "owner" = "agent",
   ): Promise<T> {
-    // AgentOS is Bearer-only (NSVX_AGENTOS_TOKEN / TOKEN_FILE). Never lift clone_session here.
-    if (!options.token) {
+    // AgentOS is Bearer-only (NSVX_AGENTOS_TOKEN_FILE). Never lift clone_session here.
+    const token = readToken();
+    if (!token) {
       throw new NsvxError("unconfigured", "NSVX sign-in is not set up on this Gateway.");
     }
     const isWrite = init.method === "POST";
-    const auth: Record<string, string> = { Authorization: `Bearer ${options.token}` };
+    const auth: Record<string, string> = { Authorization: `Bearer ${token}` };
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${AGENTOS_PATH}${path}`, {
