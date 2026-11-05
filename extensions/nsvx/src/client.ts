@@ -1,3 +1,4 @@
+import { LEGAL_LANGS, LEGAL_PAGES } from "./device-data.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
 
 export const AGENTOS_PATH = "/api/agentos/v1";
@@ -230,6 +231,24 @@ const OWNER_VIEWS = {
   },
   groupMailboxes: { path: "/api/group-companies/{cid}/mail/mailboxes", query: ["box"] },
   groupMailThread: { path: "/api/group-companies/{cid}/mail/threads/{tid}", query: ["box"] },
+  // Skills (`/apps` Competências): the owner's list, one skill with its runs, and failed-verification alerts.
+  skills: { path: "/api/skills", query: ["review"] },
+  skill: { path: "/api/skills/{id}" },
+  skillAlerts: { path: "/api/skills/alerts" },
+  // Desktop (`/api/desktop/*`): the routes the clone desktop app uses, with the owner session.
+  desktopBots: { path: "/api/desktop/bots" },
+  desktopTasks: { path: "/api/desktop/tasks", query: ["state", "limit"] },
+  memoryProfile: { path: "/api/desktop/memory/{bot}/profile", query: ["limit"] },
+  memoryJournal: { path: "/api/desktop/memory/{bot}/journal", query: ["limit"] },
+  memoryFacts: { path: "/api/desktop/memory/{bot}/facts", query: ["person_id", "limit"] },
+  memoryRecall: { path: "/api/desktop/memory/{bot}/recall", query: ["q", "person_id", "limit"] },
+  memoryRevocations: { path: "/api/desktop/memory/{bot}/revocations" },
+  desktopSkills: { path: "/api/desktop/skills" },
+  skillVersions: { path: "/api/desktop/skills/{slug}/versions" },
+  desktopSkill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
+  // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
+  syncChanges: { path: "/api/sync/changes" },
+  runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -327,6 +346,25 @@ const OWNER_WRITES = {
     query: ["box"],
   },
   groupServerAction: { method: "POST", path: "/api/group-companies/servers/{sid}/actions/{verb}" },
+  skillState: { method: "POST", path: "/api/skills/{id}/state" },
+  skillReview: { method: "POST", path: "/api/skills/{id}/review" },
+  desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
+  desktopTaskStop: { method: "POST", path: "/api/desktop/tasks/{id}/stop" },
+  desktopTasksStopAll: { method: "POST", path: "/api/desktop/tasks/stop-all" },
+  memoryCorrect: { method: "POST", path: "/api/desktop/memory/{id}/correct" },
+  memoryForget: { method: "POST", path: "/api/desktop/memory/{id}/forget" },
+  syncSave: { method: "POST", path: "/api/sync/mutations" },
+  syncPromote: {
+    method: "POST",
+    path: "/api/sync/tasks/{id}/promote",
+    idempotency: "Idempotency-Key",
+  },
+  syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
+  syncConfirm: {
+    method: "POST",
+    path: "/api/sync/drafts/{id}/confirm",
+    idempotency: "Idempotency-Key",
+  },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -339,6 +377,8 @@ export type OwnerWrite = keyof typeof OWNER_WRITES;
 const OWNER_READ_POSTS = {
   find: "/api/find",
   activitySummary: "/api/auto/activity/summary",
+  // Proposes a team from a goal; NSVX applies nothing (openclaw_admin Admin.suggest).
+  agentSuggest: "/api/ai/openclaw/suggest",
   // Agenda reads: free times, the exact terms of a change before it runs, and clone's written help.
   agendaSummary: "/api/workspace/agenda-summary",
   freeSlots: "/api/workspace/suggestions",
@@ -354,6 +394,20 @@ export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
 const EXPORT_MAX_CHARS = 5_000_000;
 
 const OWNER_COOKIE = "clone_session";
+
+/**
+ * Public NSVX pages: health probes (`/readyz` adds which checks fail when the owner session comes along) and the
+ * legal pages. `/readyz` answers 503 with the same body when not ready.
+ */
+const PUBLIC_READS = {
+  live: { path: "/healthz" },
+  ready: { path: "/readyz", alsoOk: 503 },
+  runtime: { path: "/runtimez" },
+} as const;
+
+export type PublicRead = keyof typeof PUBLIC_READS;
+/** The rendered legal pages are a few dozen kilobytes. */
+const LEGAL_LIMIT = 1024 * 1024;
 
 function ownerViewSpec(view: string): OwnerViewSpec {
   if (!Object.hasOwn(OWNER_VIEWS, view)) {
@@ -513,21 +567,48 @@ export function createNsvxClient(options: {
     return (response.status === 204 ? { ok: true } : await response.json()) as T;
   }
 
+  /**
+   * AgentOS as the agent (bearer token) or, for the owner's own taps in Control, as the owner. NSVX accepts only the
+   * owner's browser session today (`get_principal`), so Control uses that session when it is set; chat tools never do.
+   */
+  async function publicFetch(path: string, accept: string, alsoOk?: number): Promise<Response> {
+    let response: Response;
+    try {
+      response = await fetchImpl(`${options.baseUrl}${path}`, {
+        method: "GET",
+        headers: {
+          Accept: accept,
+          ...(options.ownerSession ? { Cookie: `${OWNER_COOKIE}=${options.ownerSession}` } : {}),
+        },
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+    } catch {
+      throw new NsvxError("offline", "NSVX cannot be reached.");
+    }
+    if (!response.ok && response.status !== alsoOk) {
+      throw errorFor(response.status, await problemFrom(response), false, path);
+    }
+    return response;
+  }
+
   async function call<T>(
     path: string,
     init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {},
+    _principal: "agent" | "owner" = "agent",
   ): Promise<T> {
+    // AgentOS is Bearer-only (NSVX_AGENTOS_TOKEN / TOKEN_FILE). Never lift clone_session here.
     if (!options.token) {
       throw new NsvxError("unconfigured", "NSVX sign-in is not set up on this Gateway.");
     }
     const isWrite = init.method === "POST";
+    const auth: Record<string, string> = { Authorization: `Bearer ${options.token}` };
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${AGENTOS_PATH}${path}`, {
         method: init.method ?? "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${options.token}`,
+          ...auth,
           ...(isWrite ? { "Content-Type": "application/json" } : {}),
           ...(init.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
         },
@@ -546,30 +627,48 @@ export function createNsvxClient(options: {
     return (await response.json()) as T;
   }
 
-  return {
-    baseUrl: options.baseUrl,
+  const agentOs = (principal: "agent" | "owner") => ({
     async listActions(): Promise<NsvxAction[]> {
-      return (await call<{ actions: NsvxAction[] }>("/actions?limit=500")).actions;
+      return (await call<{ actions: NsvxAction[] }>("/actions?limit=500", {}, principal)).actions;
     },
     getAction(actionId: string): Promise<NsvxAction & { contract: Record<string, unknown> }> {
-      return call(`/actions/${encodeURIComponent(actionId)}`);
+      return call(`/actions/${encodeURIComponent(actionId)}`, {}, principal);
     },
     runAction(request: NsvxRunRequest): Promise<NsvxRunResult> {
-      return call(`/actions/${encodeURIComponent(request.actionId)}/execute`, {
-        method: "POST",
-        idempotencyKey: request.idempotencyKey,
-        body: {
-          input: request.input,
-          ...(request.approvalId ? { approval_id: request.approvalId } : {}),
+      return call(
+        `/actions/${encodeURIComponent(request.actionId)}/execute`,
+        {
+          method: "POST",
+          idempotencyKey: request.idempotencyKey,
+          body: {
+            input: request.input,
+            ...(request.approvalId ? { approval_id: request.approvalId } : {}),
+          },
         },
-      });
+        principal,
+      );
     },
     async listTasks(): Promise<NsvxTask[]> {
-      return (await call<{ tasks: NsvxTask[] }>("/tasks?limit=100")).tasks;
+      return (await call<{ tasks: NsvxTask[] }>("/tasks?limit=100", {}, principal)).tasks;
     },
     async listApprovals(): Promise<NsvxApproval[]> {
-      return (await call<{ approvals: NsvxApproval[] }>("/approvals")).approvals;
+      return (await call<{ approvals: NsvxApproval[] }>("/approvals", {}, principal)).approvals;
     },
+    decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
+      return call(
+        `/approvals/${encodeURIComponent(approvalId)}/${decision}`,
+        { method: "POST" },
+        principal,
+      );
+    },
+  });
+
+  return {
+    baseUrl: options.baseUrl,
+    /** AgentOS as the agent: chat tools. */
+    ...agentOs("agent"),
+    /** AgentOS for Control taps: same Bearer token as chat; never the owner session. */
+    control: agentOs("agent"),
     async readOwnerView<T = unknown>(
       view: string,
       params: Record<string, unknown> = {},
@@ -621,6 +720,26 @@ export function createNsvxClient(options: {
       more?: { params?: Record<string, string>; idempotencyKey?: string },
     ): Promise<T> {
       return writeOwner(action, id, body, more);
+    },
+    /** A public health probe; the owner session, when set, only adds detail NSVX shows its owner. */
+    async readPublic(name: PublicRead): Promise<{ status: number; body: Record<string, unknown> }> {
+      const spec: { path: string; alsoOk?: number } = PUBLIC_READS[name];
+      const response = await publicFetch(spec.path, "application/json", spec.alsoOk);
+      return {
+        status: response.status,
+        body: (await response.json()) as Record<string, unknown>,
+      };
+    },
+    /** One public legal page as NSVX renders it (HTML). */
+    async readLegalPage(page: string, lang: string): Promise<string> {
+      if (!LEGAL_PAGES.includes(page as never) || !LEGAL_LANGS.includes(lang as never)) {
+        throw new NsvxError("invalid", "Unknown legal page.");
+      }
+      const html = await (await publicFetch(`/${page}?lang=${lang}`, "text/html")).text();
+      if (html.length > LEGAL_LIMIT) {
+        throw new NsvxError("invalid", "NSVX sent too large a page.");
+      }
+      return html;
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

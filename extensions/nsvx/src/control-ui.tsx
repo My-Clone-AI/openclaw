@@ -9,9 +9,12 @@ import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { AgendaTab } from "./agenda-tab.js";
+import { deviceTranslator, type DT } from "./device-i18n.js";
+import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
 import { groupTranslator } from "./group-i18n.js";
 import { GroupTab } from "./group-tab.js";
+import { HealthTab } from "./health-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
@@ -20,6 +23,8 @@ import { peopleTranslator, type PT } from "./people-i18n.js";
 import { PeopleTab, type PeopleOpen } from "./people-tab.js";
 import { ProgressTab } from "./progress-tab.js";
 import { QuickReplyTab } from "./quick-reply-tab.js";
+import { SetupTab } from "./setup-tab.js";
+import { SkillsTab } from "./skills-tab.js";
 import { TeamTab } from "./team-tab.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
 import {
@@ -34,6 +39,7 @@ import {
 import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
+import "./setup.css";
 
 type Tab =
   | "today"
@@ -48,8 +54,12 @@ type Tab =
   | "money"
   | "group"
   | "team"
+  | "setup"
+  | "skills"
   | "actions"
-  | "progress";
+  | "progress"
+  | "device"
+  | "health";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -385,8 +395,12 @@ const TABS: Tab[] = [
   "money",
   "group",
   "team",
+  "setup",
+  "skills",
   "actions",
   "progress",
+  "device",
+  "health",
 ];
 
 const mountNsvx: ControlUiView = (container, context) => {
@@ -396,6 +410,7 @@ const mountNsvx: ControlUiView = (container, context) => {
   const t: T = (key) => translator(locale())(key);
   const mt: MT = (key) => messagesTranslator(locale())(key);
   const pt: PT = (key) => peopleTranslator(locale())(key);
+  const dt: DT = (key) => deviceTranslator(locale())(key);
   const label = (id: Tab) =>
     id === "agenda"
       ? agendaTranslator(locale())("agenda")
@@ -405,6 +420,8 @@ const mountNsvx: ControlUiView = (container, context) => {
           ? pt(id)
           : id === "group"
             ? groupTranslator(locale())("group")
+          : id === "device" || id === "health"
+            ? dt(id)
             : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
@@ -422,6 +439,8 @@ const mountNsvx: ControlUiView = (container, context) => {
         ? { kind: "group", id: groupParam }
         : undefined,
   );
+  const [agent, setAgent] = createSignal(search.get("agent") ?? undefined);
+  const [skill, setSkill] = createSignal(search.get("skill") ?? undefined);
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
@@ -432,6 +451,9 @@ const mountNsvx: ControlUiView = (container, context) => {
       mission?: string;
       conversation?: string;
       draft?: string;
+      people?: PeopleOpen;
+      agent?: string;
+      skill?: string;
       event?: string;
       people?: PeopleOpen;
     } = {},
@@ -468,6 +490,16 @@ const mountNsvx: ControlUiView = (container, context) => {
         url.searchParams.delete(kind);
       }
     }
+    for (const [name, value, owner] of [
+      ["agent", open.agent, "setup"],
+      ["skill", open.skill, "skills"],
+    ] as const) {
+      if (nextTab === owner && value) {
+        url.searchParams.set(name, value);
+      } else {
+        url.searchParams.delete(name);
+      }
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -479,6 +511,8 @@ const mountNsvx: ControlUiView = (container, context) => {
       draft: draft(),
       event: eventId(),
       people: personOpen(),
+      agent: agent(),
+      skill: skill(),
     });
   };
   const openMission = (id: string | undefined) => {
@@ -520,6 +554,14 @@ const mountNsvx: ControlUiView = (container, context) => {
       draft: draft(),
       people: open,
     });
+  };
+  const openAgent = (id: string) => {
+    setAgent(id);
+    remember(tab(), { agent: id, skill: skill() });
+  };
+  const openSkill = (id: string | undefined) => {
+    setSkill(id);
+    remember(tab(), { agent: agent(), skill: id });
   };
   const Page = () => (
     <section class="nsvx">
@@ -668,12 +710,32 @@ const mountNsvx: ControlUiView = (container, context) => {
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
             </Show>
+            <Show when={tab() === "device"}>
+              <DeviceTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
+            <Show when={tab() === "health"}>
+              <HealthTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
 
             <Show when={tab() === "group"}>
               <GroupTab host={host} t={t} query={query()} locale={locale()} />
             </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "setup"}>
+              <SetupTab
+                host={host}
+                t={t}
+                mt={mt}
+                locale={locale()}
+                query={query()}
+                agent={agent()}
+                onAgent={openAgent}
+              />
+            </Show>
+            <Show when={tab() === "skills"}>
+              <SkillsTab host={host} t={t} query={query()} open={skill()} onOpen={openSkill} />
             </Show>
             <Show when={tab() === "actions"}>
               <ActionsTab host={host} t={t} query={query()} />

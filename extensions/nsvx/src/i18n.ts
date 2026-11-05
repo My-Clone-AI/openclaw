@@ -1,4 +1,7 @@
+import { setupEn, setupEs, setupPt } from "./setup-i18n.js";
+
 const en = {
+  ...setupEn,
   activity: "Activity",
   find: "Find",
   findHint: "Type to find",
@@ -191,6 +194,7 @@ const en = {
 export type MessageKey = keyof typeof en;
 
 const pt: Record<MessageKey, string> = {
+  ...setupPt,
   activity: "Atividade",
   find: "Pesquisar",
   findHint: "Escreva para pesquisar",
@@ -381,6 +385,7 @@ const pt: Record<MessageKey, string> = {
 };
 
 const es: Record<MessageKey, string> = {
+  ...setupEs,
   activity: "Actividad",
   find: "Buscar",
   findHint: "Escribe para buscar",

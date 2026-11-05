@@ -5253,7 +5253,8 @@
       "/report": 1,
       "/status": 1,
       "/sync": 1,
-      "/{path:path}": 1
+      "/{path:path}": 1,
+      "/api/jobs": 1
     },
     "byEntry": {
       "home-today": {
@@ -5701,6 +5702,11 @@
       "partial": 33,
       "missing": 30,
       "blocked": 1,
+      "discovered": 68,
+      "native": 12,
+      "partial": 26,
+      "missing": 30,
+      "blocked": 0,
       "verified": 0,
       "families": [
         {
@@ -5907,10 +5913,10 @@
           "id": "08",
           "name": "Agents",
           "discovered": 15,
-          "native": 9,
+          "native": 12,
           "partial": 3,
-          "missing": 2,
-          "blocked": 1,
+          "missing": 0,
+          "blocked": 0,
           "verified": 0
         },
         {
@@ -5920,6 +5926,36 @@
           "native": 0,
           "partial": 0,
           "missing": 3,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "22",
+          "name": "Everything else",
+          "discovered": 3,
+          "native": 1,
+          "partial": 2,
+          "missing": 0,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "03",
+          "name": "People",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "06",
+          "name": "Calendar and Google",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
           "blocked": 0,
           "verified": 0
         }
