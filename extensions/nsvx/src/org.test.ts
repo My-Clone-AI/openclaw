@@ -25,7 +25,12 @@ describe("buildTeamChart", () => {
       ["head", 1, "running"],
       ["worker", 2, "error"],
     ]);
-    expect(chart.agents[1]).toMatchObject({ name: "Head", node: "mac", supervisors: ["boss"] });
+    expect(chart.agents[1]).toMatchObject({
+      name: "Head",
+      node: "mac",
+      supervisors: ["boss"],
+      runningKeys: ["agent:head:a"],
+    });
     expect(chart.agents[2]?.sessions).toBe(2);
     expect(chart.unlinked.map((agent) => agent.id)).toEqual(["loner"]);
   });

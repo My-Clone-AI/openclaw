@@ -41,13 +41,19 @@ export type OpenClawInventory = {
   uiRoutes: { id: string; path: string; aliases: string[] }[];
   pages: string[];
   gatewayMethods: { name: string; group: string | null; scope: string }[];
-  extensions: { id: string; categories: string[]; controlUi: boolean; gatewayMethods: string[] }[];
+  extensions: {
+    id: string;
+    categories: string[];
+    controlUi: boolean;
+    gatewayMethods: string[];
+    tools: string[];
+  }[];
 };
 
 const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-const uniqueSorted = (values: Iterable<string>) => [...new Set(values)].sort(byText);
+const uniqueSorted = (values: Iterable<string>) => [...new Set(values)].toSorted(byText);
 const sortBy = <T,>(items: T[], key: (item: T) => string) =>
-  items.sort((a, b) => byText(key(a), key(b)));
+  items.toSorted((a, b) => byText(key(a), key(b)));
 
 function git(repo: string, args: string[], input?: string): Buffer {
   const result = spawnSync("git", ["-C", repo, ...args], {
@@ -413,7 +419,7 @@ export function extractUiRoutes(source: string): OpenClawInventory["uiRoutes"] {
 export function extractCoreGatewayMethods(source: string): OpenClawInventory["gatewayMethods"] {
   const methods = new Map<string, OpenClawInventory["gatewayMethods"][number]>();
   for (const match of source.matchAll(
-    /^\s*\[\s*"([\w.-]+)",\s*(?:"([\w-]+)"|null),\s*"(operator\.\w+|node)"/gm,
+    /^\s*\[\s*"([\w.-]+)",\s*(?:"([\w-]+)"|null),\s*"(operator\.\w+|node|dynamic)"/gm,
   )) {
     methods.set(match[1] ?? "", {
       name: match[1] ?? "",
@@ -427,17 +433,27 @@ export function extractCoreGatewayMethods(source: string): OpenClawInventory["ga
 export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory {
   const files = reader.list();
   const manifests = files.filter((f) => /^extensions\/[^/]+\/openclaw\.plugin\.json$/.test(f));
+  const packages = manifests
+    .map((f) => f.replace(/openclaw\.plugin\.json$/, "package.json"))
+    .filter((f) => files.includes(f));
   const pluginSources = files.filter(
     (f) => /^extensions\/[^/]+\/.*\.tsx?$/.test(f) && !isTest(f) && !f.includes("/browser/"),
   );
   const routesFile = "ui/src/app-route-paths.ts";
   const methodsFile = "src/gateway/methods/core-descriptors.ts";
-  const contents = reader.read([routesFile, methodsFile, ...manifests, ...pluginSources]);
+  const contents = reader.read([
+    routesFile,
+    methodsFile,
+    ...manifests,
+    ...packages,
+    ...pluginSources,
+  ]);
   const pluginMethods = new Map<string, Set<string>>();
   for (const file of pluginSources) {
     const directory = file.split("/")[1] ?? "";
     for (const match of (contents.get(file) ?? "").matchAll(
-      /registerGatewayMethod\(\s*["']([\w.-]+)["']/g,
+      // Also a local `method("plugin.name", ...)` helper that forwards to registerGatewayMethod.
+      /(?:registerGatewayMethod|\bmethod)\(\s*["']([\w-]+\.[\w.-]+)["']/g,
     )) {
       const methods = pluginMethods.get(directory) ?? new Set<string>();
       methods.add(match[1] ?? "");
@@ -449,13 +465,20 @@ export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory 
       id?: string;
       categories?: string[];
       controlUi?: unknown;
+      contracts?: { tools?: string[] };
     };
     const directory = file.split("/")[1] ?? "";
+    // Source plugins declare their view in package.json; the build writes it into the manifest.
+    const pkg = JSON.parse(contents.get(`extensions/${directory}/package.json`) ?? "{}") as {
+      openclaw?: { controlUi?: unknown };
+    };
     return {
       id: manifest.id ?? directory,
       categories: manifest.categories ?? [],
-      controlUi: manifest.controlUi !== undefined,
+      controlUi: manifest.controlUi !== undefined || pkg.openclaw?.controlUi !== undefined,
       gatewayMethods: uniqueSorted(pluginMethods.get(directory) ?? []),
+      // The loader refuses agent tools a manifest does not declare, so this is the real tool list.
+      tools: uniqueSorted(manifest.contracts?.tools ?? []),
     };
   });
   return {
@@ -661,6 +684,7 @@ export function crossCheckOpenClaw(registry: Registry, inventory: OpenClawInvent
     ...inventory.gatewayMethods.map((method) => method.name),
     ...inventory.extensions.flatMap((extension) => extension.gatewayMethods),
   ]);
+  const tools = new Set(inventory.extensions.flatMap((extension) => extension.tools));
   for (const entry of registry.entries) {
     for (const id of entry.openclaw.uiRoutes) {
       if (!routes.has(id)) {
@@ -675,6 +699,11 @@ export function crossCheckOpenClaw(registry: Registry, inventory: OpenClawInvent
     for (const id of entry.openclaw.extensions) {
       if (!extensions.has(id)) {
         errors.push(`${entry.id}: unknown extension ${id}`);
+      }
+    }
+    for (const id of entry.openclaw.chatTools) {
+      if (!tools.has(id)) {
+        errors.push(`${entry.id}: no plugin declares chat tool ${id}`);
       }
     }
   }
@@ -737,7 +766,7 @@ const matchesPrefix = (apiPath: string, prefix: string) =>
 function routeCoverage(registry: Registry, routes: BackendRoute[]) {
   const prefixes = registry.entries
     .flatMap((entry) => entry.nsvx.apiPrefixes.map((prefix) => ({ prefix, id: entry.id })))
-    .sort((a, b) => b.prefix.length - a.prefix.length || byText(a.prefix, b.prefix));
+    .toSorted((a, b) => b.prefix.length - a.prefix.length || byText(a.prefix, b.prefix));
   const owned = new Map<string, BackendRoute[]>();
   const unassigned: BackendRoute[] = [];
   for (const route of routes) {
@@ -777,11 +806,9 @@ export function summarizeParity(registry: Registry) {
   });
   return {
     ...summarize(registry.entries),
-    families: Object.entries(registry.families).map(([id, name]) => ({
-      id,
-      name,
-      ...summarize(registry.entries.filter((entry) => entry.family === id)),
-    })),
+    families: Object.entries(registry.families).map(([id, name]) =>
+      Object.assign({ id, name }, summarize(registry.entries.filter((e) => e.family === id))),
+    ),
   };
 }
 

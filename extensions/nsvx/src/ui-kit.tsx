@@ -23,6 +23,9 @@ const ICONS = {
     "M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0",
   pause: "M10 4H6v16h4zm8 0h-4v16h4z",
   plug: "M9 7V3m6 4V3M7 7h10v5a5 5 0 0 1-10 0zm5 10v4",
+  stop: "M6 6h12v12H6z",
+  resume: "M7 4v16l13-8z",
+  task: "M4 12 20 4l-4 16-4-7zm8 1 8-9",
 } as const;
 
 export type IconName = keyof typeof ICONS;

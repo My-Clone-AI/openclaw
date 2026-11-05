@@ -1,12 +1,12 @@
 {
-  "discovered": 58,
-  "native": 5,
+  "discovered": 61,
+  "native": 8,
   "partial": 13,
   "missing": 39,
   "blocked": 1,
   "verified": 0,
   "sources": {
-    "nsvx": "228296050da9da6fe364a88d5f5901bd9ce8b9b2",
+    "nsvx": "68978f9f91620832707fe0a0a5d6db1deb7868ed",
     "openclaw": "dfc33ec231d4afd31ae7eeb8b9b218575b39a596"
   },
   "families": [
@@ -213,20 +213,20 @@
     {
       "id": "08",
       "name": "Agents",
-      "discovered": 13,
-      "native": 5,
+      "discovered": 15,
+      "native": 8,
       "partial": 3,
-      "missing": 4,
+      "missing": 3,
       "blocked": 1,
       "verified": 0
     },
     {
       "id": "09",
       "name": "Grow and development",
-      "discovered": 2,
+      "discovered": 3,
       "native": 0,
       "partial": 0,
-      "missing": 2,
+      "missing": 3,
       "blocked": 0,
       "verified": 0
     }
@@ -405,7 +405,23 @@
       "title": "Pause and resume an agent",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-stop",
+      "title": "Stop an agent's runs",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-task",
+      "title": "Give an agent a task",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
       "verified": false
     },
     {
@@ -477,6 +493,14 @@
       "title": "Build Me requests",
       "family": "09",
       "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "openclaw-brain",
+      "title": "OpenClaw brain inbox and roles",
+      "family": "09",
+      "priority": "P1",
       "status": "missing",
       "verified": false
     },

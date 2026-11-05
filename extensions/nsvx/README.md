@@ -1,6 +1,7 @@
 # NSVX plugin
 
-Brings NSVX into OpenClaw Control: the agent team chart, NSVX action contracts, approvals, and parity progress.
+Brings NSVX into OpenClaw Control: the agent team chart (move, assign, task, stop, pause), NSVX action contracts,
+approvals, and parity progress.
 
 Enable it with `openclaw plugins enable nsvx`. Set the NSVX address in the plugin config (`baseUrl`). Two sign-ins
 live in the Gateway's environment and never reach the browser:

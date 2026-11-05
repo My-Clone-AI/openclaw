@@ -1,9 +1,10 @@
 import { jsonResult } from "openclaw/plugin-sdk/core";
-import type { AnyAgentTool } from "openclaw/plugin-sdk/plugin-entry";
+import type { AnyAgentTool, OpenClawPluginToolContext } from "openclaw/plugin-sdk/plugin-entry";
 import { Type } from "typebox";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import parity from "./parity-data.json" with { type: "json" };
+import type { TeamService } from "./team.js";
 
 function outcome(run: () => Promise<unknown>) {
   return run().then(jsonResult, (cause: unknown) => {
@@ -61,4 +62,38 @@ export function createNsvxTools(client: NsvxClient): AnyAgentTool[] {
       execute: async () => jsonResult(parity),
     },
   ] as AnyAgentTool[];
+}
+
+/** Pause changes who may delegate to an agent, so only the owner's own turns may use it. */
+export function createNsvxTeamTool(
+  team: TeamService,
+  context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
+): AnyAgentTool {
+  return {
+    name: "nsvx_team",
+    label: "NSVX team",
+    description:
+      "List paused agents, or pause or resume one. Pause removes the agent from its leads and stops its runs; resume puts it back under the same leads. Only the owner may pause or resume.",
+    parameters: Type.Object(
+      {
+        action: Type.Union([Type.Literal("paused"), Type.Literal("pause"), Type.Literal("resume")]),
+        agentId: Type.Optional(Type.String({ description: "Agent id, for pause and resume." })),
+      },
+      { additionalProperties: false },
+    ),
+    execute: (_toolCallId, params: { action: "paused" | "pause" | "resume"; agentId?: string }) =>
+      outcome(async () => {
+        if (params.action === "paused") {
+          return team.listPaused();
+        }
+        if (context.senderIsOwner !== true) {
+          throw new NsvxError("denied", "Only the owner may pause or resume agents.");
+        }
+        if (!params.agentId) {
+          throw new NsvxError("invalid", "agentId is required.");
+        }
+        context.assertInvocationCurrent?.();
+        return params.action === "pause" ? team.pause(params.agentId) : team.resume(params.agentId);
+      }),
+  } as AnyAgentTool;
 }

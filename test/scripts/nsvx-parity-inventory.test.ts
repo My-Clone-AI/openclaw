@@ -84,9 +84,12 @@ const APP_ROUTE_DEFINITIONS = {
 export const CORE_GATEWAY_METHOD_SPECS = [
   ["health", "health", "operator.read", "<=2026.7"],
   ["exec.approval.get", null, "operator.approvals", "<=2026.7"],
+  ["agent", "agent", "dynamic", "<=2026.7", { startup: true }],
 ];`,
-  "extensions/board/openclaw.plugin.json": `{"id":"board","categories":["x"],"controlUi":{"entry":"a"}}`,
-  "extensions/board/index.ts": `api.registerGatewayMethod("board.list", handler);`,
+  "extensions/board/openclaw.plugin.json": `{"id":"board","categories":["x"],"controlUi":{"entry":"a"},"contracts":{"tools":["board_list"]}}`,
+  "extensions/board/index.ts": `api.registerGatewayMethod("board.list", handler);\nmethod("board.move", "operator.write", run);\nmethod("plain", run);`,
+  "extensions/pane/openclaw.plugin.json": `{"id":"pane"}`,
+  "extensions/pane/package.json": `{"openclaw":{"controlUi":"./src/control-ui.tsx"}}`,
 };
 
 function tempGitRepo(files: Record<string, string>) {
@@ -194,11 +197,19 @@ describe("nsvx parity inventory", () => {
       ],
       pages: ["chat"],
       gatewayMethods: [
+        { name: "agent", group: "agent", scope: "dynamic" },
         { name: "exec.approval.get", group: null, scope: "operator.approvals" },
         { name: "health", group: "health", scope: "operator.read" },
       ],
       extensions: [
-        { id: "board", categories: ["x"], controlUi: true, gatewayMethods: ["board.list"] },
+        {
+          id: "board",
+          categories: ["x"],
+          controlUi: true,
+          gatewayMethods: ["board.list", "board.move"],
+          tools: ["board_list"],
+        },
+        { id: "pane", categories: [], controlUi: true, gatewayMethods: [], tools: [] },
       ],
     });
   });
@@ -247,12 +258,12 @@ describe("nsvx parity inventory", () => {
           uiRoutes: ["nope"],
           gatewayMethods: ["nope"],
           extensions: ["nope"],
-          chatTools: [],
+          chatTools: ["nope"],
         },
       }),
     ]);
     expect(crossCheckNsvx(bad, nsvx)).toHaveLength(5);
-    expect(crossCheckOpenClaw(bad, openclaw)).toHaveLength(3);
+    expect(crossCheckOpenClaw(bad, openclaw)).toHaveLength(4);
   });
 
   it("rejects status and evidence claims with no support", () => {

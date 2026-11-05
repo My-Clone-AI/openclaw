@@ -7,18 +7,9 @@ import {
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
 import { translator, type MessageKey } from "./i18n.js";
-import {
-  assignAgentPatch,
-  buildTeamChart,
-  moveAgentPatch,
-  TeamMoveError,
-  type AgentEntry,
-  type TeamAgent,
-  type TeamChart,
-  type TeamSession,
-} from "./org.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
 import { ProgressTab } from "./progress-tab.js";
+import { TeamTab } from "./team-tab.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
 import {
   ConnectCard,
@@ -32,175 +23,6 @@ import {
 import "./control-ui.css";
 
 type Tab = "today" | "tasks" | "work" | "team" | "actions" | "progress";
-type TeamData = {
-  chart: TeamChart;
-  entries: Record<string, AgentEntry>;
-  nodes: { nodeId: string; displayName?: string }[];
-  defaultId: string;
-};
-
-type ConfigSnapshot = {
-  hash: string;
-  parsed?: { agents?: { entries?: Record<string, AgentEntry> } };
-};
-
-async function loadTeam(host: ControlUiHost): Promise<TeamData> {
-  const [config, roster, sessions, nodes] = await Promise.all([
-    host.request<ConfigSnapshot>("config.get"),
-    host.request<{ defaultId: string; agents: { id: string; name?: string }[] }>("agents.list"),
-    host.request<{ sessions: TeamSession[] }>("sessions.list", { limit: 200 }),
-    host.request<{ nodes: { nodeId: string; displayName?: string }[] }>("node.list"),
-  ]);
-  const entries = config.parsed?.agents?.entries ?? {};
-  return {
-    entries,
-    nodes: nodes.nodes,
-    defaultId: roster.defaultId,
-    chart: buildTeamChart({
-      entries,
-      roster: roster.agents,
-      defaultId: roster.defaultId,
-      sessions: sessions.sessions,
-    }),
-  };
-}
-
-function StateBadge(props: { state: TeamAgent["state"]; t: T }) {
-  return (
-    <span class={["nsvx__state", `nsvx__state--${props.state}`]}>
-      <span class="nsvx__dot" aria-hidden="true" />
-      {props.t(props.state)}
-    </span>
-  );
-}
-
-function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
-  const team = createSource(props.host, () => loadTeam(props.host));
-  const [notice, setNotice] = createSignal("");
-  const [saving, setSaving] = createSignal(false);
-  void team.refresh();
-
-  /** Always patches against a fresh read, so a stale page cannot overwrite a newer edit. */
-  const save = async (buildPatch: (snapshot: ConfigSnapshot) => unknown) => {
-    setSaving(true);
-    setNotice("");
-    try {
-      const snapshot = await props.host.request<ConfigSnapshot>("config.get");
-      await props.host.request("config.patch", buildPatch(snapshot) as Record<string, unknown>);
-      setNotice(props.t("saved"));
-    } catch (cause) {
-      const conflict = /hash|changed|conflict|stale/i.test(errorMessage(props.host, cause));
-      setNotice(
-        cause instanceof TeamMoveError
-          ? props.t("moveLoop")
-          : conflict
-            ? props.t("changedElsewhere")
-            : errorMessage(props.host, cause),
-      );
-    } finally {
-      setSaving(false);
-      await team.refresh();
-    }
-  };
-  const move = (agent: string, supervisor: string) =>
-    save((snapshot) =>
-      moveAgentPatch(snapshot.parsed?.agents?.entries ?? {}, agent, supervisor, snapshot.hash),
-    );
-  const assign = (agent: string, node: string) =>
-    save((snapshot) => assignAgentPatch(agent, node || null, snapshot.hash));
-
-  const canEdit = () => props.host.connection.canAdmin && !saving();
-  const AgentRow = (row: { agent: TeamAgent; data: TeamData }) => {
-    const supervisors = () => Object.keys(row.data.entries).filter((id) => id !== row.agent.id);
-    const isRoot = () => row.agent.id === row.data.defaultId;
-    return (
-      <li class="nsvx-agent" style={{ "--nsvx-depth": String(Math.min(row.agent.depth, 6)) }}>
-        <span class="nsvx-agent__avatar" aria-hidden="true">
-          {row.agent.emoji ?? row.agent.name.slice(0, 1).toUpperCase()}
-        </span>
-        <span class="nsvx-agent__main">
-          <span class="nsvx-agent__name">{row.agent.name}</span>
-          <StateBadge state={row.agent.state} t={props.t} />
-        </span>
-        <span class="nsvx-agent__controls">
-          <Show when={!isRoot() && row.data.entries[row.agent.id]}>
-            <label class="nsvx-field">
-              <span>{props.t("reportsTo")}</span>
-              <select
-                disabled={!canEdit()}
-                onChange={(event) => void move(row.agent.id, event.currentTarget.value)}
-              >
-                <Show when={row.agent.supervisors.length === 0}>
-                  <option value="" selected>
-                    —
-                  </option>
-                </Show>
-                <For each={supervisors()}>
-                  {(id) => (
-                    <option value={id} selected={row.agent.supervisors[0] === id}>
-                      {row.data.chart.agents.find((agent) => agent.id === id)?.name ??
-                        row.data.chart.unlinked.find((agent) => agent.id === id)?.name ??
-                        id}
-                    </option>
-                  )}
-                </For>
-              </select>
-            </label>
-          </Show>
-          <Show when={row.data.nodes.length > 0 && row.data.entries[row.agent.id]}>
-            <label class="nsvx-field">
-              <span>{props.t("runsOn")}</span>
-              <select
-                disabled={!canEdit()}
-                onChange={(event) => void assign(row.agent.id, event.currentTarget.value)}
-              >
-                <option value="" selected={!row.agent.node}>
-                  {props.t("gatewayHost")}
-                </option>
-                <For each={row.data.nodes}>
-                  {(node) => (
-                    <option value={node.nodeId} selected={row.agent.node === node.nodeId}>
-                      {node.displayName ?? node.nodeId}
-                    </option>
-                  )}
-                </For>
-              </select>
-            </label>
-          </Show>
-        </span>
-      </li>
-    );
-  };
-  const visible = (agents: TeamAgent[]) =>
-    agents.filter((agent) => matches(props.query, agent.name, agent.id));
-  return (
-    <SourceView source={team} t={props.t}>
-      {(data) => (
-        <>
-          <p class="nsvx__notice" role="status">
-            {notice()}
-          </p>
-          <ul class="nsvx-team">
-            <For each={visible(data().chart.agents)} keyed={(agent) => agent.id}>
-              {(agent) => <AgentRow agent={agent()} data={data()} />}
-            </For>
-          </ul>
-          <Show when={visible(data().chart.unlinked).length > 0}>
-            <h2 class="nsvx__heading">{props.t("unlinked")}</h2>
-            <ul class="nsvx-team">
-              <For each={visible(data().chart.unlinked)} keyed={(agent) => agent.id}>
-                {(agent) => <AgentRow agent={agent()} data={data()} />}
-              </For>
-            </ul>
-          </Show>
-          <Show when={visible([...data().chart.agents, ...data().chart.unlinked]).length === 0}>
-            <p class="nsvx__empty">{props.t("noResults")}</p>
-          </Show>
-        </>
-      )}
-    </SourceView>
-  );
-}
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -213,7 +35,7 @@ const STATUS_COPY: Record<
   failed: { title: "failed", help: "failedHelp" },
 };
 
-type Field = { name: string; type: string; required: boolean; options?: string[] | undefined };
+type Field = { name: string; type: string; required: boolean; options: string[] | undefined };
 
 function fieldsOf(contract: Record<string, unknown>): Field[] {
   const input = contract.input as

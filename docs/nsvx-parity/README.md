@@ -32,11 +32,12 @@ The test needs no clone access and also runs in CI. `--check` needs both pinned 
 
 | Repo                   | Branch           | Commit                                     |
 | ---------------------- | ---------------- | ------------------------------------------ |
-| `My-Clone-AI/clone`    | `origin/develop` | `228296050da9da6fe364a88d5f5901bd9ce8b9b2` |
+| `My-Clone-AI/clone`    | `origin/develop` | `68978f9f91620832707fe0a0a5d6db1deb7868ed` |
 | `My-Clone-AI/openclaw` | `origin/develop` | `dfc33ec231d4afd31ae7eeb8b9b218575b39a596` |
 
-The clone commit is the newest in the runner's local copy. The runner has no credential to
-fetch that private repository, so newer commits may exist.
+The clone commit is the newest `origin/develop` in the runner's copy (4 Nov 2026, 20:25 New York time). The runner
+cannot fetch that private repository, so newer commits may exist. Moving the pin from `2282960` added NSVX #903
+(Hermes retired, OpenClaw brain inbox) and three `openclaw_admin` routes: sessions, task, and connection.
 
 ## What the generator reads
 
@@ -50,7 +51,7 @@ fetch that private repository, so newer commits may exist.
 | `openclaw_admin`                  | Module files and the RPC allowlists in `gateway.py`                |
 | OpenClaw routes and pages         | `app-route-paths.ts`, `ui/src/pages/*/route.ts`                    |
 | OpenClaw Gateway methods          | `core-descriptors.ts`, `registerGatewayMethod`                     |
-| OpenClaw plugins and plugin views | `openclaw.plugin.json` (`controlUi`)                               |
+| OpenClaw plugins and plugin views | `openclaw.plugin.json` (`controlUi`, `contracts.tools`)            |
 
 Portals are covered by the `portals` route and the `portal.*` methods in the inventory.
 
@@ -82,6 +83,26 @@ verified only when every required check passed, so `coverage.parity` can only ri
 entries changed in the diff. `coverage.unassignedRouteAreas` lists what no entry owns; those routes are parser gaps
 or internal service endpoints that still need a decision.
 
+## Built in Control
+
+The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page with six tabs.
+
+| Tab      | What it does                                                 | Data owner                       |
+| -------- | ------------------------------------------------------------ | -------------------------------- |
+| Today    | Decisions, questions, running and done tasks, alerts         | NSVX owner screens (read only)   |
+| Tasks    | Task list with filters and each task's history               | NSVX owner screens (read only)   |
+| Work     | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
+| Team     | Agent tree; Reports to, Runs on, Task, Stop, Pause, Resume   | Gateway config and sessions      |
+| Actions  | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
+| Progress | This registry by family                                      | `registry.json`, copied at build |
+
+Pause keeps the agent's old leads in plugin state (`nsvx-paused`), so Resume restores the same tree. Chat gets the
+same through `nsvx_team`, which pauses or resumes only on the owner's own turns.
+
+`ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
+Today, Tasks, Work, and the Stop, Task, Pause, and Resume requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
+counts toward `ui`, `desktop`, and `mobile`; `data` and `chat` stay open until a live Gateway run is recorded.
+
 ## Brief copy
 
 `MASTER-PROMPT.md` matches the owner's chat text except for one word: line 2 drops the owner's surname, because this
@@ -110,10 +131,11 @@ repository is public and the owner is anonymous on Git. The original is
 - **Private detail stays out.** This repository is public and clone is private, so route-level NSVX lists are not
   tracked. Registry entries name only their owning files and route prefixes; `--full-out <path>` writes the complete
   lists locally.
-- **Static parsing.** The generator misses `add_api_route` routes (3 at the pin) and job kinds passed as variables
+- **Static parsing.** The generator misses `add_api_route` routes (3 at the pin), plugin Gateway methods registered
+  through a helper other than `method("plugin.name", ...)`, and job kinds passed as variables
   (`unresolvedEnqueueCalls`). Sub-applications appear without their mount path, and a module that rebinds `router`
   uses the first binding's prefix.
-- **Unmatched clients.** 6 of 551 API client paths match no parsed backend route. Each may be a parser gap or a dead
+- **Unmatched clients.** 6 of 555 API client paths match no parsed backend route. Each may be a parser gap or a dead
   client; they were not checked one by one.
 - **Domain status is coarse.** `missing` on a business domain means no native page exists in the source. It does not
   say that the domain should be built here.

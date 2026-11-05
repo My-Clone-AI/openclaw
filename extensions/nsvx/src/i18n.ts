@@ -88,6 +88,15 @@ const en = {
   w_landing: "Review",
   w_failed: "Failed",
   w_done: "Done",
+  stop: "Stop",
+  stopped: "Stopped",
+  task: "Task",
+  send: "Send",
+  sent: "Sent",
+  pause: "Pause",
+  resume: "Resume",
+  paused: "Paused",
+  resumed: "Resumed",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -182,6 +191,15 @@ const pt: Record<MessageKey, string> = {
   w_landing: "Em revisão",
   w_failed: "Falharam",
   w_done: "Concluídas",
+  stop: "Parar",
+  stopped: "Parado",
+  task: "Tarefa",
+  send: "Enviar",
+  sent: "Enviado",
+  pause: "Pausar",
+  resume: "Retomar",
+  paused: "Em pausa",
+  resumed: "Retomado",
 };
 
 const es: Record<MessageKey, string> = {
@@ -274,6 +292,15 @@ const es: Record<MessageKey, string> = {
   w_landing: "En revisión",
   w_failed: "Fallidas",
   w_done: "Hechas",
+  stop: "Detener",
+  stopped: "Detenido",
+  task: "Tarea",
+  send: "Enviar",
+  sent: "Enviado",
+  pause: "Pausar",
+  resume: "Reanudar",
+  paused: "En pausa",
+  resumed: "Reanudado",
 };
 
 const CATALOGS: Record<string, Record<MessageKey, string>> = { en, pt, es };

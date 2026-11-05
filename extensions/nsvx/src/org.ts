@@ -26,6 +26,8 @@ export type TeamAgent = {
   node: string | undefined;
   sessions: number;
   running: number;
+  /** Keys of sessions with a live run; stopping the agent aborts exactly these. */
+  runningKeys: string[];
   state: TeamAgentState;
 };
 
@@ -54,9 +56,7 @@ export function buildTeamChart(params: {
   const describe = (id: string, depth: number): TeamAgent => {
     const entry = params.entries[id];
     const sessions = sessionsOf(id);
-    const running = sessions.filter(
-      (session) => session.hasActiveRun || session.status === "running",
-    ).length;
+    const live = sessions.filter((session) => session.hasActiveRun || session.status === "running");
     const failed = sessions.some(
       (session) => session.abortedLastRun || session.status === "failed",
     );
@@ -72,8 +72,9 @@ export function buildTeamChart(params: {
       supervisors: supervisorsOf(id),
       node: entry?.tools?.exec?.node,
       sessions: sessions.length,
-      running,
-      state: running > 0 ? "running" : failed ? "error" : "idle",
+      running: live.length,
+      runningKeys: live.flatMap((session) => (session.key ? [session.key] : [])),
+      state: live.length > 0 ? "running" : failed ? "error" : "idle",
     };
   };
   const agents: TeamAgent[] = [];
