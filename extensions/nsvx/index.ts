@@ -1,4 +1,5 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { createAgentSettings } from "./src/agent-settings.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
@@ -6,9 +7,11 @@ import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
+  createNsvxAgentsTool,
   createNsvxAgendaTool,
   createNsvxFinanceTool,
   createNsvxMessagesTool,
+  createNsvxSkillsTool,
   createNsvxOwnerTools,
   createNsvxTeamTool,
   createNsvxTools,
@@ -30,11 +33,16 @@ export default definePluginEntry({
       paused: openPausedStore(api.runtime),
       history: openHistoryStore(api.runtime),
     }));
-    registerNsvxGatewayMethods(api, client, team);
+    const settings = createAgentSettings(api.runtime, team);
+    registerNsvxGatewayMethods(api, client, team, settings);
     for (const tool of createNsvxTools(client)) {
       api.registerTool(tool);
     }
     api.registerTool((context) => createNsvxTeamTool(team, context), { name: "nsvx_team" });
+    api.registerTool((context) => createNsvxAgentsTool(settings, client, context), {
+      name: "nsvx_agents",
+    });
+    api.registerTool((context) => createNsvxSkillsTool(client, context), { name: "nsvx_skills" });
     api.registerTool((context) => createNsvxMessagesTool(client, context), {
       name: "nsvx_messages",
     });
