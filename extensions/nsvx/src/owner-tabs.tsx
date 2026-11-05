@@ -370,12 +370,12 @@ export function WorkTab(props: { host: ControlUiHost; t: T; query: string }) {
   const summary = createSource(props.host, () =>
     props.host.request<WorkSummary>("nsvx.view", { view: "workSummary" }),
   );
-  const loadTasks = async (more: boolean) => {
+  const loadTasks = async (more: boolean, which: WorkState = state()) => {
     const answer = await props.host.request<{ items: WorkTask[]; nextCursor: string | null }>(
       "nsvx.view",
       {
         view: "workTasks",
-        params: { state: state(), ...(more && cursor() ? { cursor: cursor() } : {}) },
+        params: { state: which, ...(more && cursor() ? { cursor: cursor() } : {}) },
       },
     );
     setItems(more ? [...items(), ...answer.items] : answer.items);
@@ -399,7 +399,10 @@ export function WorkTab(props: { host: ControlUiHost; t: T; query: string }) {
     setState(next);
     setItems([]);
     setCursor(null);
-    void tasks.refresh();
+    // Pass the chosen state explicitly so a concurrent refresh cannot reread the previous tile.
+    void (async () => {
+      await loadTasks(false, next);
+    })();
   };
   return (
     <SourceView source={summary} t={props.t}>
