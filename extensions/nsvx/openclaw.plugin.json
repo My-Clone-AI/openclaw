@@ -21,7 +21,8 @@
       "nsvx_finance",
       "nsvx_agenda",
       "nsvx_people",
-      "nsvx_device"
+      "nsvx_device",
+      "nsvx_fleet"
     ]
   },
   "uiCapabilities": [
