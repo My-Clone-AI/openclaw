@@ -4846,7 +4846,7 @@
       "title": "Mortgage",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/empresarial"
@@ -4873,12 +4873,23 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.homes.rates",
+          "nsvx.mortgage.create",
+          "nsvx.mortgage.checklist"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_homes"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/mortgage; NSVX stays the owner of data and jobs.",
+      "adapter": "Homes › Loans and nsvx_homes read NSVX /api/realestate/loans and /api/mortgage through nsvx.view; rate scenarios are an NSVX calculation; a new case (Idempotency-Key) and a bank's document list (revision-fenced) are fixed owner routes. No bank is contacted.",
       "verification": {
         "requires": [
           "discovery",
@@ -4893,30 +4904,47 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Mortgage.tsx",
-          "backend/clone/mortgage/"
+          "web/src/screens/realestate/Loans.tsx",
+          "backend/clone/mortgage/api.py",
+          "backend/clone/realestate/simulate.py",
+          "extensions/nsvx/src/homes-loans.tsx",
+          "extensions/nsvx/src/homes-tab.tsx",
+          "extensions/nsvx/src/homes.ts",
+          "extensions/nsvx/src/homes-tool.ts",
+          "extensions/nsvx/src/homes-data.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-homes.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-homes/), no element wider than the phone: Loans with balance, paid share, next payment, rate reset; payment plan; what a rate move costs per loan; a mortgage case's effort, monthly room, missing papers, and Add bank list (checklist request with the case revision).",
+          "extensions/nsvx/src/homes.test.ts, 2026-11-05: changes reach their fixed NSVX routes through the real client against a fake NSVX in the body shape NSVX validates (method, path, CSRF, Idempotency-Key); incomplete changes never reach it; nsvx_homes answers only the owner and still answers when some areas are not set up"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session, not yet as AgentOS read actions, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_homes was unit tested, not run by a live agent turn.",
+        "Not native yet: loan create, edit, rates, events, and payments; mortgage records, assessment, CRC, dossier generation and download, financial import, offer comparison, and lender edits stay in NSVX."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "real-estate",
       "title": "Real estate",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/imoveis"
@@ -4952,12 +4980,24 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.homes.ask",
+          "nsvx.homes.alertRead",
+          "nsvx.homes.notice",
+          "nsvx.homes.expense"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_homes"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/realestate, /api/properties; NSVX stays the owner of data and jobs.",
+      "adapter": "Homes tab (Summary, Homes) and nsvx_homes read NSVX /api/realestate and /api/properties through nsvx.view; ask, alert and notice reads, and costs (Idempotency-Key) are fixed owner routes. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -4972,31 +5012,48 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/RealEstate.tsx",
-          "backend/clone/realestate/",
-          "backend/clone/properties/"
+          "web/src/screens/Properties.tsx",
+          "backend/clone/realestate/api.py",
+          "backend/clone/properties/api.py",
+          "backend/clone/properties/assistant.py",
+          "extensions/nsvx/src/homes-houses.tsx",
+          "extensions/nsvx/src/homes-tab.tsx",
+          "extensions/nsvx/src/homes.ts",
+          "extensions/nsvx/src/homes-tool.ts",
+          "extensions/nsvx/src/homes-data.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-homes.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-homes/), no element wider than the phone: Summary tiles, cash-flow bars, alerts with Seen (notice request), quick question answered from records (ask request); Homes cards, units, one home's services, bills, papers, emergency contacts, costs, and Add cost (expense request with key).",
+          "extensions/nsvx/src/homes.test.ts, 2026-11-05: changes reach their fixed NSVX routes through the real client against a fake NSVX in the body shape NSVX validates (method, path, CSRF, Idempotency-Key); incomplete changes never reach it; nsvx_homes answers only the owner and still answers when some areas are not set up"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session, not yet as AgentOS read actions, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_homes was unit tested, not run by a live agent turn.",
+        "Not native yet: portfolio and unit editing, tenants and leases, rent charges and payments in the Imóveis ledger, listings and portal publishing (portal sessions), file and document uploads, valuations, analytics, reports, and settings stay in NSVX Imóveis."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "rentals",
       "title": "Rentals",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/arrendamento"
@@ -5027,12 +5084,23 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.rent.reconcile",
+          "nsvx.rent.associate",
+          "nsvx.rent.reverse"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_homes"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/arrendamento, /api/rental-contracts; NSVX stays the owner of data and jobs.",
+      "adapter": "Homes › Rent and nsvx_homes read NSVX /api/arrendamento (and the Imóveis rent ledger) through nsvx.view; match all, match one payment from NSVX's ranked suggestions, and undo a match are fixed owner routes. No receipt is issued (NSVX keeps issuance off) and no bank is called.",
       "verification": {
         "requires": [
           "discovery",
@@ -5047,31 +5115,46 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Arrendamento.tsx",
-          "backend/clone/arrendamento/",
-          "backend/clone/rental_contracts/"
+          "backend/clone/arrendamento/api.py",
+          "backend/clone/arrendamento/matching.py",
+          "extensions/nsvx/src/homes-rent.tsx",
+          "extensions/nsvx/src/homes-tab.tsx",
+          "extensions/nsvx/src/homes.ts",
+          "extensions/nsvx/src/homes-tool.ts",
+          "extensions/nsvx/src/homes-data.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-homes.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-homes/), no element wider than the phone: Rent month with received, to receive, late and to-match tiles; rents by tenant with state; a bank payment's NSVX suggestions (score, reasons) and Link (associate request with NSVX's own allocation).",
+          "extensions/nsvx/src/homes.test.ts, 2026-11-05: changes reach their fixed NSVX routes through the real client against a fake NSVX in the body shape NSVX validates (method, path, CSRF, Idempotency-Key); incomplete changes never reach it; nsvx_homes answers only the owner and still answers when some areas are not set up"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session, not yet as AgentOS read actions, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_homes was unit tested, not run by a live agent turn.",
+        "Not native yet: contract upload and confirm, AT receipt import, bank connection start, sync and revoke (Portal das Finanças and open-banking consent stay in NSVX), expected-rent edits, voice transcription, and rental-contract drafts (/api/rental-contracts)."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "short-stay",
       "title": "Short-stay rentals",
       "family": "14",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/al",
@@ -5110,12 +5193,24 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.stay.step",
+          "nsvx.stay.task",
+          "nsvx.stay.issue",
+          "nsvx.stay.noticesRead"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_homes"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/al; NSVX stays the owner of data and jobs.",
+      "adapter": "Homes › Stays and nsvx_homes read NSVX /api/al through nsvx.view; check-in and check-out steps, cleaning task moves, reported issues, and notices read are fixed owner routes recorded inside NSVX's AL app. No guest is messaged.",
       "verification": {
         "requires": [
           "discovery",
@@ -5130,23 +5225,40 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/al/AlScreen.tsx",
-          "backend/clone/al/"
+          "web/src/screens/al/Overview.tsx",
+          "backend/clone/al/api.py",
+          "backend/clone/al/api_admin.py",
+          "extensions/nsvx/src/homes-stays.tsx",
+          "extensions/nsvx/src/homes-tab.tsx",
+          "extensions/nsvx/src/homes.ts",
+          "extensions/nsvx/src/homes-tool.ts",
+          "extensions/nsvx/src/homes-data.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-homes.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-homes/), no element wider than the phone: Today tiles, houses by state, next 14 days, alerts and All seen (noticesRead request); bookings with Airbnb and Booking.com marks and Check in (step request); cleaning Done (task request) and Problem with a note; fixes with Report (issue request); stock levels.",
+          "extensions/nsvx/src/homes.test.ts, 2026-11-05: changes reach their fixed NSVX routes through the real client against a fake NSVX in the body shape NSVX validates (method, path, CSRF, Idempotency-Key); incomplete changes never reach it; nsvx_homes answers only the owner and still answers when some areas are not set up"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session, not yet as AgentOS read actions, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_homes was unit tested, not run by a live agent turn.",
+        "Not native yet: calendar and reservation create, edit, cancel; guest and staff threads; staff, integrations (Airbnb, Booking, iCal sync), rules and settings, finance reports, compliance, documents, restock voice, and the AL assistant stay in NSVX."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "aviation",

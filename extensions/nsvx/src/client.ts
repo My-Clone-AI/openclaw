@@ -214,6 +214,28 @@ const OWNER_VIEWS = {
   },
   groupMailboxes: { path: "/api/group-companies/{cid}/mail/mailboxes", query: ["box"] },
   groupMailThread: { path: "/api/group-companies/{cid}/mail/threads/{tid}", query: ["box"] },
+  // Homes (`/imoveis`, `/arrendamento`, `/empresarial/.../credito-habitacao`, `/al`): the reads those screens make.
+  // `homesHub` and `homesHubAlerts` let NSVX refresh its own deadline alerts first, as its Casa screen does.
+  homesOverview: { path: "/api/realestate/overview", query: ["preset"] },
+  homesPortfolio: { path: "/api/realestate/properties", query: ["q", "archived"] },
+  homesUnits: { path: "/api/realestate/units", query: ["status", "q"] },
+  homesRent: { path: "/api/realestate/rent", query: ["month"] },
+  homesLoans: { path: "/api/realestate/loans" },
+  homesLoan: { path: "/api/realestate/loans/{id}" },
+  homesHub: { path: "/api/properties", query: ["archived"] },
+  homesHubProperty: { path: "/api/properties/{id}" },
+  homesHubAlerts: { path: "/api/properties/alerts" },
+  rentBoard: { path: "/api/arrendamento", query: ["month"] },
+  rentSuggestions: { path: "/api/arrendamento/payments/{id}/suggestions" },
+  mortgageCases: { path: "/api/mortgage" },
+  mortgageCase: { path: "/api/mortgage/cases/{id}" },
+  mortgageLenders: { path: "/api/mortgage/lenders" },
+  stayMe: { path: "/api/al/me" },
+  stayOverview: { path: "/api/al/overview" },
+  stayReservations: { path: "/api/al/reservations", query: ["period", "q", "property", "status"] },
+  stayTasks: { path: "/api/al/tasks", query: ["period", "kind", "property"] },
+  stayMaintenance: { path: "/api/al/maintenance", query: ["open_only", "property"] },
+  stayInventory: { path: "/api/al/inventory", query: ["property"] },
   // Skills (`/apps` Competências): the owner's list, one skill with its runs, and failed-verification alerts.
   skills: { path: "/api/skills", query: ["review"] },
   skill: { path: "/api/skills/{id}" },
@@ -496,6 +518,19 @@ const OWNER_WRITES = {
     query: ["box"],
   },
   groupServerAction: { method: "POST", path: "/api/group-companies/servers/{sid}/actions/{verb}" },
+  // Homes: internal NSVX records only. No receipt goes to the Portal das Finanças, no bank or guest is contacted.
+  homesAlertRead: { method: "POST", path: "/api/properties/alerts/{id}/read" },
+  homesNotice: { method: "POST", path: "/api/realestate/notifications/{id}/{action}" },
+  homesExpense: { method: "POST", path: "/api/properties/{id}/expenses", idempotency: "Idempotency-Key" },
+  rentReconcile: { method: "POST", path: "/api/arrendamento/reconcile" },
+  rentAssociate: { method: "POST", path: "/api/arrendamento/payments/{id}/associate" },
+  rentReverse: { method: "POST", path: "/api/arrendamento/matches/{id}/reverse" },
+  mortgageCreate: { method: "POST", path: "/api/mortgage/cases", idempotency: "Idempotency-Key" },
+  mortgageChecklist: { method: "POST", path: "/api/mortgage/cases/{id}/requirements" },
+  stayStep: { method: "POST", path: "/api/al/reservations/{id}/{step}" },
+  stayTask: { method: "POST", path: "/api/al/tasks/{id}/action" },
+  stayIssue: { method: "POST", path: "/api/al/maintenance" },
+  stayNoticesRead: { method: "POST", path: "/api/al/notifications/read" },
   skillState: { method: "POST", path: "/api/skills/{id}/state" },
   skillReview: { method: "POST", path: "/api/skills/{id}/review" },
   desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
@@ -677,6 +712,9 @@ const OWNER_READ_POSTS = {
   aviationExpiry: "/api/aviation/docs/{id}/expiry-suggest",
   // The TVDE assistant answers from fleet records (or says it cannot); NSVX only logs that a question was asked.
   fleetAsk: "/api/tvde/assistant",
+  // Homes reads that NSVX answers from stored data: a question about the homes and loan rate scenarios.
+  homesAsk: "/api/properties/ask",
+  loanRates: "/api/realestate/simulate/rates",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;

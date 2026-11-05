@@ -5770,8 +5770,8 @@
     "parity": {
       "discovered": 85,
       "native": 13,
-      "partial": 57,
-      "missing": 15,
+      "partial": 61,
+      "missing": 11,
       "blocked": 0,
       "verified": 0,
       "families": [
@@ -5810,8 +5810,8 @@
           "name": "Real estate",
           "discovered": 3,
           "native": 0,
-          "partial": 0,
-          "missing": 3,
+          "partial": 3,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
@@ -5820,8 +5820,8 @@
           "name": "Short-stay rentals",
           "discovered": 1,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 1,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
