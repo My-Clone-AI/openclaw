@@ -622,6 +622,12 @@ export function createNsvxAgentsTool(
   } as AnyAgentTool;
 }
 
+
+/**
+ * The owner's NSVX skills. Enabling changes what clone does, so only the owner's own turn may; approving a
+ * learned skill stays a person's tap in Control, like AgentOS approvals.
+ */
+
 type SkillsToolParams = {
   action: "list" | "read" | "enable" | "disable";
   filter?: "all" | "on" | "off" | "review" | "failing";
@@ -633,6 +639,107 @@ type SkillsToolParams = {
  * The owner's NSVX skills. Enabling changes what clone does, so only the owner's own turn may; approving a
  * learned skill stays a person's tap in Control, like AgentOS approvals.
  */
+export function createNsvxSkillsTool(
+  client: NsvxClient,
+  context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
+): AnyAgentTool {
+  return {
+    name: "nsvx_skills",
+    label: "NSVX skills",
+    description:
+      "The owner's NSVX skills (what clone knows how to do). list with filter all|on|off|review|failing and optional query; read one skill's steps and latest runs; enable or disable one. Learned skills waiting for review can only be approved by the owner in Control.",
+    parameters: Type.Object(
+      {
+        action: Type.Union([
+          Type.Literal("list"),
+          Type.Literal("read"),
+          Type.Literal("enable"),
+          Type.Literal("disable"),
+        ]),
+        filter: Type.Optional(
+          Type.Union([
+            Type.Literal("all"),
+            Type.Literal("on"),
+            Type.Literal("off"),
+            Type.Literal("review"),
+            Type.Literal("failing"),
+          ]),
+        ),
+        query: Type.Optional(Type.String()),
+        skillId: Type.Optional(Type.String({ description: "Skill slug or id." })),
+      },
+      { additionalProperties: false },
+    ),
+    execute: (_toolCallId, params: SkillsToolParams) =>
+      outcome(async () => {
+        context.assertInvocationCurrent?.();
+        if (context.senderIsOwner !== true) {
+          throw new NsvxError("denied", "Only the owner may use NSVX skills.");
+        }
+        if (params.action === "list") {
+          const { items } = await client.readOwnerView<{ items: Skill[] }>("skills");
+          const needle = params.query?.trim().toLowerCase() ?? "";
+          const keep = (skill: Skill) => {
+            switch (params.filter) {
+              case "on":
+                return skill.enabled;
+              case "off":
+                return !skill.enabled;
+              case "review":
+                return skill.review_state === "pending";
+              case "failing":
+                return skill.latest_verification?.verified === "failed";
+              default:
+                return true;
+            }
+          };
+          const rows = items.filter(
+            (skill) =>
+              keep(skill) &&
+              (!needle ||
+                `${skill.name} ${skill.slug} ${skill.when_to_use ?? ""}`
+                  .toLowerCase()
+                  .includes(needle)),
+          );
+          return {
+            total: rows.length,
+            skills: rows.slice(0, 50).map((skill) => ({
+              id: skill.slug,
+              name: skill.name,
+              on: skill.enabled,
+              review: skill.review_state ?? null,
+              lastRun: skill.last_run_ts,
+              lastCheck: skill.latest_verification?.verified ?? null,
+            })),
+          };
+        }
+        if (!params.skillId) {
+          throw new NsvxError("invalid", "skillId is required.");
+        }
+        if (params.action === "read") {
+          const skill = await client.readOwnerView<SkillDetail>("skill", { id: params.skillId });
+          return {
+            id: skill.slug,
+            name: skill.name,
+            on: skill.enabled,
+            whenToUse: skill.when_to_use ?? null,
+            steps: skill.steps.map((step) => step.text),
+            runs: skill.runs.slice(0, 10).map((run) => ({
+              at: run.ts,
+              app: run.app,
+              outcome: run.outcome,
+              verified: run.verified ?? null,
+            })),
+          };
+        }
+        const updated = await setSkillState(client, {
+          skillId: params.skillId,
+          enabled: params.action === "enable",
+        });
+        return { id: updated.slug, on: updated.enabled };
+      }),
+  } as AnyAgentTool;
+}
 
 export function createNsvxAgendaTool(
   client: NsvxClient,
