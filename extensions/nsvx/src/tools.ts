@@ -9,6 +9,7 @@ import {
   type FindResult,
 } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
+import { parseDefaults, parseIdea, parseToolAccess, type AgentSettings } from "./agent-settings.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
@@ -27,6 +28,7 @@ import {
   waitForQuickReply,
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
+import { setSkillState, type Skill, type SkillDetail } from "./skills.js";
 import type { TeamService } from "./team.js";
 
 export function outcome(run: () => Promise<unknown>) {
@@ -443,5 +445,236 @@ export function createNsvxFinanceTool(client: NsvxClient, context: OpenClawPlugi
               message: "Only the owner can read NSVX finance.",
             }),
           ),
+  } as AnyAgentTool;
+}
+
+type AgentsToolParams = {
+  action: "get" | "defaults" | "suggest" | "instructions" | "tools" | "setDefaults" | "add";
+  agentId?: string;
+  text?: string;
+  goal?: string;
+  profile?: string | null;
+  allow?: string[] | null;
+  deny?: string[] | null;
+  alsoAllow?: string[] | null;
+  model?: string;
+  thinkingDefault?: string;
+  maxConcurrent?: number;
+  subagentsMaxConcurrent?: number;
+  rules?: string;
+  idea?: Record<string, unknown>;
+};
+
+/**
+ * Agent instructions, tool access, team defaults, and NSVX team ideas. Reads are open like nsvx_team's;
+ * suggest uses the owner's NSVX session and every change rewrites agent config, so both need the owner's own turn.
+ */
+export function createNsvxAgentsTool(
+  settings: AgentSettings,
+  client: NsvxClient,
+  context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
+): AnyAgentTool {
+  const pick = (params: AgentsToolParams, keys: (keyof AgentsToolParams)[]) =>
+    Object.fromEntries(keys.filter((key) => key in params).map((key) => [key, params[key]]));
+  return {
+    name: "nsvx_agents",
+    label: "NSVX agents",
+    description:
+      "Agent setup, as NSVX's Architecture Manager edits it. get: one agent's NSVX instructions and tool access (profile minimal|coding|messaging|full, allow, deny, alsoAllow). defaults: team model, thinking, how many run at once, and the team rules. suggest: NSVX proposes agents for a goal (nothing is applied). Owner only: instructions (replace the agent's NSVX instructions with text; hand-written text stays), tools (change access; null clears a field), setDefaults (model, thinkingDefault, maxConcurrent, subagentsMaxConcurrent, rules), add (create one suggested agent from idea {id, name, emoji, supervisor, theme}). Paid API models are refused.",
+    parameters: Type.Object(
+      {
+        action: Type.Union([
+          Type.Literal("get"),
+          Type.Literal("defaults"),
+          Type.Literal("suggest"),
+          Type.Literal("instructions"),
+          Type.Literal("tools"),
+          Type.Literal("setDefaults"),
+          Type.Literal("add"),
+        ]),
+        agentId: Type.Optional(Type.String()),
+        text: Type.Optional(Type.String({ description: "New instructions, for instructions." })),
+        goal: Type.Optional(Type.String({ description: "What the team should do, for suggest." })),
+        profile: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+        allow: Type.Optional(Type.Union([Type.Array(Type.String()), Type.Null()])),
+        deny: Type.Optional(Type.Union([Type.Array(Type.String()), Type.Null()])),
+        alsoAllow: Type.Optional(Type.Union([Type.Array(Type.String()), Type.Null()])),
+        model: Type.Optional(Type.String({ description: "provider/model, for setDefaults." })),
+        thinkingDefault: Type.Optional(Type.String()),
+        maxConcurrent: Type.Optional(Type.Integer()),
+        subagentsMaxConcurrent: Type.Optional(Type.Integer()),
+        rules: Type.Optional(Type.String({ description: "Team rules text, for setDefaults." })),
+        idea: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+      },
+      { additionalProperties: false },
+    ),
+    execute: (_toolCallId, params: AgentsToolParams) =>
+      outcome(async () => {
+        const agentId = () => {
+          if (!params.agentId) {
+            throw new NsvxError("invalid", "agentId is required.");
+          }
+          return params.agentId;
+        };
+        if (params.action === "get") {
+          return settings.agent(agentId());
+        }
+        if (params.action === "defaults") {
+          const defaults = await settings.defaults();
+          return {
+            ...defaults,
+            models: defaults.models.filter((model) => model.kind !== "paid").map((m) => m.ref),
+          };
+        }
+        if (context.senderIsOwner !== true) {
+          throw new NsvxError("denied", "Only the owner may change agents or ask NSVX for ideas.");
+        }
+        context.assertInvocationCurrent?.();
+        switch (params.action) {
+          case "suggest":
+            return client.readOwnerPost("agentSuggest", {
+              goal: (params.goal ?? "").slice(0, 600),
+            });
+          case "instructions":
+            if (typeof params.text !== "string") {
+              throw new NsvxError("invalid", "text is required.");
+            }
+            return settings.setInstructions(agentId(), params.text);
+          case "tools":
+            return settings.setTools(
+              agentId(),
+              parseToolAccess(pick(params, ["profile", "allow", "deny", "alsoAllow"])),
+              "chat",
+            );
+          case "setDefaults":
+            return settings.setDefaults(
+              parseDefaults(
+                pick(params, [
+                  "model",
+                  "thinkingDefault",
+                  "maxConcurrent",
+                  "subagentsMaxConcurrent",
+                  "rules",
+                ]),
+              ),
+              "chat",
+            );
+          default:
+            return settings.adopt(parseIdea(params.idea ?? {}), "chat");
+        }
+      }),
+  } as AnyAgentTool;
+}
+
+type SkillsToolParams = {
+  action: "list" | "read" | "enable" | "disable";
+  filter?: "all" | "on" | "off" | "review" | "failing";
+  query?: string;
+  skillId?: string;
+};
+
+/**
+ * The owner's NSVX skills. Enabling changes what clone does, so only the owner's own turn may; approving a
+ * learned skill stays a person's tap in Control, like AgentOS approvals.
+ */
+export function createNsvxSkillsTool(
+  client: NsvxClient,
+  context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,
+): AnyAgentTool {
+  return {
+    name: "nsvx_skills",
+    label: "NSVX skills",
+    description:
+      "The owner's NSVX skills (what clone knows how to do). list with filter all|on|off|review|failing and optional query; read one skill's steps and latest runs; enable or disable one. Learned skills waiting for review can only be approved by the owner in Control.",
+    parameters: Type.Object(
+      {
+        action: Type.Union([
+          Type.Literal("list"),
+          Type.Literal("read"),
+          Type.Literal("enable"),
+          Type.Literal("disable"),
+        ]),
+        filter: Type.Optional(
+          Type.Union([
+            Type.Literal("all"),
+            Type.Literal("on"),
+            Type.Literal("off"),
+            Type.Literal("review"),
+            Type.Literal("failing"),
+          ]),
+        ),
+        query: Type.Optional(Type.String()),
+        skillId: Type.Optional(Type.String({ description: "Skill slug or id." })),
+      },
+      { additionalProperties: false },
+    ),
+    execute: (_toolCallId, params: SkillsToolParams) =>
+      outcome(async () => {
+        context.assertInvocationCurrent?.();
+        if (context.senderIsOwner !== true) {
+          throw new NsvxError("denied", "Only the owner may use NSVX skills.");
+        }
+        if (params.action === "list") {
+          const { items } = await client.readOwnerView<{ items: Skill[] }>("skills");
+          const needle = params.query?.trim().toLowerCase() ?? "";
+          const keep = (skill: Skill) => {
+            switch (params.filter) {
+              case "on":
+                return skill.enabled;
+              case "off":
+                return !skill.enabled;
+              case "review":
+                return skill.review_state === "pending";
+              case "failing":
+                return skill.latest_verification?.verified === "failed";
+              default:
+                return true;
+            }
+          };
+          const rows = items.filter(
+            (skill) =>
+              keep(skill) &&
+              (!needle ||
+                `${skill.name} ${skill.slug} ${skill.when_to_use ?? ""}`
+                  .toLowerCase()
+                  .includes(needle)),
+          );
+          return {
+            total: rows.length,
+            skills: rows.slice(0, 50).map((skill) => ({
+              id: skill.slug,
+              name: skill.name,
+              on: skill.enabled,
+              review: skill.review_state ?? null,
+              lastRun: skill.last_run_ts,
+              lastCheck: skill.latest_verification?.verified ?? null,
+            })),
+          };
+        }
+        if (!params.skillId) {
+          throw new NsvxError("invalid", "skillId is required.");
+        }
+        if (params.action === "read") {
+          const skill = await client.readOwnerView<SkillDetail>("skill", { id: params.skillId });
+          return {
+            id: skill.slug,
+            name: skill.name,
+            on: skill.enabled,
+            whenToUse: skill.when_to_use ?? null,
+            steps: skill.steps.map((step) => step.text),
+            runs: skill.runs.slice(0, 10).map((run) => ({
+              at: run.ts,
+              app: run.app,
+              outcome: run.outcome,
+              verified: run.verified ?? null,
+            })),
+          };
+        }
+        const updated = await setSkillState(client, {
+          skillId: params.skillId,
+          enabled: params.action === "enable",
+        });
+        return { id: updated.slug, on: updated.enabled };
+      }),
   } as AnyAgentTool;
 }

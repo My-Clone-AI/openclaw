@@ -192,6 +192,10 @@ const OWNER_VIEWS = {
   socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
   socialGroup: { path: "/api/social-groups/{id}" },
   conversationContext: { path: "/api/conversations/{id}/context" },
+  // Skills (`/apps` Competências): the owner's list, one skill with its runs, and failed-verification alerts.
+  skills: { path: "/api/skills", query: ["review"] },
+  skill: { path: "/api/skills/{id}" },
+  skillAlerts: { path: "/api/skills/alerts" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -260,6 +264,8 @@ const OWNER_WRITES = {
     query: ["group_id", "person_id"],
     idempotency: "Idempotency-Key",
   },
+  skillState: { method: "POST", path: "/api/skills/{id}/state" },
+  skillReview: { method: "POST", path: "/api/skills/{id}/review" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -272,6 +278,8 @@ export type OwnerWrite = keyof typeof OWNER_WRITES;
 const OWNER_READ_POSTS = {
   find: "/api/find",
   activitySummary: "/api/auto/activity/summary",
+  // Proposes a team from a goal; NSVX applies nothing (openclaw_admin Admin.suggest).
+  agentSuggest: "/api/ai/openclaw/suggest",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -429,21 +437,40 @@ export function createNsvxClient(options: {
     return (response.status === 204 ? { ok: true } : await response.json()) as T;
   }
 
+  /**
+   * AgentOS as the agent (bearer token) or, for the owner's own taps in Control, as the owner. NSVX accepts only the
+   * owner's browser session today (`get_principal`), so Control uses that session when it is set; chat tools never do.
+   */
   async function call<T>(
     path: string,
     init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {},
+    principal: "agent" | "owner" = "agent",
   ): Promise<T> {
-    if (!options.token) {
+    const asOwner = principal === "owner" && Boolean(options.ownerSession);
+    if (!asOwner && !options.token) {
       throw new NsvxError("unconfigured", "NSVX sign-in is not set up on this Gateway.");
     }
     const isWrite = init.method === "POST";
+    let auth: Record<string, string> = { Authorization: `Bearer ${options.token}` };
+    if (asOwner) {
+      auth = { Cookie: `${OWNER_COOKIE}=${options.ownerSession}` };
+      if (isWrite) {
+        const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
+          "/api/auth/state",
+        );
+        if (!state.authenticated || !state.csrf) {
+          throw new NsvxError("signed-out", "NSVX ended the owner session.");
+        }
+        auth["X-CSRF-Token"] = state.csrf;
+      }
+    }
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${AGENTOS_PATH}${path}`, {
         method: init.method ?? "GET",
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${options.token}`,
+          ...auth,
           ...(isWrite ? { "Content-Type": "application/json" } : {}),
           ...(init.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
         },
@@ -462,30 +489,48 @@ export function createNsvxClient(options: {
     return (await response.json()) as T;
   }
 
-  return {
-    baseUrl: options.baseUrl,
+  const agentOs = (principal: "agent" | "owner") => ({
     async listActions(): Promise<NsvxAction[]> {
-      return (await call<{ actions: NsvxAction[] }>("/actions?limit=500")).actions;
+      return (await call<{ actions: NsvxAction[] }>("/actions?limit=500", {}, principal)).actions;
     },
     getAction(actionId: string): Promise<NsvxAction & { contract: Record<string, unknown> }> {
-      return call(`/actions/${encodeURIComponent(actionId)}`);
+      return call(`/actions/${encodeURIComponent(actionId)}`, {}, principal);
     },
     runAction(request: NsvxRunRequest): Promise<NsvxRunResult> {
-      return call(`/actions/${encodeURIComponent(request.actionId)}/execute`, {
-        method: "POST",
-        idempotencyKey: request.idempotencyKey,
-        body: {
-          input: request.input,
-          ...(request.approvalId ? { approval_id: request.approvalId } : {}),
+      return call(
+        `/actions/${encodeURIComponent(request.actionId)}/execute`,
+        {
+          method: "POST",
+          idempotencyKey: request.idempotencyKey,
+          body: {
+            input: request.input,
+            ...(request.approvalId ? { approval_id: request.approvalId } : {}),
+          },
         },
-      });
+        principal,
+      );
     },
     async listTasks(): Promise<NsvxTask[]> {
-      return (await call<{ tasks: NsvxTask[] }>("/tasks?limit=100")).tasks;
+      return (await call<{ tasks: NsvxTask[] }>("/tasks?limit=100", {}, principal)).tasks;
     },
     async listApprovals(): Promise<NsvxApproval[]> {
-      return (await call<{ approvals: NsvxApproval[] }>("/approvals")).approvals;
+      return (await call<{ approvals: NsvxApproval[] }>("/approvals", {}, principal)).approvals;
     },
+    decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
+      return call(
+        `/approvals/${encodeURIComponent(approvalId)}/${decision}`,
+        { method: "POST" },
+        principal,
+      );
+    },
+  });
+
+  return {
+    baseUrl: options.baseUrl,
+    /** AgentOS as the agent: chat tools. */
+    ...agentOs("agent"),
+    /** AgentOS for the owner's taps in Control: the owner session when set, else the agent token. */
+    control: agentOs("owner"),
     async readOwnerView<T = unknown>(
       view: string,
       params: Record<string, unknown> = {},
@@ -536,9 +581,6 @@ export function createNsvxClient(options: {
       more?: { params?: Record<string, string>; idempotencyKey?: string },
     ): Promise<T> {
       return writeOwner(action, id, body, more);
-    },
-    decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
-      return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });
     },
   };
 }

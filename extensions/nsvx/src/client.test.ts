@@ -169,6 +169,23 @@ describe("nsvx owner read posts", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("runs AgentOS for Control as the owner, while chat stays on the agent token", async () => {
+    const fetchImpl = vi.fn(async (url: string) =>
+      url.endsWith("/api/auth/state")
+        ? json(200, { authenticated: true, csrf: "csrf-1" })
+        : json(200, { id: "a1", state: "approved" }),
+    );
+    const client = owner(fetchImpl);
+    await client.control.decideApproval("a1", "approve");
+    const [url, init] = fetchImpl.mock.calls[1] as unknown as [string, RequestInit];
+    expect(url).toBe("https://nsvx.test/api/agentos/v1/approvals/a1/approve");
+    expect(init.headers).toMatchObject({ Cookie: "clone_session=c", "X-CSRF-Token": "csrf-1" });
+    expect(init.headers).not.toHaveProperty("Authorization");
+    // No token on this Gateway: the chat lane never borrows the owner's session.
+    expect(await kindOf(client.listActions())).toBe("unconfigured");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it("downloads the activity CSV as NSVX builds it", async () => {
     const fetchImpl = vi.fn(async () => new Response("at_utc,kind\n", { status: 200 }));
     const csv = await owner(fetchImpl).exportActivity({

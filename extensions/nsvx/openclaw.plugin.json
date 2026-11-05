@@ -15,6 +15,8 @@
       "nsvx_run",
       "nsvx_parity",
       "nsvx_team",
+      "nsvx_agents",
+      "nsvx_skills",
       "nsvx_search",
       "nsvx_activity",
       "nsvx_messages",

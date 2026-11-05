@@ -16,6 +16,8 @@ import { peopleTranslator, type PT } from "./people-i18n.js";
 import { PeopleTab, type PeopleOpen } from "./people-tab.js";
 import { ProgressTab } from "./progress-tab.js";
 import { QuickReplyTab } from "./quick-reply-tab.js";
+import { SetupTab } from "./setup-tab.js";
+import { SkillsTab } from "./skills-tab.js";
 import { TeamTab } from "./team-tab.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
 import {
@@ -30,6 +32,7 @@ import {
 import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
+import "./setup.css";
 
 type Tab =
   | "today"
@@ -42,6 +45,8 @@ type Tab =
   | "people"
   | "money"
   | "team"
+  | "setup"
+  | "skills"
   | "actions"
   | "progress";
 
@@ -377,6 +382,8 @@ const TABS: Tab[] = [
   "people",
   "money",
   "team",
+  "setup",
+  "skills",
   "actions",
   "progress",
 ];
@@ -405,13 +412,22 @@ const mountNsvx: ControlUiView = (container, context) => {
         ? { kind: "group", id: groupParam }
         : undefined,
   );
+  const [agent, setAgent] = createSignal(search.get("agent") ?? undefined);
+  const [skill, setSkill] = createSignal(search.get("skill") ?? undefined);
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
   // Values are passed in (signal writes are not readable until the next flush).
   const remember = (
     nextTab: Tab,
-    open: { mission?: string; conversation?: string; draft?: string; people?: PeopleOpen } = {},
+    open: {
+      mission?: string;
+      conversation?: string;
+      draft?: string;
+      people?: PeopleOpen;
+      agent?: string;
+      skill?: string;
+    } = {},
   ) => {
     const url = new URL(location.href);
     url.searchParams.set("tab", nextTab);
@@ -440,6 +456,16 @@ const mountNsvx: ControlUiView = (container, context) => {
         url.searchParams.delete(kind);
       }
     }
+    for (const [name, value, owner] of [
+      ["agent", open.agent, "setup"],
+      ["skill", open.skill, "skills"],
+    ] as const) {
+      if (nextTab === owner && value) {
+        url.searchParams.set(name, value);
+      } else {
+        url.searchParams.delete(name);
+      }
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -450,6 +476,8 @@ const mountNsvx: ControlUiView = (container, context) => {
       conversation: conversation(),
       draft: draft(),
       people: personOpen(),
+      agent: agent(),
+      skill: skill(),
     });
   };
   const openMission = (id: string | undefined) => {
@@ -472,6 +500,14 @@ const mountNsvx: ControlUiView = (container, context) => {
       draft: draft(),
       people: open,
     });
+  };
+  const openAgent = (id: string) => {
+    setAgent(id);
+    remember(tab(), { agent: id, skill: skill() });
+  };
+  const openSkill = (id: string | undefined) => {
+    setSkill(id);
+    remember(tab(), { agent: agent(), skill: id });
   };
   const Page = () => (
     <section class="nsvx">
@@ -607,6 +643,20 @@ const mountNsvx: ControlUiView = (container, context) => {
 
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "setup"}>
+              <SetupTab
+                host={host}
+                t={t}
+                mt={mt}
+                locale={locale()}
+                query={query()}
+                agent={agent()}
+                onAgent={openAgent}
+              />
+            </Show>
+            <Show when={tab() === "skills"}>
+              <SkillsTab host={host} t={t} query={query()} open={skill()} onOpen={openSkill} />
             </Show>
             <Show when={tab() === "actions"}>
               <ActionsTab host={host} t={t} query={query()} />

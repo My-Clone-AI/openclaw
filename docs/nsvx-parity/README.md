@@ -96,6 +96,8 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Tasks       | Task list with filters and each task's history               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
+| Setup       | Agent instructions and tools, team defaults, team ideas      | Gateway config and AGENTS.md     |
+| Skills      | NSVX skills: on/off, review learned ones, steps and runs     | NSVX owner screens and changes   |
 | Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
 | Progress    | This registry by family                                      | `registry.json`, copied at build |
 
@@ -104,6 +106,14 @@ the `agents` config section before the change in plugin state (`nsvx-team-histor
 Undo restores the team as it was before one, as NSVX rollback does; agents deleted since stay deleted. Pause keeps the
 agent's old leads (`nsvx-paused`), so Resume restores the same tree. Chat gets the same through `nsvx_team`, which
 changes the team only on the owner's own turns.
+
+Setup edits the same text NSVX's Architecture Manager edits: the `nsvx-openclaw:managed` section of an agent's
+`AGENTS.md` (instructions) and the main agent's `nsvx-openclaw:policies` section (team rules), each written with the
+file hash so a hand edit is never overwritten. Tool access and team defaults go to Gateway config through the team
+history, so Team Undo restores them; paid API models are refused with NSVX's `provider_kind` rule. Ideas asks NSVX's
+own suggest route (owner session) and Add creates the agent and links it under its lead. Chat gets `nsvx_agents` and
+`nsvx_skills`; changes run only on the owner's own turns, and approving a learned skill stays a person's tap.
+`ui/src/e2e/nsvx-setup.e2e.test.ts` covers both tabs at 1280 and 390 wide (`ui/e2e-shots/nsvx-setup/`).
 
 Messages and Quick reply read NSVX through `nsvx.view` and change it only through `nsvx.messages.*` and
 `nsvx.quickReply.*`, one fixed NSVX route each (`OWNER_WRITES`), sent with the owner session and the CSRF token NSVX
@@ -143,14 +153,11 @@ repository is public and the owner is anonymous on Git. The original is
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`,
-  `nsvx_people`, and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never send; finance is
-  read-only).
-- **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
-  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
-  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, and `nsvx_messages` tools
-  (and `nsvx_messages` never sends).
+  The Actions tab therefore uses the owner session for the owner's own taps (cookie, plus CSRF on POST); the
+  `nsvx_actions` and `nsvx_run` chat tools use only the bearer token and stay blocked until it exists. The owner
+  session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`, `nsvx_people`,
+  `nsvx_skills`, `nsvx_agents` (suggest), and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never
+  send; finance is read-only).
 - **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
   Everything else needs a contract in NSVX.
 - **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.

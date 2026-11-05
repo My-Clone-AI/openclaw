@@ -1,6 +1,7 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
+import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import {
@@ -15,6 +16,7 @@ import {
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
 import { changeGroup, changePerson } from "./people.js";
+import { reviewSkill, setSkillState } from "./skills.js";
 import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
 
@@ -29,7 +31,7 @@ function requiredText(params: Record<string, unknown>, name: string): string {
 export async function readNsvxStatus(client: NsvxClient): Promise<NsvxStatus> {
   const address = new URL(client.baseUrl).host;
   try {
-    return { state: "connected", address, actions: (await client.listActions()).length };
+    return { state: "connected", address, actions: (await client.control.listActions()).length };
   } catch (cause) {
     const kind = cause instanceof NsvxError ? cause.kind : "failed";
     switch (kind) {
@@ -48,6 +50,7 @@ export function registerNsvxGatewayMethods(
   api: OpenClawPluginApi,
   client: NsvxClient,
   team: TeamService,
+  settings: AgentSettings,
 ) {
   // Full names, so the parity generator can find each method in source.
   const method = (
@@ -104,17 +107,19 @@ export function registerNsvxGatewayMethods(
     };
   });
   method("nsvx.actions.list", "operator.read", async () => ({
-    actions: await client.listActions(),
+    actions: await client.control.listActions(),
   }));
   method("nsvx.actions.get", "operator.read", (params) =>
-    client.getAction(requiredText(params, "actionId")),
+    client.control.getAction(requiredText(params, "actionId")),
   );
-  method("nsvx.tasks.list", "operator.read", async () => ({ tasks: await client.listTasks() }));
+  method("nsvx.tasks.list", "operator.read", async () => ({
+    tasks: await client.control.listTasks(),
+  }));
   method("nsvx.approvals.list", "operator.read", async () => ({
-    approvals: await client.listApprovals(),
+    approvals: await client.control.listApprovals(),
   }));
   method("nsvx.actions.run", "operator.write", (params) =>
-    client.runAction({
+    client.control.runAction({
       actionId: requiredText(params, "actionId"),
       idempotencyKey: requiredText(params, "idempotencyKey"),
       input: (params.input ?? {}) as Record<string, unknown>,
@@ -127,7 +132,7 @@ export function registerNsvxGatewayMethods(
     if (decision !== "approve" && decision !== "deny") {
       throw new NsvxError("invalid", "decision must be approve or deny.");
     }
-    return client.decideApproval(requiredText(params, "approvalId"), decision);
+    return client.control.decideApproval(requiredText(params, "approvalId"), decision);
   });
   // Messages and Quick Reply read through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
   // Sending and approving reach real people, so they need write scope like chat.send.
@@ -166,4 +171,32 @@ export function registerNsvxGatewayMethods(
   method("nsvx.team.rollback", "operator.admin", (params) =>
     team.rollback(requiredText(params, "version")),
   );
+  // Agent instructions, tool access, and team defaults: the same config and AGENTS.md sections NSVX edits.
+  method("nsvx.agents.get", "operator.read", (params) =>
+    settings.agent(requiredText(params, "agentId")),
+  );
+  method("nsvx.agents.instructions", "operator.admin", (params) => {
+    if (typeof params.text !== "string") {
+      throw new NsvxError("invalid", "text is required.");
+    }
+    return settings.setInstructions(requiredText(params, "agentId"), params.text);
+  });
+  method("nsvx.agents.tools", "operator.admin", (params) => {
+    const { agentId: _agentId, ...change } = params;
+    return settings.setTools(requiredText(params, "agentId"), parseToolAccess(change));
+  });
+  method("nsvx.agents.defaults", "operator.read", () => settings.defaults());
+  method("nsvx.agents.setDefaults", "operator.admin", (params) =>
+    settings.setDefaults(parseDefaults(params)),
+  );
+  // NSVX proposes a team for a goal (clone-ai when free, its template otherwise); nothing is applied.
+  method("nsvx.agents.suggest", "operator.read", (params) =>
+    client.readOwnerPost("agentSuggest", {
+      goal: typeof params.goal === "string" ? params.goal.slice(0, 600) : "",
+    }),
+  );
+  method("nsvx.agents.adopt", "operator.admin", (params) => settings.adopt(parseIdea(params)));
+  // Skills read through nsvx.view; these are the owner's two taps, each on one fixed NSVX route.
+  method("nsvx.skills.state", "operator.write", (params) => setSkillState(client, params));
+  method("nsvx.skills.review", "operator.write", (params) => reviewSkill(client, params));
 }

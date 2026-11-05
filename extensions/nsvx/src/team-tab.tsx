@@ -142,6 +142,9 @@ const CHANGE: Record<TeamVersion["change"], { icon: IconName; label: MessageKey 
   pause: { icon: "pause", label: "pause" },
   resume: { icon: "resume", label: "resume" },
   rollback: { icon: "undo", label: "undo" },
+  tools: { icon: "wrench", label: "c_tools" },
+  defaults: { icon: "setup", label: "c_defaults" },
+  add: { icon: "plus", label: "c_add" },
 };
 
 /** Recent team changes, newest first; Undo restores the team as it was before one. */
@@ -168,6 +171,8 @@ function HistoryList(props: {
         }`;
       case "rollback":
         return props.t("restored");
+      case "defaults":
+        return props.t("c_defaults");
       default:
         return agentName(version.agent);
     }

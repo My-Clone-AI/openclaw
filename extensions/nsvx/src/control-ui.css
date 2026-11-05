@@ -44,6 +44,20 @@
   color: var(--text-strong);
 }
 
+/* Thirteen tabs: icons for all, the name for the open one (every tab keeps its name as label and tooltip). */
+.nsvx__tab:not(.nsvx__tab--active) .nsvx__tab-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nsvx__tab:not(.nsvx__tab--active) {
+  min-width: 44px;
+}
+
 .nsvx__button {
   border-color: var(--border);
 }
@@ -84,7 +98,7 @@
 }
 
 .nsvx__search {
-  flex: 1 1 140px;
+  flex: 1 1 96px;
   min-width: 0;
   min-height: 44px;
   padding: 0 var(--space-3);
@@ -693,12 +707,14 @@
     padding: var(--space-3);
   }
 
+  /* Two even rows of 44px+ icons, so every tab stays one tap away on a phone. */
   .nsvx__tabs {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
     width: 100%;
   }
 
   .nsvx__tab {
-    flex: 1;
     padding: 0;
   }
 
@@ -990,4 +1006,3 @@
     padding-left: var(--space-3);
   }
 }
-

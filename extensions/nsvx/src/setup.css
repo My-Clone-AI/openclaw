@@ -1,0 +1,330 @@
+/* Setup (agent instructions, tools, defaults, ideas) and Skills tabs. */
+
+.nsvx-setup,
+.nsvx-skills,
+.nsvx-panels {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.nsvx-segment--wide {
+  display: flex;
+  width: 100%;
+}
+
+.nsvx-segment--wide button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.nsvx-panel {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-panel__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.nsvx-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.nsvx-compose {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.nsvx-compose textarea,
+.nsvx-compose input,
+.nsvx-select {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.nsvx-compose textarea {
+  resize: vertical;
+}
+
+/* Agent picker: one round avatar per agent, scrolling sideways when the team is large. */
+.nsvx-agentbar {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+  scrollbar-width: thin;
+}
+
+.nsvx-agentpick {
+  display: grid;
+  flex: none;
+  justify-items: center;
+  gap: var(--space-1);
+  width: 76px;
+  min-height: 72px;
+  padding: var(--space-2) var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+.nsvx-agentpick--on {
+  border-color: var(--primary);
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx-agentpick__name {
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-profiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-profile {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  min-height: 64px;
+  padding: var(--space-2) var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.nsvx-profile--on {
+  border-color: var(--primary);
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.nsvx-toolgroup {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.nsvx-toolgroup__title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.nsvx-toolchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.nsvx-toolchip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-toolchip .nsvx__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.nsvx-toolchip--on {
+  border-color: var(--ok);
+  color: var(--text-strong);
+}
+
+.nsvx-toolchip--on .nsvx__icon {
+  stroke: var(--ok);
+}
+
+.nsvx-stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-stepper__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.nsvx-stepper__value {
+  min-width: 2.5ch;
+  color: var(--text-strong);
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: center;
+}
+
+.nsvx-ideas {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-ideas__source {
+  margin: 0;
+}
+
+.nsvx-idea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-idea__main {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nsvx-idea__theme,
+.nsvx-idea__lead {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.nsvx-idea__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-idea__lead .nsvx__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.nsvx-idea__add {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-1);
+}
+
+.nsvx-idea__in {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-skill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 56px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-skill__main {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-skill__main .nsvx-row__detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-skill__meta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-skill__when {
+  margin: 0;
+  color: var(--muted);
+}
+
+.nsvx-skill__steps {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+.nsvx-skill-detail__close {
+  margin-inline-start: auto;
+}
+
+@media (max-width: 640px) {
+  .nsvx-profiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .nsvx-compose {
+    flex-wrap: wrap;
+  }
+
+  .nsvx-compose input {
+    flex-basis: 100%;
+  }
+
+  .nsvx-idea {
+    flex-wrap: wrap;
+  }
+
+  .nsvx-idea__add {
+    justify-items: start;
+  }
+}
