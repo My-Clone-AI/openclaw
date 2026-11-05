@@ -5,6 +5,7 @@ import { parseNsvxConfig } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
+import { createNsvxGrowTool } from "./src/grow.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
@@ -52,6 +53,7 @@ export default definePluginEntry({
     api.registerTool((context) => createNsvxDeviceTool(client, context), {
       name: "nsvx_device",
     });
+    api.registerTool((context) => createNsvxGrowTool(client, context), { name: "nsvx_grow" });
     api.registerTool((context) => createNsvxFinanceTool(client, context), {
       name: "nsvx_finance",
       optional: true,

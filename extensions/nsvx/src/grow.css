@@ -1,0 +1,451 @@
+/* Grow tab: app cards, ideas, brain, timers. Builds on the shared nsvx and nsvx-dev blocks. */
+.nsvx-grow__tone--ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.nsvx-grow__tone--run {
+  border-color: var(--info);
+  color: var(--text-strong);
+}
+
+.nsvx-grow__tone--bad {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.nsvx-grow__tone--off {
+  color: var(--muted);
+}
+
+.nsvx-grow .nsvx__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.nsvx-grow .nsvx__chip .nsvx__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.nsvx-grow__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-3);
+}
+
+.nsvx-grow__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-grow__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-grow__app .nsvx-seg {
+  width: 100%;
+}
+
+.nsvx-grow__app .nsvx-seg__item {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.nsvx-grow__next {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-grow__next .nsvx__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.nsvx-grow__pr {
+  color: var(--text-strong);
+  text-decoration: none;
+}
+
+.nsvx-grow__pr:hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-grow__history .nsvx-row {
+  min-height: 44px;
+}
+
+.nsvx-grow__history code {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-grow__log-wrap {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nsvx-grow__log {
+  max-height: 320px;
+  margin: 0;
+  padding: var(--space-2);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-grow__composer textarea {
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.nsvx-grow__composer summary {
+  min-height: 32px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.nsvx-grow__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.nsvx-grow__ring {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: conic-gradient(var(--primary) var(--nsvx-grow-ring), var(--border) 0);
+}
+
+.nsvx-grow__ring span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-grow__idea-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nsvx-grow__title {
+  color: var(--text-strong);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-grow__text {
+  margin: 0;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-grow__steps {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-grow__step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.nsvx-grow__step::before {
+  position: absolute;
+  top: 6px;
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background: var(--border);
+  content: "";
+}
+
+.nsvx-grow__step:first-child::before {
+  display: none;
+}
+
+.nsvx-grow__step-dot {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+}
+
+.nsvx-grow__step--on {
+  color: var(--text-strong);
+}
+
+.nsvx-grow__step--on::before,
+.nsvx-grow__step--on .nsvx-grow__step-dot {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.nsvx-grow__step-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-grow__criteria {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-grow__criteria li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.nsvx-grow__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.nsvx-grow__thumb {
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.nsvx-grow__thumb img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+}
+
+.nsvx-grow__thumb--big {
+  flex-basis: 100%;
+  cursor: zoom-out;
+}
+
+.nsvx-grow__thumb--big img {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.nsvx-grow__pipe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-grow__pipe-step {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-selected);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-grow__pipe-step--on {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.nsvx-grow__map {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+}
+
+.nsvx-grow__layer {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.nsvx-grow__layer + .nsvx-grow__layer::before {
+  position: absolute;
+  top: calc(-1 * var(--space-3));
+  left: 50%;
+  width: 2px;
+  height: var(--space-3);
+  background: var(--border);
+  content: "";
+}
+
+.nsvx-grow__node {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font-size: 13px;
+}
+
+.nsvx-grow__roles,
+.nsvx-grow__agents {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-grow__role,
+.nsvx-grow__agent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-grow__role .nsvx-row__title {
+  white-space: nowrap;
+}
+
+.nsvx-grow__role select {
+  flex: 1 1 100%;
+  min-height: 44px;
+  min-width: 0;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+.nsvx-grow__role--locked {
+  background: var(--surface-selected);
+}
+
+.nsvx-grow__chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.nsvx-grow__slot {
+  list-style: none;
+}
+
+.nsvx-grow__timer {
+  flex-wrap: wrap;
+}
+
+.nsvx-grow__timer .nsvx-row__main {
+  flex: 1 1 180px;
+}
+
+.nsvx-grow__timer .nsvx-ppl-switch {
+  margin-inline-start: auto;
+}
+
+@media (max-width: 640px) {
+  .nsvx-grow__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Controls fit one row per app card: Run now keeps its name for screen readers but shows only its icon. */
+  .nsvx-grow__app .nsvx-dev__bar {
+    gap: var(--space-1);
+  }
+
+  .nsvx-grow__app .nsvx-dev__bar .nsvx__button:not(.nsvx__button--icon) > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nsvx-grow__step-label {
+    display: none;
+  }
+
+  .nsvx-grow__step[aria-current="step"] .nsvx-grow__step-label {
+    position: absolute;
+    top: 18px;
+    display: block;
+    overflow: visible;
+  }
+
+  .nsvx-grow__steps {
+    padding-bottom: var(--space-4);
+  }
+
+  .nsvx-grow__roles,
+  .nsvx-grow__agents {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

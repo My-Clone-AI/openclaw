@@ -1,13 +1,8 @@
 {
   "discovered": 73,
-  "native": 9,
-  "partial": 33,
-  "missing": 30,
-  "blocked": 1,
-  "discovered": 68,
-  "native": 12,
-  "partial": 26,
-  "missing": 30,
+  "native": 13,
+  "partial": 38,
+  "missing": 22,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -139,9 +134,9 @@
       "id": "22",
       "name": "Everything else",
       "discovered": 3,
-      "native": 0,
-      "partial": 0,
-      "missing": 3,
+      "native": 1,
+      "partial": 2,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -230,38 +225,8 @@
       "name": "Grow and development",
       "discovered": 3,
       "native": 0,
-      "partial": 0,
-      "missing": 3,
-      "blocked": 0,
-      "verified": 0
-    },
-    {
-      "id": "22",
-      "name": "Everything else",
-      "discovered": 3,
-      "native": 1,
-      "partial": 2,
+      "partial": 3,
       "missing": 0,
-      "blocked": 0,
-      "verified": 0
-    },
-    {
-      "id": "03",
-      "name": "People",
-      "discovered": 2,
-      "native": 0,
-      "partial": 0,
-      "missing": 2,
-      "blocked": 0,
-      "verified": 0
-    },
-    {
-      "id": "06",
-      "name": "Calendar and Google",
-      "discovered": 1,
-      "native": 0,
-      "partial": 0,
-      "missing": 1,
       "blocked": 0,
       "verified": 0
     }
@@ -560,7 +525,7 @@
       "title": "Development progress board",
       "family": "09",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -568,7 +533,7 @@
       "title": "Build Me requests",
       "family": "09",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -576,7 +541,7 @@
       "title": "OpenClaw brain inbox and roles",
       "family": "09",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -824,54 +789,6 @@
       "title": "Provider webhooks",
       "family": "21",
       "priority": "P3",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "desktop-companion",
-      "title": "Desktop app",
-      "family": "22",
-      "priority": "P3",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "health-and-legal",
-      "title": "Health and legal pages",
-      "family": "22",
-      "priority": "P3",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "offline-sync",
-      "title": "Offline sync",
-      "family": "22",
-      "priority": "P3",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "people",
-      "title": "People and groups",
-      "family": "03",
-      "priority": "P2",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "social-context",
-      "title": "Social context",
-      "family": "03",
-      "priority": "P2",
-      "status": "missing",
-      "verified": false
-    },
-    {
-      "id": "agenda",
-      "title": "Agenda",
-      "family": "06",
-      "priority": "P2",
       "status": "missing",
       "verified": false
     },

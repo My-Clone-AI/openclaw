@@ -6,7 +6,8 @@ Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages,
 agent team
 chart (move, assign, task, stop, pause), NSVX action contracts, approvals, and parity progress.
 Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, Money, Device (desktop
-jobs, bots, memory, skills, sync), Health (status and legal pages), the agent team chart (move, assign, task, stop,
+jobs, bots, memory, skills, sync), Health (status and legal pages), Grow (coding apps, Build Me ideas, the OpenClaw
+brain, timers), the agent team chart (move, assign, task, stop,
 pause), NSVX action contracts, approvals, and parity progress.
 
 Enable it with `openclaw plugins enable nsvx`. Set the NSVX address in the plugin config (`baseUrl`). Two sign-ins
@@ -43,8 +44,10 @@ because it reads this Gateway's own
 drafts, desktop bot saves, job stops, memory fix and forget, and the offline sync changes (save, create, discard, and
 send a reviewed draft). Finance / Money is read-only. Health and legal pages are public NSVX pages and need no sign-in. For each write, the Gateway reads the session's CSRF token from NSVX's
 `/api/auth/state`, as the NSVX web app does, so NSVX applies its own checks, idempotency, and audit. Chat tools that
-use the owner session (`nsvx_messages`, `nsvx_search`, `nsvx_activity`, `nsvx_device`, optional `nsvx_finance`) run on
-the owner's own turns only; `nsvx_messages` and `nsvx_device` never send. Team works with neither sign-in, because it reads this Gateway's own
+use the owner session (`nsvx_messages`, `nsvx_search`, `nsvx_activity`, `nsvx_device`, `nsvx_grow`, optional
+`nsvx_finance`) run on the owner's own turns only; `nsvx_messages` and `nsvx_device` never send. Grow's changes are the
+fixed `/api/grow`, Build Me admin, and brain routes in `OWNER_WRITES`; a new idea goes as NSVX's own form with NSVX's
+`Origin`, as its web app sends it. Team works with neither sign-in, because it reads this Gateway's own
 agents.
 
 NSVX stays the only owner of its data: every read and write goes through its own API (AgentOS or the owner routes
