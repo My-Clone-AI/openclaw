@@ -1,5 +1,6 @@
 const en = {
   title: "NSVX",
+  ai: "AI",
   team: "Team",
   actions: "Actions",
   progress: "Progress",
@@ -93,6 +94,7 @@ const en = {
 export type MessageKey = keyof typeof en;
 
 const pt: Record<MessageKey, string> = {
+  ai: "IA",
   title: "NSVX",
   team: "Equipa",
   actions: "Ações",
@@ -185,6 +187,7 @@ const pt: Record<MessageKey, string> = {
 };
 
 const es: Record<MessageKey, string> = {
+  ai: "IA",
   title: "NSVX",
   team: "Equipo",
   actions: "Acciones",

@@ -6,6 +6,8 @@ import {
   type ControlUiView,
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
+import { aiTranslator } from "./ai-i18n.js";
+import { AiTab } from "./ai-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import {
   assignAgentPatch,
@@ -31,7 +33,7 @@ import {
 } from "./ui-kit.js";
 import "./control-ui.css";
 
-type Tab = "today" | "tasks" | "work" | "team" | "actions" | "progress";
+type Tab = "today" | "tasks" | "work" | "ai" | "team" | "actions" | "progress";
 type TeamData = {
   chart: TeamChart;
   entries: Record<string, AgentEntry>;
@@ -523,13 +525,14 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "tasks", "work", "team", "actions", "progress"];
+const TABS: Tab[] = ["today", "tasks", "work", "ai", "team", "actions", "progress"];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
   const [locale, setLocale] = createSignal(host.locale);
   const unsubscribe = host.subscribe(() => setLocale(host.locale));
   const t: T = (key) => translator(locale())(key);
+  const at = (key: string) => aiTranslator(locale())(key);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
@@ -613,6 +616,9 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "work"}>
               <WorkTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "ai"}>
+              <AiTab host={host} t={t} at={at} query={query()} />
             </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />

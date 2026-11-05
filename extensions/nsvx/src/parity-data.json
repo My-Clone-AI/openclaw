@@ -1,8 +1,8 @@
 {
-  "discovered": 58,
-  "native": 5,
-  "partial": 13,
-  "missing": 39,
+  "discovered": 61,
+  "native": 7,
+  "partial": 15,
+  "missing": 38,
   "blocked": 1,
   "verified": 0,
   "sources": {
@@ -203,10 +203,10 @@
     {
       "id": "07",
       "name": "AI and inference",
-      "discovered": 3,
-      "native": 0,
-      "partial": 2,
-      "missing": 1,
+      "discovered": 6,
+      "native": 2,
+      "partial": 4,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -349,7 +349,7 @@
       "title": "Register the clone-ai provider",
       "family": "07",
       "priority": "P2",
-      "status": "partial",
+      "status": "native",
       "verified": false
     },
     {
@@ -357,7 +357,31 @@
       "title": "clone-ai models and training",
       "family": "07",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "clone-ai-admin",
+      "title": "Clone AI admin",
+      "family": "07",
+      "priority": "P2",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "gpt-voice-settings",
+      "title": "GPT voice settings",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "inference-flows",
+      "title": "Inference model flows",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
       "verified": false
     },
     {

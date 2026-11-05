@@ -4835,10 +4835,10 @@
         "digest": "65fb5eea3a6045d0ea25e0a7af90954f9dad539083dd24f6ac547e9f624f9527"
       },
       "activity-log": {
-        "routes": 59,
-        "reads": 22,
-        "writes": 37,
-        "digest": "818c6957db07a9953b4e6558ad663359b828394b3598405c0da5ab6881f0df05"
+        "routes": 40,
+        "reads": 17,
+        "writes": 23,
+        "digest": "0872b3543f364b8b3fa4bc3e1f973a911fa922c1e1d897aedba79a096f784aa8"
       },
       "messages": {
         "routes": 74,
@@ -4913,10 +4913,28 @@
         "digest": "b1f0896108c74872157fd1115a867bb2d7b22b4d29031af88b00a6223e450098"
       },
       "clone-ai-training": {
-        "routes": 8,
-        "reads": 1,
-        "writes": 7,
-        "digest": "6b1cf47ee3e833bd6d39cab712d80b49527f2d513a3cae508adfa88be4ee95c5"
+        "routes": 12,
+        "reads": 2,
+        "writes": 10,
+        "digest": "c6dcab2b4b750d12f02735f479e3b169bcf0cf03371b26732c068b6918beb249"
+      },
+      "clone-ai-admin": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "gpt-voice-settings": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "inference-flows": {
+        "routes": 19,
+        "reads": 5,
+        "writes": 14,
+        "digest": "9f2b1995dcfa728f5eb24fc2fe1b3399d35f8c34cdf30d4cf8a409ecb2907f03"
       },
       "agentos": {
         "routes": 10,
@@ -5009,10 +5027,10 @@
         "digest": "8098ef93674a0121bdd4976ba54909062d5523df082a26eaffc8107222e0f089"
       },
       "group-companies": {
-        "routes": 71,
-        "reads": 40,
-        "writes": 31,
-        "digest": "fb736ebd5aca20ba2de63d6d8d395f94ddf2478e7af695935dd9e3aa667e5240"
+        "routes": 67,
+        "reads": 39,
+        "writes": 28,
+        "digest": "cfb6e67ae4db5f71fef2dbb1f4122afe77c7670b874e00092013569b3d067045"
       },
       "documents": {
         "routes": 104,
@@ -5172,10 +5190,10 @@
       }
     },
     "parity": {
-      "discovered": 58,
-      "native": 5,
-      "partial": 13,
-      "missing": 39,
+      "discovered": 61,
+      "native": 7,
+      "partial": 15,
+      "missing": 38,
       "blocked": 1,
       "verified": 0,
       "families": [
@@ -5372,10 +5390,10 @@
         {
           "id": "07",
           "name": "AI and inference",
-          "discovered": 3,
-          "native": 0,
-          "partial": 2,
-          "missing": 1,
+          "discovered": 6,
+          "native": 2,
+          "partial": 4,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

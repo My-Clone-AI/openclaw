@@ -12,6 +12,7 @@ const ICONS = {
     "M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m4 11 2 2 4-4",
   tasks: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
   work: "m8 9-3 3 3 3m8-6 3 3-3 3m-5 4 2-12",
+  ai: "M12 3c.4 4.2 4.8 8.6 9 9-4.2.4-8.6 4.8-9 9-.4-4.2-4.8-8.6-9-9 4.2-.4 8.6-4.8 9-9z",
   team: "M12 3v5m0 0a3 3 0 1 0 0 .01M5 21v-3a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3M12 11v4",
   actions: "M13 2 4 14h7l-1 8 9-12h-7z",
   progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
@@ -67,7 +68,12 @@ export function createSource<V>(host: ControlUiHost, load: () => Promise<V>) {
       }
     }
   };
-  return { state, refresh };
+  /** Publishes an owner's answer to a change (its readback), replacing any load still in flight. */
+  const set = (data: V) => {
+    generation++;
+    setState({ data, loading: false });
+  };
+  return { state, refresh, set };
 }
 
 /** Connection states that need the owner, not a retry of the same request. */

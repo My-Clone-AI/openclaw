@@ -50,6 +50,8 @@ function handler(
   };
 }
 
+export { handler as gatewayHandler };
+
 // Literal method names keep scripts/nsvx-parity-inventory.mts able to list them.
 export function registerNsvxGatewayMethods(api: OpenClawPluginApi, client: NsvxClient) {
   const read = { scope: "operator.read" } as const;

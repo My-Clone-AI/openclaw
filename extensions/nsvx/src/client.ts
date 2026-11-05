@@ -1,7 +1,7 @@
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
 
 export const AGENTOS_PATH = "/api/agentos/v1";
-const TIMEOUT_MS = 30_000;
+export const TIMEOUT_MS = 30_000;
 
 /**
  * - `unconfigured`: this Gateway has no token.
@@ -32,9 +32,9 @@ export class NsvxError extends Error {
   }
 }
 
-type Fetch = (url: string, init: RequestInit) => Promise<Response>;
+export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 
-async function guardedFetch(url: string, init: RequestInit): Promise<Response> {
+export async function guardedFetch(url: string, init: RequestInit): Promise<Response> {
   const [{ fetchWithSsrFGuard }, { responseWithRelease }] = await Promise.all([
     import("openclaw/plugin-sdk/ssrf-runtime"),
     import("openclaw/plugin-sdk/fetch-runtime"),
@@ -54,7 +54,7 @@ async function guardedFetch(url: string, init: RequestInit): Promise<Response> {
 /** AgentOS sends problem+json; other NSVX routes send FastAPI `detail`, sometimes as an object. */
 type Problem = { code?: string; title?: string; detail?: unknown; correlation_id?: string };
 
-async function problemFrom(response: Response): Promise<Problem> {
+export async function problemFrom(response: Response): Promise<Problem> {
   try {
     return (await response.json()) as Problem;
   } catch {
@@ -62,7 +62,12 @@ async function problemFrom(response: Response): Promise<Problem> {
   }
 }
 
-function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
+export function errorFor(
+  status: number,
+  problem: Problem,
+  isWrite: boolean,
+  path: string,
+): NsvxError {
   const message =
     (typeof problem.detail === "string" ? problem.detail : problem.title) ??
     `NSVX answered ${status}.`;
@@ -116,7 +121,7 @@ const OWNER_VIEWS = {
 
 type OwnerView = keyof typeof OWNER_VIEWS;
 
-const OWNER_COOKIE = "clone_session";
+export const OWNER_COOKIE = "clone_session";
 
 function ownerViewPath(view: string, params: Record<string, unknown>): string {
   if (!Object.hasOwn(OWNER_VIEWS, view)) {
