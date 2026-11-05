@@ -1,4 +1,8 @@
 {
+  "discovered": 76,
+  "native": 13,
+  "partial": 39,
+  "missing": 24,
   "discovered": 73,
   "native": 10,
   "partial": 36,
@@ -71,10 +75,10 @@
     {
       "id": "15",
       "name": "Aviation",
-      "discovered": 1,
+      "discovered": 4,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 4,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -682,10 +686,34 @@
     },
     {
       "id": "aviation",
-      "title": "Aviation",
+      "title": "Aviation hub: overview, roster, mail, portal, settings, and stats",
       "family": "15",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-logbook",
+      "title": "Aviation logbook: entries, previous-day flights, Flight Log, exports",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-docs",
+      "title": "Aviation docs: library, expiry, preview, pin, rename",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-checkin",
+      "title": "Aviation auto check-in",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
       "verified": false
     },
     {

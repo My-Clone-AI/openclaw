@@ -5587,10 +5587,28 @@
         "digest": "72bba9cf17445f27926889bb49a79b342d05fe18cdc4924af2fec2fe650ecb54"
       },
       "aviation": {
-        "routes": 59,
-        "reads": 33,
-        "writes": 26,
-        "digest": "db01ad22faf4e5c32a2e4905d476b9eb6be2792221cfb2e926f05a735288f483"
+        "routes": 18,
+        "reads": 11,
+        "writes": 7,
+        "digest": "86951734321d7185e77f6bcb3442cbbf70d127021514e4500c322a3bb5306093"
+      },
+      "aviation-logbook": {
+        "routes": 23,
+        "reads": 12,
+        "writes": 11,
+        "digest": "5e831e26d8b0f364cd82af2d2131e6abbb0a1dddfd1fcf4fcf189efc39c2d41b"
+      },
+      "aviation-docs": {
+        "routes": 13,
+        "reads": 8,
+        "writes": 5,
+        "digest": "8adf8103898aa650d09d9b658a904f59744c7024c13378785c403a6553fa49c6"
+      },
+      "aviation-checkin": {
+        "routes": 5,
+        "reads": 2,
+        "writes": 3,
+        "digest": "10cd84863af145135a76e9788b18f0c6147882b2cb745e86a1c0d8c3fbae2264"
       },
       "transports": {
         "routes": 10,
@@ -5726,6 +5744,10 @@
       }
     },
     "parity": {
+      "discovered": 76,
+      "native": 13,
+      "partial": 39,
+      "missing": 24,
       "discovered": 73,
       "native": 10,
       "partial": 36,
@@ -5794,10 +5816,10 @@
         {
           "id": "15",
           "name": "Aviation",
-          "discovered": 1,
+          "discovered": 4,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 4,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

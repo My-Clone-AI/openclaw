@@ -8,6 +8,7 @@ import {
 import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { AgendaTab } from "./agenda-tab.js";
+import { AviationTab } from "./aviation-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
@@ -463,6 +464,12 @@ const mountNsvx: ControlUiView = (container, context) => {
       skill: skill(),
     });
   };
+  const showMission = (id: string) => {
+    setMission(id);
+    setTab("tasks");
+    setQuery("");
+    remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
+  };
   const openMission = (id: string | undefined) => {
     setMission(id);
     remember(tab(), {
@@ -559,30 +566,10 @@ const mountNsvx: ControlUiView = (container, context) => {
         {() => (
           <>
             <Show when={tab() === "today"}>
-              <TodayTab
-                host={host}
-                t={t}
-                query={query()}
-                onMission={(id) => {
-                  setMission(id);
-                  setTab("tasks");
-                  setQuery("");
-                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
-                }}
-              />
+              <TodayTab host={host} t={t} query={query()} onMission={showMission} />
             </Show>
             <Show when={tab() === "find"}>
-              <FindTab
-                host={host}
-                t={t}
-                query={query()}
-                onMission={(id) => {
-                  setMission(id);
-                  setTab("tasks");
-                  setQuery("");
-                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
-                }}
-              />
+              <FindTab host={host} t={t} query={query()} onMission={showMission} />
             </Show>
 
             <Show when={tab() === "tasks"}>
@@ -624,12 +611,7 @@ const mountNsvx: ControlUiView = (container, context) => {
                 query={query()}
                 open={eventId()}
                 onOpen={openEvent}
-                onMission={(id) => {
-                  setMission(id);
-                  setTab("tasks");
-                  setQuery("");
-                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
-                }}
+                onMission={showMission}
               />
             </Show>
             <Show when={tab() === "people"}>
@@ -647,16 +629,20 @@ const mountNsvx: ControlUiView = (container, context) => {
                   setQuery("");
                   remember("messages", { mission: mission(), conversation: id, draft: draft() });
                 }}
-                onMission={(id) => {
-                  setMission(id);
-                  setTab("tasks");
-                  setQuery("");
-                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
-                }}
+                onMission={showMission}
               />
             </Show>
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "aviation"}>
+              <AviationTab
+                host={host}
+                t={t}
+                locale={locale()}
+                query={query()}
+                onMission={showMission}
+              />
             </Show>
             <Show when={tab() === "device"}>
               <DeviceTab host={host} t={t} dt={dt} query={query()} />

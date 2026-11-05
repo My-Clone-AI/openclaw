@@ -11,6 +11,7 @@ import {
   selectCalendar,
   submitChange,
 } from "./agenda.js";
+import { registerAviationMethods } from "./aviation.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
@@ -189,6 +190,7 @@ export function registerNsvxGatewayMethods(
   method("nsvx.group.devAction", "operator.admin", (params) => runDevAction(client, params));
   method("nsvx.group.serverAction", "operator.admin", (params) => serverAction(client, params));
   registerDeviceMethods(method, client);
+  registerAviationMethods(method, client);
   // Fleet (TVDE, Transports) reads through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
   // None pays or approves money; access links and driver news reach drivers only through their own portal.
   method("nsvx.fleet.change", "operator.write", (params) => changeFleet(client, params));
