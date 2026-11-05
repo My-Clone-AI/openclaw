@@ -10,11 +10,21 @@ import {
   type BankCoverage,
   type Ledger,
 } from "./legal-data.js";
-import { changeCaseRequest, type LegalCtx } from "./legal-tab.js";
+import { changeCaseRequest, type LegalCtx } from "./legal-kit.js";
 import { Choice, Field, Panel, Pill, Reveal, Stats, Toggle } from "./office-kit.js";
 import { createSource, Icon, SourceView } from "./ui-kit.js";
 
-const KINDS = ["rent", "vehicle_rental", "invoice", "deposit", "commission", "damage", "utility", "loan", "other"];
+const KINDS = [
+  "rent",
+  "vehicle_rental",
+  "invoice",
+  "deposit",
+  "commission",
+  "damage",
+  "utility",
+  "loan",
+  "other",
+];
 const BASES = ["contract", "document", "owner", "estimate"] as const;
 
 function ObligationForm(props: {
@@ -83,8 +93,20 @@ function ObligationForm(props: {
         options={BASES.map((value) => [value, ctx().lt(`basis_${value}`)] as const)}
         onChange={setBasis}
       />
-      <Field label={ctx().lt("description")} value={description()} max={300} required onInput={setDescription} />
-      <Field label={ctx().lt("amount")} value={amount()} mode="decimal" required onInput={setAmount} />
+      <Field
+        label={ctx().lt("description")}
+        value={description()}
+        max={300}
+        required
+        onInput={setDescription}
+      />
+      <Field
+        label={ctx().lt("amount")}
+        value={amount()}
+        mode="decimal"
+        required
+        onInput={setAmount}
+      />
       <Field
         label={ctx().lt(props.plan ? "firstMonth" : "dueDate")}
         type="date"
@@ -93,10 +115,24 @@ function ObligationForm(props: {
       />
       <Show
         when={props.plan}
-        fallback={<Toggle label={ctx().lt("disputed")} checked={disputed()} onChange={setDisputed} />}
+        fallback={
+          <Toggle label={ctx().lt("disputed")} checked={disputed()} onChange={setDisputed} />
+        }
       >
-        <Field label={ctx().lt("months")} type="number" min="1" value={months()} onInput={setMonths} />
-        <Field label={ctx().lt("payDay")} type="number" min="1" value={payDay()} onInput={setPayDay} />
+        <Field
+          label={ctx().lt("months")}
+          type="number"
+          min="1"
+          value={months()}
+          onInput={setMonths}
+        />
+        <Field
+          label={ctx().lt("payDay")}
+          type="number"
+          min="1"
+          value={payDay()}
+          onInput={setPayDay}
+        />
       </Show>
       <Note note={action.note()} />
       <div class="nsvx-dev__bar">
@@ -148,7 +184,13 @@ function PaymentForm(props: {
         });
       }}
     >
-      <Field label={ctx().lt("amount")} value={amount()} mode="decimal" required onInput={setAmount} />
+      <Field
+        label={ctx().lt("amount")}
+        value={amount()}
+        mode="decimal"
+        required
+        onInput={setAmount}
+      />
       <Field label={ctx().lt("date")} type="date" value={date()} onInput={setDate} />
       <Choice
         label={ctx().lt("kind")}
@@ -168,7 +210,8 @@ function PaymentForm(props: {
         options={[
           ["", ctx().lt("oldestFirst")],
           ...props.ledger.obligations.map(
-            (row) => [row.id, `${row.description} · ${eur(row.outstanding, ctx().locale)}`] as const,
+            (row) =>
+              [row.id, `${row.description} · ${eur(row.outstanding, ctx().locale)}`] as const,
           ),
         ]}
         onChange={setObligation}
@@ -213,7 +256,8 @@ function BankPicker(props: { ctx: LegalCtx; caseRef: string; onSaved: () => void
                   <Icon name="bank" />
                   <span class="nsvx-of__main">
                     <strong>
-                      {eur(row().amount, ctx().locale)} · {shortDay(row().date, ctx().locale)} · {row().account}
+                      {eur(row().amount, ctx().locale)} · {shortDay(row().date, ctx().locale)} ·{" "}
+                      {row().account}
                     </strong>
                     <span class="nsvx-of__sub">{row().counterparty ?? row().description}</span>
                     <Show when={row().used_in}>
@@ -315,7 +359,13 @@ export function LegalMoney(props: { ctx: LegalCtx; caseRef: string }) {
           <div class="nsvx-of__bar">
             <Reveal label={ctx().lt("planMonthly")} icon="agenda" disabled={!canWrite()}>
               {(close) => (
-                <ObligationForm ctx={ctx()} caseRef={props.caseRef} plan close={close} onSaved={refresh} />
+                <ObligationForm
+                  ctx={ctx()}
+                  caseRef={props.caseRef}
+                  plan
+                  close={close}
+                  onSaved={refresh}
+                />
               )}
             </Reveal>
             <Reveal label={ctx().lt("addDue")} icon="plus" disabled={!canWrite()}>
@@ -357,7 +407,8 @@ export function LegalMoney(props: { ctx: LegalCtx; caseRef: string }) {
                     <span class="nsvx-of__main">
                       <strong>{row().description}</strong>
                       <span class="nsvx-of__sub">
-                        {shortDay(row().due_date, ctx().locale)} · {ctx().lt(`basis_${row().due_basis}`)}
+                        {shortDay(row().due_date, ctx().locale)} ·{" "}
+                        {ctx().lt(`basis_${row().due_basis}`)}
                         {row().days_overdue === null ? "" : ` · ${row().days_overdue}d`}
                       </span>
                     </span>
@@ -367,7 +418,9 @@ export function LegalMoney(props: { ctx: LegalCtx; caseRef: string }) {
                         {money(row().paid)} / {money(row().amount)}
                       </span>
                     </span>
-                    <Pill tone={OBLIGATION_TONE[row().status]}>{ctx().lt(`ob_${row().status}`)}</Pill>
+                    <Pill tone={OBLIGATION_TONE[row().status]}>
+                      {ctx().lt(`ob_${row().status}`)}
+                    </Pill>
                     <ConfirmButton
                       label={ctx().lt("cancelRecord")}
                       confirm={ctx().lt("cancelRecord")}
@@ -387,7 +440,15 @@ export function LegalMoney(props: { ctx: LegalCtx; caseRef: string }) {
                 <For each={data().payments} keyed={(row) => row.id}>
                   {(row) => (
                     <li class="nsvx-of__row">
-                      <Icon name={row().source === "bank_tx" ? "bank" : row().source === "evidence" ? "doc" : "user"} />
+                      <Icon
+                        name={
+                          row().source === "bank_tx"
+                            ? "bank"
+                            : row().source === "evidence"
+                              ? "doc"
+                              : "user"
+                        }
+                      />
                       <span class="nsvx-of__main">
                         <strong>
                           {money(row().amount)} · {shortDay(row().paid_on, ctx().locale)}

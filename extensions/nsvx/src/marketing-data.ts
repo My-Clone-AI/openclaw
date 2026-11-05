@@ -83,7 +83,9 @@ export type PreviewResult = { ok: boolean; body: string | null; codes: string[] 
 
 /** NSVX's own short list of main networks, as its "Brief 11" filter. */
 export const MAIN_NETWORKS = new Set(
-  "facebook instagram youtube tiktok whatsapp telegram x linkedin snapchat pinterest reddit".split(" "),
+  "facebook instagram youtube tiktok whatsapp telegram x linkedin snapchat pinterest reddit".split(
+    " ",
+  ),
 );
 
 /**
@@ -105,7 +107,12 @@ export function isAdultApp(app: string): boolean {
 }
 
 export function socialCounts(app: SocialApp, networks: SocialNetwork[]) {
-  const counts: Record<SocialStatus, number> = { connected: 0, pending: 0, unavailable: 0, failed: 0 };
+  const counts: Record<SocialStatus, number> = {
+    connected: 0,
+    pending: 0,
+    unavailable: 0,
+    failed: 0,
+  };
   for (const network of networks) {
     counts[app.cells[network.code]?.status ?? "unavailable"] += 1;
   }
@@ -113,7 +120,9 @@ export function socialCounts(app: SocialApp, networks: SocialNetwork[]) {
 }
 
 /** Publishing is live only with the global switch up and no stop: the words Control shows match NSVX's rule. */
-export function gateMode(gate: Pick<MarketingGate, "live_allowed" | "killed">): "stopped" | "live" | "test" {
+export function gateMode(
+  gate: Pick<MarketingGate, "live_allowed" | "killed">,
+): "stopped" | "live" | "test" {
   return gate.killed ? "stopped" : gate.live_allowed ? "live" : "test";
 }
 

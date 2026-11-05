@@ -1,9 +1,15 @@
 /** @jsxImportSource @solidjs/web */
 import { createSignal, For, Show } from "solid-js";
 import { createAction, Note, view } from "./device-kit.js";
-import { shortStamp, type Procedure, type ProcedureDefinition, type ProcedureRun, type RunReconcile } from "./legal-data.js";
+import {
+  shortStamp,
+  type Procedure,
+  type ProcedureDefinition,
+  type ProcedureRun,
+  type RunReconcile,
+} from "./legal-data.js";
 import { changeProcedureRequest } from "./legal-kit.js";
-import type { LegalCtx } from "./legal-tab.js";
+import type { LegalCtx } from "./legal-kit.js";
 import { every } from "./messages-ui.js";
 import { Choice, Field, Panel, Picks, Pill, type OfficeTone } from "./office-kit.js";
 import { IconButton } from "./people-ui.js";
@@ -147,7 +153,10 @@ function Editor(props: {
                   onInput={(timezone) => trigger({ timezone })}
                 />
                 <Picks
-                  options={WEEKDAYS.map((day, index) => ({ id: String(index), label: ctx().lt(day) }))}
+                  options={WEEKDAYS.map((day, index) => ({
+                    id: String(index),
+                    label: ctx().lt(day),
+                  }))}
                   value={(shown().trigger.weekdays ?? [0, 1, 2, 3, 4, 5, 6]).map(String)}
                   onChange={(days) => trigger({ weekdays: days.map(Number).toSorted() })}
                 />
@@ -163,7 +172,13 @@ function Editor(props: {
                 {(entry) => (
                   <Field
                     label={entry()[0].replaceAll("_", " ")}
-                    type={entry()[1].type === "date" ? "date" : entry()[1].type === "integer" ? "number" : "text"}
+                    type={
+                      entry()[1].type === "date"
+                        ? "date"
+                        : entry()[1].type === "integer"
+                          ? "number"
+                          : "text"
+                    }
                     value={String(entry()[1].example)}
                     onInput={(value) =>
                       patch({
@@ -284,7 +299,8 @@ function RunDetail(props: { ctx: LegalCtx; id: string; onChange: () => void }) {
               {(step) => (
                 <li>
                   <span>
-                    {ctx().lt(`step_${step().type}`)} · <Pill tone={stateTone(step().state)}>{step().state}</Pill>
+                    {ctx().lt(`step_${step().type}`)} ·{" "}
+                    <Pill tone={stateTone(step().state)}>{step().state}</Pill>
                   </span>
                   <Show when={step().blocked_reason}>
                     <span class="nsvx-of__sub">{step().blocked_reason}</span>
@@ -423,7 +439,13 @@ function Detail(props: { ctx: LegalCtx; id: string; onBack: () => void }) {
                   {(entry) => (
                     <Field
                       label={entry()[0].replaceAll("_", " ")}
-                      type={entry()[1].type === "date" ? "date" : entry()[1].type === "integer" ? "number" : "text"}
+                      type={
+                        entry()[1].type === "date"
+                          ? "date"
+                          : entry()[1].type === "integer"
+                            ? "number"
+                            : "text"
+                      }
                       value={values()[entry()[0]] ?? String(entry()[1].example)}
                       onInput={(value) => setValues({ ...values(), [entry()[0]]: value })}
                     />
@@ -478,13 +500,19 @@ function Detail(props: { ctx: LegalCtx; id: string; onBack: () => void }) {
                         <span class="nsvx-of__main">
                           <strong>{shortStamp(run().created_at, ctx().locale)}</strong>
                           <Show when={run().reason || run().progress?.reason}>
-                            <span class="nsvx-of__sub">{run().reason || run().progress?.reason}</span>
+                            <span class="nsvx-of__sub">
+                              {run().reason || run().progress?.reason}
+                            </span>
                           </Show>
                         </span>
                         <Pill tone={stateTone(run().state)}>{ctx().lt(`p_${run().state}`)}</Pill>
                       </button>
                       <Show when={openRun() === run().id}>
-                        <RunDetail ctx={ctx()} id={run().id} onChange={() => void source.refresh()} />
+                        <RunDetail
+                          ctx={ctx()}
+                          id={run().id}
+                          onChange={() => void source.refresh()}
+                        />
                       </Show>
                     </li>
                   )}

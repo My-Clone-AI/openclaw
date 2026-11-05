@@ -3,14 +3,22 @@ import { createMemo, createSignal, For, Show } from "solid-js";
 import { saveNsvxFile } from "./aviation-kit.js";
 import { ConfirmButton, createAction, Note, view } from "./device-kit.js";
 import { ConsentCard } from "./legal-ai.js";
-import { shortStamp, type AiRun, type CaseDetail, type DocProposal, type DocStatus, type DocVersion } from "./legal-data.js";
-import { changeCaseRequest, type LegalCtx } from "./legal-tab.js";
+import {
+  shortStamp,
+  type AiRun,
+  type CaseDetail,
+  type DocProposal,
+  type DocStatus,
+  type DocVersion,
+} from "./legal-data.js";
+import { changeCaseRequest, type LegalCtx } from "./legal-kit.js";
 import { Choice, Field, Panel, Picks, Pill, Reveal } from "./office-kit.js";
 import { IconButton } from "./people-ui.js";
 import { createSource, Icon, SourceView } from "./ui-kit.js";
 
 const DOC_STATUSES: DocStatus[] = ["draft", "reviewed", "approved", "signed", "sent"];
-const docTone = (status: DocStatus) => (status === "draft" ? "warn" : status === "sent" ? "ok" : "run");
+const docTone = (status: DocStatus) =>
+  status === "draft" ? "warn" : status === "sent" ? "ok" : "run";
 const v = (version: number) => `v${String(version).padStart(2, "0")}`;
 
 function NewDoc(props: {
@@ -95,7 +103,13 @@ function NewDoc(props: {
               onChange={setProofs}
             />
             <Show when={props.row.ai_allowed}>
-              <Field label={ctx().lt("forAi")} value={brief()} rows={2} max={2000} onInput={setBrief} />
+              <Field
+                label={ctx().lt("forAi")}
+                value={brief()}
+                rows={2}
+                max={2000}
+                onInput={setBrief}
+              />
             </Show>
             <div class="nsvx-of__bar">
               <button type="button" class="nsvx__button" onClick={() => setProposal(undefined)}>
@@ -175,7 +189,11 @@ function Editor(props: {
   const canWrite = () => ctx().host.connection.canWrite;
   const save = (format: "pdf" | "docx") =>
     void action.run(() =>
-      saveNsvxFile(ctx().host, { kind: "document", documentId: props.id, format }, "nsvx.cases.file"),
+      saveNsvxFile(
+        ctx().host,
+        { kind: "document", documentId: props.id, format },
+        "nsvx.cases.file",
+      ),
     );
   const setStatus = (status: DocStatus) =>
     void action.run(async () => {
@@ -199,14 +217,26 @@ function Editor(props: {
                   {doc().title} {v(doc().version)}
                 </h2>
                 <Pill tone={docTone(doc().status)}>{ctx().lt(`doc_${doc().status}`)}</Pill>
-                <Pill icon={doc().origin === "ai" ? "bot" : "doc"}>{ctx().lt(`origin_${doc().origin}`)}</Pill>
+                <Pill icon={doc().origin === "ai" ? "bot" : "doc"}>
+                  {ctx().lt(`origin_${doc().origin}`)}
+                </Pill>
               </header>
               <div class="nsvx-of__bar">
-                <button type="button" class="nsvx__button" disabled={action.busy()} onClick={() => save("pdf")}>
+                <button
+                  type="button"
+                  class="nsvx__button"
+                  disabled={action.busy()}
+                  onClick={() => save("pdf")}
+                >
                   <Icon name="download" />
                   <span>PDF</span>
                 </button>
-                <button type="button" class="nsvx__button" disabled={action.busy()} onClick={() => save("docx")}>
+                <button
+                  type="button"
+                  class="nsvx__button"
+                  disabled={action.busy()}
+                  onClick={() => save("docx")}
+                >
                   <Icon name="download" />
                   <span>DOCX</span>
                 </button>
@@ -234,10 +264,7 @@ function Editor(props: {
                 </Show>
               </div>
               <Note note={action.note()} />
-              <Show
-                when={latest()}
-                fallback={<div class="nsvx-of__mono">{doc().body}</div>}
-              >
+              <Show when={latest()} fallback={<div class="nsvx-of__mono">{doc().body}</div>}>
                 <Field label={ctx().lt("text")} value={text()} rows={16} onInput={setBody} />
                 <p class="nsvx-of__muted">{ctx().lt("editorHint")}</p>
                 <div class="nsvx-of__bar">
@@ -260,7 +287,10 @@ function Editor(props: {
                     {ctx().lt("saveVersion")}
                   </button>
                   <div class="nsvx-of__bar" role="group" aria-label={ctx().lt("state")}>
-                    <For each={DOC_STATUSES.filter((status) => status !== doc().status)} keyed={false}>
+                    <For
+                      each={DOC_STATUSES.filter((status) => status !== doc().status)}
+                      keyed={false}
+                    >
                       {(status) => (
                         <Show
                           when={status() === "sent" || status() === "signed"}

@@ -11,7 +11,7 @@ import {
   type Evidence,
   type LawSource,
 } from "./legal-data.js";
-import { changeCaseRequest, type LegalCtx } from "./legal-tab.js";
+import { changeCaseRequest, type LegalCtx } from "./legal-kit.js";
 import { every } from "./messages-ui.js";
 import { Field, Panel, Pill, Reveal, Toggle } from "./office-kit.js";
 import { createSource, Icon, SourceView, type IconName } from "./ui-kit.js";
@@ -212,7 +212,9 @@ function RunCard(props: {
             {ctx().lt("reviewAuthorize")}
           </button>
         </Show>
-        <Show when={["awaiting_consent", "queued", "waiting_quota", "running"].includes(run().status)}>
+        <Show
+          when={["awaiting_consent", "queued", "waiting_quota", "running"].includes(run().status)}
+        >
           <button
             type="button"
             class="nsvx__button"
@@ -300,8 +302,20 @@ function Sources(props: { ctx: LegalCtx; caseRef: string }) {
                 });
               }}
             >
-              <Field label={ctx().lt("title")} value={title()} max={300} required onInput={setTitle} />
-              <Field label={ctx().lt("address")} type="url" value={url()} max={500} onInput={setUrl} />
+              <Field
+                label={ctx().lt("title")}
+                value={title()}
+                max={300}
+                required
+                onInput={setTitle}
+              />
+              <Field
+                label={ctx().lt("address")}
+                type="url"
+                value={url()}
+                max={500}
+                onInput={setUrl}
+              />
               <Field label={ctx().lt("article")} value={lawRef()} max={200} onInput={setLawRef} />
               <Field label={ctx().lt("version")} value={note()} max={300} onInput={setNote} />
               <div class="nsvx-dev__bar">
@@ -353,7 +367,11 @@ function Sources(props: { ctx: LegalCtx; caseRef: string }) {
                         )}
                       </Show>
                       <span class="nsvx-of__sub">
-                        {[row().law_ref, row().version_note, row().added_by === "ai" ? ctx().lt("byAi") : null]
+                        {[
+                          row().law_ref,
+                          row().version_note,
+                          row().added_by === "ai" ? ctx().lt("byAi") : null,
+                        ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
@@ -516,7 +534,9 @@ export function LegalAi(props: { ctx: LegalCtx; row: CaseDetail; reload: () => P
                       class="nsvx-of__row"
                       disabled={action.busy() || !canWrite()}
                       onClick={() =>
-                        entry()[0] === "responder" ? setResponding(!responding()) : prepare(entry()[0])
+                        entry()[0] === "responder"
+                          ? setResponding(!responding())
+                          : prepare(entry()[0])
                       }
                     >
                       <Icon name={ACTION_ICON[entry()[0]] ?? "bot"} />

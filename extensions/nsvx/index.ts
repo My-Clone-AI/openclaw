@@ -10,8 +10,8 @@ import { createNsvxGroupTool } from "./src/group-tool.js";
 import { createNsvxGrowTool } from "./src/grow.js";
 import { createNsvxLegalTool } from "./src/legal-tool.js";
 import { createNsvxMarketingTool } from "./src/marketing.js";
-import { createNsvxResearchTool } from "./src/research.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
+import { createNsvxResearchTool } from "./src/research.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
   createNsvxAgentsTool,

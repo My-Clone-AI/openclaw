@@ -102,6 +102,7 @@ const ICONS = {
   marketing: "M3 11v3l13 5V6zm13 1h2a3 3 0 0 0 0-6M7 15.5V19a2 2 0 0 0 4 0v-2",
   image: "M4 5h16v14H4zm0 11 5-5 4 4 2-2 5 5M15 9h.01",
   euro: "M17 5.5A7 7 0 1 0 17 18.5M4 10h9m-9 4h9",
+  trash: "M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3",
 } as const;
 
 export type IconName = keyof typeof ICONS;

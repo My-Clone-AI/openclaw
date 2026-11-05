@@ -247,13 +247,13 @@ async function runMarketing(
     case "accounts": {
       const { matrix } = await client.readOwnerView<MarketingChannels>("marketingChannels");
       return {
-        apps: safeSocialApps(matrix.apps).map((row) => ({
-          app: row.app,
-          ...socialCounts(row, matrix.networks),
-          connected: matrix.networks
-            .filter((network) => row.cells[network.code]?.status === "connected")
-            .map((network) => network.label),
-        })),
+        apps: safeSocialApps(matrix.apps).map((row) =>
+          Object.assign({ app: row.app }, socialCounts(row, matrix.networks), {
+            connected: matrix.networks
+              .filter((network) => row.cells[network.code]?.status === "connected")
+              .map((network) => network.label),
+          }),
+        ),
       };
     }
     case "report":

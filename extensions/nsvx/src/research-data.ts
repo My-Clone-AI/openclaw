@@ -42,12 +42,12 @@ export type ResearchSettings = {
   history: { id: number; source: string; at: string; value: ResearchSettingsValue }[];
 };
 
-const CLOSED = ["done", "cancelled", "failed"];
-const WAITING = ["failed", "stuck", "waiting_chatgpt_login"];
+const CLOSED = new Set(["done", "cancelled", "failed"]);
+const WAITING = new Set(["failed", "stuck", "waiting_chatgpt_login"]);
 
 export function researchActions(job: ResearchJob) {
   return {
-    retry: WAITING.includes(job.status),
+    retry: WAITING.has(job.status),
     cancel: !["done", "cancelled"].includes(job.status),
     send: Boolean(job.pdf) && !job.outbox_id && job.status !== "cancelled",
     resend:
@@ -55,7 +55,7 @@ export function researchActions(job: ResearchJob) {
       Boolean(job.pdf) &&
       Boolean(job.outbox_id) &&
       ["sent", "delivered"].includes(job.delivery_status),
-    rename: !job.outbox_id && !CLOSED.includes(job.status),
+    rename: !job.outbox_id && !CLOSED.has(job.status),
   };
 }
 
@@ -75,7 +75,16 @@ export function researchTone(status: string): ResearchTone {
 }
 
 /** The eight steps a job moves through, for the progress bar; off-path states keep the last known step. */
-const STEPS = ["detected", "prompt_ready", "submitted", "researching", "report_ready", "pdf_ready", "delivery_queued", "done"];
+const STEPS = [
+  "detected",
+  "prompt_ready",
+  "submitted",
+  "researching",
+  "report_ready",
+  "pdf_ready",
+  "delivery_queued",
+  "done",
+];
 export function researchProgress(job: Pick<ResearchJob, "status" | "events">): number {
   const seen = [...(job.events ?? []).map((event) => event.status), job.status];
   const reached = Math.max(-1, ...seen.map((status) => STEPS.indexOf(status)));

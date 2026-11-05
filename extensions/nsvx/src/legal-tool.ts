@@ -153,7 +153,8 @@ async function runLegal(
         cases: cases
           .filter(
             (row) =>
-              !needle || `${row.ref} ${row.title} ${row.respondent ?? ""}`.toLowerCase().includes(needle),
+              !needle ||
+              `${row.ref} ${row.title} ${row.respondent ?? ""}`.toLowerCase().includes(needle),
           )
           .slice(0, 50)
           .map(caseLine),
@@ -182,7 +183,10 @@ async function runLegal(
                 disputed,
               })),
             }
-          : { withheld: "Facts stay out of chat until the owner turns on the legal AI for this case." }),
+          : {
+              withheld:
+                "Facts stay out of chat until the owner turns on the legal AI for this case.",
+            }),
       };
     }
     case "suggestions": {
@@ -335,7 +339,12 @@ async function runLegal(
         status: "owner",
       });
     case "addFact":
-      return change({ action: "addFact", key: params.caseRef, text: params.title, status: "owner" });
+      return change({
+        action: "addFact",
+        key: params.caseRef,
+        text: params.title,
+        status: "owner",
+      });
     case "prepareAi":
       return change({
         action: "aiPrepare",

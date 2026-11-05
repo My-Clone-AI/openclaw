@@ -15,7 +15,8 @@ import {
 } from "./params.js";
 
 /** `PROC-2026-0001` or the case's id: the two forms NSVX accepts as a case key (`cases/api.py`). */
-const CASE_KEY = /^(?:PROC-\d{4}-\d{4}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+const CASE_KEY =
+  /^(?:PROC-\d{4}-\d{4}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 const CASE_STATUSES = ["open", "waiting_docs", "attention", "resolved", "archived"] as const;
 const NATURES = ["potential", "formal"] as const;
 const FACT_STATUSES = ["owner", "confirmed", "extracted", "disputed"] as const;
@@ -214,9 +215,14 @@ export function changeCase(client: NsvxClient, params: Params): Promise<unknown>
         case_id: uuid(params, "caseId"),
       });
     case "noteRemove":
-      return client.writeOwner("caseNoteRemove", uuid(params, "evidenceId"), {}, {
-        params: { item: uuid(params, "noteId") },
-      });
+      return client.writeOwner(
+        "caseNoteRemove",
+        uuid(params, "evidenceId"),
+        {},
+        {
+          params: { item: uuid(params, "noteId") },
+        },
+      );
     case "addObligation":
       return onCase("caseObligationAdd", {
         kind: text(params, "kind", 40),
@@ -502,6 +508,8 @@ export function registerLegalMethods(method: Register, client: NsvxClient) {
   method("nsvx.cases.change", "operator.write", (params) => changeCase(client, params));
   method("nsvx.cases.upload", "operator.write", async (params) => uploadProof(client, params));
   method("nsvx.cases.file", "operator.read", async (params) => caseFile(client, params));
-  method("nsvx.legalReview.change", "operator.write", (params) => changeLegalReview(client, params));
+  method("nsvx.legalReview.change", "operator.write", (params) =>
+    changeLegalReview(client, params),
+  );
   method("nsvx.procedures.change", "operator.write", (params) => changeProcedure(client, params));
 }

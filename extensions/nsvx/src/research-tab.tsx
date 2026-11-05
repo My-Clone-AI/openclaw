@@ -2,8 +2,8 @@
 import type { ControlUiHost } from "openclaw/plugin-sdk/control-ui";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { saveNsvxFile } from "./aviation-kit.js";
-import { ConfirmButton, createAction, Note, view, type Ctx } from "./device-kit.js";
 import type { DT } from "./device-i18n.js";
+import { ConfirmButton, createAction, Note, view, type Ctx } from "./device-kit.js";
 import { BrandLogo, every } from "./messages-ui.js";
 import { Choice, Field, Panel, Pill, Reveal, Toggle } from "./office-kit.js";
 import { IconButton } from "./people-ui.js";
@@ -38,7 +38,9 @@ function JobRow(props: { ctx: ResearchCtx; job: ResearchJob; onOpen: () => void 
           <Show when={props.job.reason}>
             <span class="nsvx-of__sub">{props.job.reason}</span>
           </Show>
-          <Show when={props.job.next_attempt_at && (props.job.reason || props.job.status === "stuck")}>
+          <Show
+            when={props.job.next_attempt_at && (props.job.reason || props.job.status === "stuck")}
+          >
             <span class="nsvx-of__sub">
               {props.ctx.rt("next")} · {stamp(props.job.next_attempt_at, props.ctx.locale)}
             </span>
@@ -286,7 +288,8 @@ function SettingsForm(props: {
   const state = createMemo(() =>
     deliveryState(value().enabled, saved().enabled, props.data.effective_enabled),
   );
-  const nameOf = (key: string) => props.data.contacts.find((choice) => choice.key === key)?.name ?? key;
+  const nameOf = (key: string) =>
+    props.data.contacts.find((choice) => choice.key === key)?.name ?? key;
   return (
     <form
       class="nsvx-of__form"
@@ -392,7 +395,11 @@ function SettingsPanel(props: { ctx: ResearchCtx }) {
   const ctx = () => props.ctx;
   const [account, setAccount] = createSignal("");
   const source = createSource(ctx().host, () =>
-    view<ResearchSettings>(ctx().host, "researchSettings", account() ? { account_id: account() } : {}),
+    view<ResearchSettings>(
+      ctx().host,
+      "researchSettings",
+      account() ? { account_id: account() } : {},
+    ),
   );
   void source.refresh();
   return (
@@ -405,9 +412,7 @@ function SettingsPanel(props: { ctx: ResearchCtx }) {
               value={account()}
               options={[
                 ["", ctx().rt("allAccounts")],
-                ...data().accounts.map(
-                  (row) => [row.id, `${row.label} · ${row.channel}`] as const,
-                ),
+                ...data().accounts.map((row) => [row.id, `${row.label} · ${row.channel}`] as const),
               ]}
               onChange={(next) => {
                 setAccount(next);
@@ -451,7 +456,9 @@ export function ResearchTab(props: {
     locale: props.locale,
     query: props.query,
   }));
-  const [opened, setOpened] = createSignal(new URLSearchParams(location.search).get("research") ?? "");
+  const [opened, setOpened] = createSignal(
+    new URLSearchParams(location.search).get("research") ?? "",
+  );
   const [completed, setCompleted] = createSignal(false);
   const source = createSource(props.host, () =>
     view<{ jobs: ResearchJob[] }>(props.host, "research", {

@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 import type { ControlUiHost } from "openclaw/plugin-sdk/control-ui";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { LegalReplyButton } from "./legal-reply.js";
 import {
   authorOf,
   canLegalReview,
@@ -15,7 +16,6 @@ import {
   type QuickReplyDraft,
 } from "./messages-data.js";
 import type { MessagesKey, MT } from "./messages-i18n.js";
-import { LegalReplyButton } from "./legal-reply.js";
 import { Avatar, every, ownerChange, Speak, waitForDraft } from "./messages-ui.js";
 import { createSource, Icon, SourceView, type T } from "./ui-kit.js";
 
@@ -171,7 +171,9 @@ function ReviewCard(props: {
             savedReview={props.item.payload?.legal_review_id}
             text={text()}
             disabled={
-              busy() || !props.host.connection.canWrite || Boolean(props.item.payload?.revision_pending)
+              busy() ||
+              !props.host.connection.canWrite ||
+              Boolean(props.item.payload?.revision_pending)
             }
             onChange={() => props.onDone({ text: props.mt("draftUpdated") })}
           />

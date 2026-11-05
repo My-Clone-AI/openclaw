@@ -8,7 +8,7 @@ import { Pill, type OfficeTone } from "./office-kit.js";
 import { errorMessage, Icon } from "./ui-kit.js";
 import "./office.css";
 
-const ACTIVE = ["queued", "running", "waiting_quota"];
+const ACTIVE = new Set(["queued", "running", "waiting_quota"]);
 const REVIEW_TONE: Record<string, OfficeTone> = {
   prepared: "warn",
   queued: "run",
@@ -63,12 +63,12 @@ export function LegalReplyButton(props: {
     });
   every(3_000, () => {
     const current = review();
-    if (open() && current && ACTIVE.includes(current.status)) {
+    if (open() && current && ACTIVE.has(current.status)) {
       void props.host
         .request<LegalReview>("nsvx.view", { view: "legalReview", params: { id: current.id } })
         .then((next) => {
           setReview(next);
-          if (!ACTIVE.includes(next.status)) {
+          if (!ACTIVE.has(next.status)) {
             props.onChange();
           }
         });
@@ -128,7 +128,9 @@ export function LegalReplyButton(props: {
                       .manifest.routing_chain.map((route) => `${route.model} (${route.effort})`)
                       .join(" → ")}
                   </p>
-                  <Show when={current().manifest.omitted_messages || current().manifest.warnings.length}>
+                  <Show
+                    when={current().manifest.omitted_messages || current().manifest.warnings.length}
+                  >
                     <p class="nsvx-of__warn">{lt()("contextLimits")}</p>
                   </Show>
                 </Show>
@@ -173,7 +175,7 @@ export function LegalReplyButton(props: {
                       {lt()("analyze")}
                     </button>
                   </Show>
-                  <Show when={ACTIVE.includes(current().status)}>
+                  <Show when={ACTIVE.has(current().status)}>
                     <button
                       type="button"
                       class="nsvx__button"
@@ -186,7 +188,12 @@ export function LegalReplyButton(props: {
                     </button>
                   </Show>
                   <Show when={["ready", "failed", "cancelled"].includes(current().status)}>
-                    <button type="button" class="nsvx__button" disabled={busy()} onClick={() => void run(prepare)}>
+                    <button
+                      type="button"
+                      class="nsvx__button"
+                      disabled={busy()}
+                      onClick={() => void run(prepare)}
+                    >
                       {lt()("newAnalysis")}
                     </button>
                   </Show>

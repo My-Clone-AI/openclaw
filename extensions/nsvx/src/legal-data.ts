@@ -2,6 +2,7 @@
 export type CaseStatus = "open" | "waiting_docs" | "attention" | "resolved" | "archived";
 export type Nature = "potential" | "formal";
 export type FactStatus = "confirmed" | "extracted" | "owner" | "ai_inference" | "disputed";
+export const FACT_CHOICES: FactStatus[] = ["owner", "confirmed", "extracted", "disputed"];
 export type SuggestionStatus = "new" | "reviewing" | "confirmed" | "rejected" | "converted";
 export type Coverage = "high" | "medium" | "low";
 export type DocStatus = "draft" | "reviewed" | "approved" | "signed" | "sent";
@@ -368,7 +369,10 @@ export type ProcedureDefinition = {
   outcome: string;
   inputs: Record<string, { type: string; example: string | number; required: boolean }>;
   preconditions?: string[];
-  plan: { steps: ({ type: string; purpose?: string } & Record<string, unknown>)[]; completion_criteria: string[] };
+  plan: {
+    steps: ({ type: string; purpose?: string } & Record<string, unknown>)[];
+    completion_criteria: string[];
+  };
   trigger: {
     type: string;
     timezone?: string;
@@ -510,10 +514,15 @@ export function shortStamp(iso: string | null | undefined, locale: string): stri
 /** Whole days from today (Lisbon) to a date: negative is past. */
 export function daysUntil(iso: string, now = new Date()): number {
   const today = now.toLocaleDateString("en-CA", { timeZone: "Europe/Lisbon" });
-  return Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000);
+  return Math.round(
+    (Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000,
+  );
 }
 
-export function dueTone(deadline: { due_date: string | null; status?: string }, now = new Date()): Tone {
+export function dueTone(
+  deadline: { due_date: string | null; status?: string },
+  now = new Date(),
+): Tone {
   if (deadline.status && deadline.status !== "open") {
     return "off";
   }

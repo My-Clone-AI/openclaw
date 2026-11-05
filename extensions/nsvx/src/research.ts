@@ -51,7 +51,16 @@ export function registerResearchMethods(method: Register, client: NsvxClient) {
   );
 }
 
-const ACTIONS = ["list", "read", "settings", "retry", "cancel", "name", "send", "autoDelivery"] as const;
+const ACTIONS = [
+  "list",
+  "read",
+  "settings",
+  "retry",
+  "cancel",
+  "name",
+  "send",
+  "autoDelivery",
+] as const;
 
 type ResearchToolParams = {
   action: (typeof ACTIONS)[number];
@@ -167,7 +176,8 @@ async function runResearch(
     case "autoDelivery":
       return {
         needsOwner: true,
-        message: "Delivery reaches other people: the owner does this in Control, on the Research tab.",
+        message:
+          "Delivery reaches other people: the owner does this in Control, on the Research tab.",
       };
   }
   throw new NsvxError("invalid", "Unknown action.");

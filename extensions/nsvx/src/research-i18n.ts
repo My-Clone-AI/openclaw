@@ -184,7 +184,8 @@ const STATES: Record<string, [string, string, string]> = {
 const lang = (locale: string) => locale.toLowerCase().split("-")[0] ?? "en";
 
 export function researchTranslator(locale: string): RT {
-  const catalog = ({ en, pt, es } as Record<string, Record<ResearchKey, string>>)[lang(locale)] ?? en;
+  const catalog =
+    ({ en, pt, es } as Record<string, Record<ResearchKey, string>>)[lang(locale)] ?? en;
   return (key) => catalog[key];
 }
 

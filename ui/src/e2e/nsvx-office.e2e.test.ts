@@ -106,7 +106,10 @@ const detail = {
   ],
 };
 const vocab = {
-  categories: { renda: { group: "Imóveis", label: "Rendas" }, tvde: { group: "TVDE", label: "Aluguer" } },
+  categories: {
+    renda: { group: "Imóveis", label: "Rendas" },
+    tvde: { group: "TVDE", label: "Aluguer" },
+  },
   priority: { normal: "Normal", high: "Alta", urgent: "Urgente" },
   party_roles: { respondent: "Requerido", claimant: "Requerente" },
   folders: { "01": "Contratos", "03": "Pagamentos" },
@@ -259,8 +262,21 @@ const manifest = {
   destination: "Subscrição Claude",
   web_search: false,
   items: [
-    { evidence_id: uuid(21), code: "P1", name: "contrato.pdf", included: true, reason: null, chars: 9000 },
-    { evidence_id: uuid(22), code: "P2", name: "folha-rendas.xlsx", included: false, reason: "Confidencial" },
+    {
+      evidence_id: uuid(21),
+      code: "P1",
+      name: "contrato.pdf",
+      included: true,
+      reason: null,
+      chars: 9000,
+    },
+    {
+      evidence_id: uuid(22),
+      code: "P2",
+      name: "folha-rendas.xlsx",
+      included: false,
+      reason: "Confidencial",
+    },
   ],
   facts: 1,
   ledger: true,
@@ -283,9 +299,18 @@ const aiRun = {
 const aiState = {
   ai_allowed: true,
   lane,
-  actions: { analisar: "Analisar processo", legislacao: "Pesquisar legislação", responder: "Responder" },
+  actions: {
+    analisar: "Analisar processo",
+    legislacao: "Pesquisar legislação",
+    responder: "Responder",
+  },
   runs: [
-    { ...aiRun, id: uuid(62), status: "done", output: "Falta confirmar a transferência de setembro." },
+    {
+      ...aiRun,
+      id: uuid(62),
+      status: "done",
+      output: "Falta confirmar a transferência de setembro.",
+    },
   ],
 };
 const document = {
@@ -315,11 +340,22 @@ const procedure = {
     outcome: "Recibos arquivados",
     inputs: { mes: { type: "text", example: "outubro", required: true } },
     preconditions: [],
-    plan: { steps: [{ type: "message", purpose: "Pedir" }, { type: "document_file" }], completion_criteria: ["Recibo na Drive"] },
+    plan: {
+      steps: [{ type: "message", purpose: "Pedir" }, { type: "document_file" }],
+      completion_criteria: ["Recibo na Drive"],
+    },
     trigger: { type: "manual" },
     limits: { max_attempts: 3 },
   },
-  runs: [{ id: uuid(82), version: 2, state: "uncertain", reason: "Envio por confirmar", created_at: ago(30) }],
+  runs: [
+    {
+      id: uuid(82),
+      version: 2,
+      state: "uncertain",
+      reason: "Envio por confirmar",
+      created_at: ago(30),
+    },
+  ],
   versions: [{ version: 2, created_at: ago(30) }],
 };
 const job = {
@@ -357,7 +393,13 @@ const stuck = {
   requester: { ...job.requester, name: "Outra Pessoa", channel: "telegram" },
 };
 const researchSettings = {
-  setting: { enabled: true, mode: "blocklist", contacts: ["identity:1"], revision: 3, account_scope: "owner" },
+  setting: {
+    enabled: true,
+    mode: "blocklist",
+    contacts: ["identity:1"],
+    revision: 3,
+    account_scope: "owner",
+  },
   requested_scope: "owner",
   environment: "development",
   effective_enabled: false,
@@ -368,7 +410,12 @@ const researchSettings = {
     { key: "identity:2", name: "Rui" },
   ],
   history: [
-    { id: 1, source: "Pesquisas settings", at: ago(500), value: { enabled: true, mode: "blocklist", contacts: ["identity:1"] } },
+    {
+      id: 1,
+      source: "Pesquisas settings",
+      at: ago(500),
+      value: { enabled: true, mode: "blocklist", contacts: ["identity:1"] },
+    },
   ],
 };
 const marketing = {
@@ -382,7 +429,10 @@ const marketing = {
     slots: 8,
     active_jobs: 2,
     paused_campaigns: 1,
-    worker: { configured: true, health: { ok: true, admission: "ready", models: { image: "FLUX.3", video: "LTX 2.5" } } },
+    worker: {
+      configured: true,
+      health: { ok: true, admission: "ready", models: { image: "FLUX.3", video: "LTX 2.5" } },
+    },
   },
   gate: {
     live_allowed: false,
@@ -413,7 +463,17 @@ const marketing = {
         job_id: "j1",
         job_state: "done",
       },
-      { id: "s2", app_id: "openxxx", slot: ago(0), state: "planned", content_id: null, kind: null, caption: "hidden-adult", job_id: null, job_state: null },
+      {
+        id: "s2",
+        app_id: "openxxx",
+        slot: ago(0),
+        state: "planned",
+        content_id: null,
+        kind: null,
+        caption: "hidden-adult",
+        job_id: null,
+        job_state: null,
+      },
     ],
   },
   channels: {
@@ -427,7 +487,12 @@ const marketing = {
         {
           app: "openfly",
           cells: {
-            instagram: { status: "connected", account_handle: "@openfly", publish_mode: "dry_run", last_ok_at: ago(30) },
+            instagram: {
+              status: "connected",
+              account_handle: "@openfly",
+              publish_mode: "dry_run",
+              last_ok_at: ago(30),
+            },
             x: { status: "pending", setup_steps_done: 2, setup_steps_total: 4 },
             tumblr: { status: "failed", blocked_label: "Token expirado" },
           },
@@ -453,10 +518,7 @@ async function capture(page: Page, surface: Locator, name: string, ready: Locato
       viewport,
       ...(ready[0] ? { scrollTo: ready[0] } : {}),
     });
-    await writeFile(
-      path.join(suite.artifactDir, `nsvx-${name}-${viewport.width}.png`),
-      frame.png,
-    );
+    await writeFile(path.join(suite.artifactDir, `nsvx-${name}-${viewport.width}.png`), frame.png);
   }
   await page.setViewportSize(desktop);
 }
@@ -475,19 +537,46 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
           { match: { view: "cases" }, response: { cases: [caseRow] } },
           {
             match: { view: "caseSuggestions" },
-            response: { suggestions: [suggestion], last_run: { at: ago(600) }, bank_coverage: coverage },
+            response: {
+              suggestions: [suggestion],
+              last_run: { at: ago(600) },
+              bank_coverage: coverage,
+            },
           },
           {
             match: { view: "caseSettings" },
-            response: { attention_days: 30, discovery_enabled: true, bank_coverage: coverage, ai: lane },
+            response: {
+              attention_days: 30,
+              discovery_enabled: true,
+              bank_coverage: coverage,
+              ai: lane,
+            },
           },
           { match: { view: "case" }, response: detail },
           {
             match: { view: "caseTimeline" },
             response: {
               events: [
-                { id: uuid(14), date: "2026-09-08", precision: "day", title: "Renda não paga", status: "owner", evidence_ids: [], codes: ["P1"], auto: false },
-                { id: uuid(15), date: null, precision: "unknown", title: "Contrato assinado", status: "extracted", evidence_ids: [], codes: [], auto: true },
+                {
+                  id: uuid(14),
+                  date: "2026-09-08",
+                  precision: "day",
+                  title: "Renda não paga",
+                  status: "owner",
+                  evidence_ids: [],
+                  codes: ["P1"],
+                  auto: false,
+                },
+                {
+                  id: uuid(15),
+                  date: null,
+                  precision: "unknown",
+                  title: "Contrato assinado",
+                  status: "extracted",
+                  evidence_ids: [],
+                  codes: [],
+                  auto: true,
+                },
               ],
             },
           },
@@ -504,7 +593,10 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
           },
           { match: { view: "caseProofPage" }, response: PAGE },
           { match: { view: "caseProofPages" }, response: { pages: 2, mime: "application/pdf" } },
-          { match: { view: "caseProofText" }, response: { pages: [{ ref: "p. 1", text: "Renda mensal de 650 €" }] } },
+          {
+            match: { view: "caseProofText" },
+            response: { pages: [{ ref: "p. 1", text: "Renda mensal de 650 €" }] },
+          },
           {
             match: { view: "caseProof" },
             response: {
@@ -518,7 +610,16 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
             match: { view: "caseBank" },
             response: {
               candidates: [
-                { id: 77, date: "2026-10-08", amount: "650.00", counterparty: "Inquilino", description: "TRF", account: "CGD", reasons: ["nome"], used_in: null },
+                {
+                  id: 77,
+                  date: "2026-10-08",
+                  amount: "650.00",
+                  counterparty: "Inquilino",
+                  description: "TRF",
+                  account: "CGD",
+                  reasons: ["nome"],
+                  used_in: null,
+                },
               ],
               coverage,
             },
@@ -531,8 +632,24 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
             match: { view: "caseResearch" },
             response: {
               research: [
-                { id: uuid(17), title: "Código Civil, art. 1041", url: "https://dre.example/cc", law_ref: "art. 1041", version_note: null, verified: false, added_by: "ai" },
-                { id: uuid(18), title: "Fonte sem ligação segura", url: "javascript:alert(1)", law_ref: null, version_note: null, verified: true, added_by: "owner" },
+                {
+                  id: uuid(17),
+                  title: "Código Civil, art. 1041",
+                  url: "https://dre.example/cc",
+                  law_ref: "art. 1041",
+                  version_note: null,
+                  verified: false,
+                  added_by: "ai",
+                },
+                {
+                  id: uuid(18),
+                  title: "Fonte sem ligação segura",
+                  url: "javascript:alert(1)",
+                  law_ref: null,
+                  version_note: null,
+                  verified: true,
+                  added_by: "owner",
+                },
               ],
               official_sources: [{ name: "Diário da República", url: "https://dre.example" }],
             },
@@ -541,12 +658,31 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
             match: { view: "caseDeadlines" },
             response: {
               deadlines: [
-                { id: uuid(31), title: "Enviar carta", kind: "task", due_date: "2026-12-01", verified: false, basis: null, status: "open" },
-                { id: uuid(32), title: "Prazo de oposição", kind: "legal_deadline", due_date: null, verified: false, basis: null, status: "open" },
+                {
+                  id: uuid(31),
+                  title: "Enviar carta",
+                  kind: "task",
+                  due_date: "2026-12-01",
+                  verified: false,
+                  basis: null,
+                  status: "open",
+                },
+                {
+                  id: uuid(32),
+                  title: "Prazo de oposição",
+                  kind: "legal_deadline",
+                  due_date: null,
+                  verified: false,
+                  basis: null,
+                  status: "open",
+                },
               ],
             },
           },
-          { match: { view: "caseExports" }, response: { exports: [], pending: false, last_error: null } },
+          {
+            match: { view: "caseExports" },
+            response: { exports: [], pending: false, last_error: null },
+          },
           {
             match: { view: "caseHistory" },
             response: { history: [{ at: ago(10), actor: "owner", action: "case.updated" }] },
@@ -556,11 +692,21 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
           { match: { view: "missions" }, response: [] },
           {
             match: { view: "procedureRun" },
-            response: { ...procedure.runs[0], steps: [{ id: "s1", type: "message", state: "uncertain" }] },
+            response: {
+              ...procedure.runs[0],
+              steps: [{ id: "s1", type: "message", state: "uncertain" }],
+            },
           },
           {
             match: { view: "procedureReconcile" },
-            response: { steps_total: 2, steps_done: 1, partial: true, uncertain: true, can_resume: false, resume_blocker: "Confirmar o envio primeiro" },
+            response: {
+              steps_total: 2,
+              steps_done: 1,
+              partial: true,
+              uncertain: true,
+              can_resume: false,
+              resume_blocker: "Confirmar o envio primeiro",
+            },
           },
           { match: { view: "research" }, response: { jobs: [job, stuck] } },
           { match: { view: "researchJob" }, response: job },
@@ -592,13 +738,23 @@ async function mount(page: Page, query: string, overrides: Record<string, unknow
       "nsvx.research.file": { fileName: "estudo.pdf", mime: "application/pdf", data: "JVBERi0=" },
       "nsvx.marketing.change": {
         cases: [
-          { match: { action: "preview" }, response: { ok: true, body: "Voos baratos #openfly", codes: [] } },
-          { match: { action: "generate" }, response: { id: "j9", state: "queued", app_id: "openfly", content_id: "c9" } },
+          {
+            match: { action: "preview" },
+            response: { ok: true, body: "Voos baratos #openfly", codes: [] },
+          },
+          {
+            match: { action: "generate" },
+            response: { id: "j9", state: "queued", app_id: "openfly", content_id: "c9" },
+          },
           { match: { action: "publish" }, response: { state: "dry_run" } },
         ],
       },
       "nsvx.marketing.gate": { live_allowed: false, killed: true, dry_run: true },
-      "nsvx.marketing.inventory": { fileName: "social-accounts-inventory.md", mime: "text/markdown", data: "IyBB" },
+      "nsvx.marketing.inventory": {
+        fileName: "social-accounts-inventory.md",
+        mime: "text/markdown",
+        data: "IyBB",
+      },
       ...overrides,
     },
   });
@@ -627,8 +783,11 @@ suite.define(() => {
         await surface.getByRole("button", { name: "Look", exact: true }).click();
         await surface.getByText("Sem pagamento depois de agosto.").waitFor();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "suggestionStatus" } }))
-            .params,
+          (
+            await gateway.waitForRequest("nsvx.cases.change", {
+              match: { action: "suggestionStatus" },
+            })
+          ).params,
         ).toMatchObject({ id: uuid(41), status: "reviewing" });
 
         await surface.getByRole("button", { name: "New", exact: true }).click();
@@ -636,8 +795,13 @@ suite.define(() => {
         await surface.getByRole("button", { name: "Rendas" }).click();
         await surface.getByRole("button", { name: "Create", exact: true }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "create" } })).params,
-        ).toMatchObject({ title: "Caução por devolver", categories: ["renda"], nature: "potential" });
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "create" } }))
+            .params,
+        ).toMatchObject({
+          title: "Caução por devolver",
+          categories: ["renda"],
+          nature: "potential",
+        });
         await surface.getByRole("radio", { name: "Timeline" }).waitFor();
         expect(pageErrors).toEqual([]);
       },
@@ -658,7 +822,8 @@ suite.define(() => {
         await capture(page, surface, "legal-summary", [fact]);
         await surface.getByRole("switch", { name: "Legal hold (keep evidence)" }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "update" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "update" } }))
+            .params,
         ).toMatchObject({ key: REF, revision: 4, legal_hold: false });
 
         await section("Timeline");
@@ -715,7 +880,8 @@ suite.define(() => {
         await surface.getByRole("button", { name: "From bank" }).click();
         await surface.getByRole("button", { name: "Link", exact: true }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "addPayment" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "addPayment" } }))
+            .params,
         ).toMatchObject({ amount: "650.00", finance_tx_id: 77, verified: true });
 
         await section("Documents");
@@ -727,7 +893,8 @@ suite.define(() => {
         await surface.getByText("Keep").waitFor();
         await surface.getByRole("button", { name: /Only records it/ }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "docStatus" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "docStatus" } }))
+            .params,
         ).toMatchObject({ documentId: uuid(71), status: "sent" });
         await surface.getByRole("button", { name: "Back", exact: true }).last().click();
 
@@ -737,7 +904,8 @@ suite.define(() => {
         await capture(page, surface, "legal-deadlines", [deadline]);
         await surface.getByRole("checkbox", { name: "Enviar carta" }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "setDeadline" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "setDeadline" } }))
+            .params,
         ).toMatchObject({ deadlineId: uuid(31), status: "done" });
 
         await section("History");
@@ -758,13 +926,18 @@ suite.define(() => {
         await surface.getByText("Falta confirmar a transferência de setembro.").waitFor();
         // The answer takes real height, or it reads as blank.
         expect(
-          await surface.locator(".nsvx-of__mono").first().evaluate((node) => node.clientHeight),
+          await surface
+            .locator(".nsvx-of__mono")
+            .first()
+            .evaluate((node) => node.clientHeight),
         ).toBeGreaterThan(30);
         await capture(page, surface, "legal-ai", [action]);
         // A law source with an unsafe address stays plain text.
         await surface.getByRole("link", { name: "Código Civil, art. 1041" }).waitFor();
         await surface.getByText("Fonte sem ligação segura").waitFor();
-        expect(await surface.getByRole("link", { name: "Fonte sem ligação segura" }).count()).toBe(0);
+        expect(await surface.getByRole("link", { name: "Fonte sem ligação segura" }).count()).toBe(
+          0,
+        );
 
         await action.click();
         const authorize = surface.getByRole("button", { name: "Authorize" });
@@ -772,11 +945,13 @@ suite.define(() => {
         await surface.getByText("Confidencial").waitFor();
         await capture(page, surface, "legal-ai-consent", [authorize]);
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "aiPrepare" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "aiPrepare" } }))
+            .params,
         ).toMatchObject({ key: REF, ai: "analisar" });
         await authorize.click();
         expect(
-          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "aiAuthorize" } })).params,
+          (await gateway.waitForRequest("nsvx.cases.change", { match: { action: "aiAuthorize" } }))
+            .params,
         ).toEqual({ action: "aiAuthorize", runId: uuid(61), manifest_sha256: HASH });
       },
     );
@@ -793,13 +968,17 @@ suite.define(() => {
         await capture(page, surface, "legal-procedures", [row]);
         await row.click();
         await surface.getByRole("button", { name: "Run", exact: true }).click();
-        const run = await gateway.waitForRequest("nsvx.procedures.change", { match: { action: "run" } });
+        const run = await gateway.waitForRequest("nsvx.procedures.change", {
+          match: { action: "run" },
+        });
         expect(run.params).toMatchObject({ id: uuid(81), version: 2, inputs: { mes: "outubro" } });
         expect((run.params as { clientKey: string }).clientKey).toMatch(/^[0-9a-f-]{36}$/);
         await surface.getByRole("button", { name: /To confirm/ }).click();
         await surface.getByText("Confirmar o envio primeiro").waitFor();
         expect(await surface.getByRole("button", { name: "Resume" }).count()).toBe(0);
-        await capture(page, surface, "legal-procedure", [surface.getByText("Confirmar o envio primeiro")]);
+        await capture(page, surface, "legal-procedure", [
+          surface.getByText("Confirmar o envio primeiro"),
+        ]);
       },
     );
   });
@@ -820,12 +999,20 @@ suite.define(() => {
         await surface.getByRole("button", { name: "Settings" }).click();
         await surface.getByRole("switch", { name: /Automatic delivery/ }).waitFor();
         await surface.getByText(/Nothing sends here/).waitFor();
-        await capture(page, surface, "research-settings", [surface.getByText(/Nothing sends here/)]);
+        await capture(page, surface, "research-settings", [
+          surface.getByText(/Nothing sends here/),
+        ]);
         await surface.getByRole("switch", { name: "Rui" }).click();
         await surface.getByRole("button", { name: "Save", exact: true }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.research.change", { match: { action: "settings" } })).params,
-        ).toMatchObject({ enabled: true, mode: "blocklist", contacts: ["identity:1", "identity:2"], accountId: null });
+          (await gateway.waitForRequest("nsvx.research.change", { match: { action: "settings" } }))
+            .params,
+        ).toMatchObject({
+          enabled: true,
+          mode: "blocklist",
+          contacts: ["identity:1", "identity:2"],
+          accountId: null,
+        });
         await surface.getByRole("button", { name: "Settings" }).click();
 
         await row.click();
@@ -836,10 +1023,13 @@ suite.define(() => {
         await send.click();
         await surface.getByRole("button", { name: "Send to this person?" }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.research.change", { match: { action: "send" } })).params,
+          (await gateway.waitForRequest("nsvx.research.change", { match: { action: "send" } }))
+            .params,
         ).toEqual({ action: "send", id: uuid(91) });
         await surface.getByRole("button", { name: /PDF · 12 pages/ }).click();
-        expect((await gateway.waitForRequest("nsvx.research.file")).params).toEqual({ id: uuid(91) });
+        expect((await gateway.waitForRequest("nsvx.research.file")).params).toEqual({
+          id: uuid(91),
+        });
         expect(pageErrors).toEqual([]);
       },
     );
@@ -878,7 +1068,8 @@ suite.define(() => {
         await surface.getByText("Voos baratos #openfly").waitFor();
         await create.click();
         expect(
-          (await gateway.waitForRequest("nsvx.marketing.change", { match: { action: "generate" } })).params,
+          (await gateway.waitForRequest("nsvx.marketing.change", { match: { action: "generate" } }))
+            .params,
         ).toMatchObject({ app: "openfly", kind: "image", brief: "Voos baratos" });
         const publish = surface.getByRole("button", { name: "Publish", exact: true });
         await publish.waitFor();
@@ -886,7 +1077,8 @@ suite.define(() => {
         await publish.click();
         await surface.getByRole("button", { name: "Publish now?" }).click();
         expect(
-          (await gateway.waitForRequest("nsvx.marketing.change", { match: { action: "publish" } })).params,
+          (await gateway.waitForRequest("nsvx.marketing.change", { match: { action: "publish" } }))
+            .params,
         ).toEqual({ action: "publish", contentId: "c9" });
 
         await section("Calendar");
@@ -903,7 +1095,9 @@ suite.define(() => {
         await cell.click();
         await surface.getByText("@openfly").waitFor();
         await surface.getByRole("button", { name: "MD", exact: true }).click();
-        expect((await gateway.waitForRequest("nsvx.marketing.inventory")).params).toEqual({ format: "md" });
+        expect((await gateway.waitForRequest("nsvx.marketing.inventory")).params).toEqual({
+          format: "md",
+        });
 
         await section("Report");
         const report = surface.getByText("Attempts");
@@ -920,7 +1114,10 @@ suite.define(() => {
       async ({ page }) => {
         await mount(page, "tab=legal", {
           "nsvx.view": {
-            __mockError: { code: "unconfigured", message: "NSVX owner sign-in is not set up on this Gateway." },
+            __mockError: {
+              code: "unconfigured",
+              message: "NSVX owner sign-in is not set up on this Gateway.",
+            },
           },
         });
         const surface = page.locator(".nsvx");
@@ -951,7 +1148,9 @@ suite.define(() => {
           await mount(page, query);
           await page.locator(".nsvx").getByText(ready).first().waitFor();
           const overflow = await page.evaluate(
-            () => document.querySelector(".nsvx")!.scrollWidth - document.querySelector(".nsvx")!.clientWidth,
+            () =>
+              document.querySelector(".nsvx")!.scrollWidth -
+              document.querySelector(".nsvx")!.clientWidth,
           );
           expect(overflow, query).toBeLessThanOrEqual(1);
         }

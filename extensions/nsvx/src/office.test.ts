@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createNsvxClient } from "./client.js";
-import { filterCases, proofHasPages, sheetPickable, type CaseRow, type Evidence } from "./legal-data.js";
+import {
+  filterCases,
+  proofHasPages,
+  sheetPickable,
+  type CaseRow,
+  type Evidence,
+} from "./legal-data.js";
 import { LEGAL_KEYS, legalTranslator } from "./legal-i18n.js";
 import { createNsvxLegalTool } from "./legal-tool.js";
 import { caseFile, changeCase, changeLegalReview, changeProcedure, uploadProof } from "./legal.js";
@@ -74,7 +80,7 @@ describe("legal changes", () => {
     const [write] = double.writes();
     expect(double.route(write)).toBe(`PATCH /api/cases/${CASE}`);
     expect(double.body(write)).toEqual({ revision: 7, status: "attention", ai_allowed: false });
-    expect((write?.init.headers as Record<string, string>)["X-CSRF-Token"]).toBe("csrf-1");
+    expect(write?.init.headers).toMatchObject({ "X-CSRF-Token": "csrf-1" });
   });
 
   it("refuses a case key or status NSVX would not know, before any request", () => {
@@ -111,7 +117,7 @@ describe("legal changes", () => {
     });
     const [write] = double.writes();
     expect(double.route(write)).toBe(`POST /api/cases/${CASE}/evidence/upload`);
-    expect((write?.init.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
+    expect(write?.init.headers ?? {}).not.toHaveProperty("Content-Type");
     const form = write?.init.body as FormData;
     expect(form.get("folder")).toBe("03");
     expect(await (form.get("files") as File).text()).toBe("pdf");
@@ -192,19 +198,23 @@ describe("nsvx_legal", () => {
     const on = nsvx({
       [`GET /api/cases/${CASE}`]: () => json(200, { ...caseRow, ai_allowed: true }),
     });
-    expect(toolText(await tool(on.client).execute("c", { action: "case", caseRef: CASE }))).toContain(
-      "SECRET FACT",
-    );
+    expect(
+      toolText(await tool(on.client).execute("c", { action: "case", caseRef: CASE })),
+    ).toContain("SECRET FACT");
   });
 
   it("lists evidence by name only, never its text", async () => {
     const double = nsvx({
       [`GET /api/cases/${CASE}/evidence`]: () =>
         json(200, {
-          evidence: [{ id: ID, code: "P1", name: "contrato.pdf", description: "SECRET", note: "SECRET" }],
+          evidence: [
+            { id: ID, code: "P1", name: "contrato.pdf", description: "SECRET", note: "SECRET" },
+          ],
         }),
     });
-    const text = toolText(await tool(double.client).execute("c", { action: "evidence", caseRef: CASE }));
+    const text = toolText(
+      await tool(double.client).execute("c", { action: "evidence", caseRef: CASE }),
+    );
     expect(text).toContain("contrato.pdf");
     expect(text).not.toContain("SECRET");
   });
@@ -220,7 +230,11 @@ describe("nsvx_legal", () => {
         }),
     });
     const text = toolText(
-      await tool(double.client).execute("c", { action: "prepareAi", caseRef: CASE, ai: "analisar" }),
+      await tool(double.client).execute("c", {
+        action: "prepareAi",
+        caseRef: CASE,
+        ai: "analisar",
+      }),
     );
     expect(text).toContain("needsOwner");
     expect(double.writes().map(double.route)).toEqual([`POST /api/cases/${CASE}/ai/prepare`]);
@@ -251,7 +265,8 @@ describe("research", () => {
     expect(researchActions(job({ status: "pdf_ready", pdf })).send).toBe(true);
     expect(researchActions(job({ status: "pdf_ready", pdf, outbox_id: ID })).send).toBe(false);
     expect(
-      researchActions(job({ pdf, outbox_id: ID, delivery_status: "delivered", status: "done" })).resend,
+      researchActions(job({ pdf, outbox_id: ID, delivery_status: "delivered", status: "done" }))
+        .resend,
     ).toBe(true);
     expect(researchActions(job({ status: "done" })).cancel).toBe(false);
     expect(researchActions(job({ outbox_id: ID })).rename).toBe(false);
@@ -265,9 +280,14 @@ describe("research", () => {
       researchProgress(job({ status: "submitted" })),
     );
     expect(
-      contactChoices([{ key: "a", name: "Ana" }, { key: "b", name: "Rui" }], "ru", ["a"]).map(
-        (row) => row.key,
-      ),
+      contactChoices(
+        [
+          { key: "a", name: "Ana" },
+          { key: "b", name: "Rui" },
+        ],
+        "ru",
+        ["a"],
+      ).map((row) => row.key),
     ).toEqual(["a", "b"]);
   });
 
@@ -302,7 +322,9 @@ describe("research", () => {
       expect(toolText(await tool.execute("c", { action, id: ID }))).toContain("needsOwner");
     }
     expect(double.writes()).toHaveLength(0);
-    expect(toolText(await tool.execute("c", { action: "read", id: ID }))).toContain("untrustedRequest");
+    expect(toolText(await tool.execute("c", { action: "read", id: ID }))).toContain(
+      "untrustedRequest",
+    );
     expect(
       toolText(
         await createNsvxResearchTool(double.client, { senderIsOwner: false }).execute("c", {
@@ -315,7 +337,11 @@ describe("research", () => {
 
 describe("marketing", () => {
   it("keeps adult apps out of every list and refuses them as a target", () => {
-    const slots = [{ app_id: "openlove" }, { app_id: "openxxx" }, { app_id: "openfly" }] as MarketingSlot[];
+    const slots = [
+      { app_id: "openlove" },
+      { app_id: "openxxx" },
+      { app_id: "openfly" },
+    ] as MarketingSlot[];
     expect(safeSlots(slots).map((row) => row.app_id)).toEqual(["openfly"]);
     expect(
       safeActivations([
@@ -372,17 +398,32 @@ describe("marketing", () => {
 
 describe("legal screen helpers", () => {
   const row = (more: Partial<CaseRow>) =>
-    ({ ref: "PROC-1", title: "Renda João", respondent: null, categories: [], status: "open", evidence_attention: 0, ...more }) as CaseRow;
+    ({
+      ref: "PROC-1",
+      title: "Renda João",
+      respondent: null,
+      categories: [],
+      status: "open",
+      evidence_attention: 0,
+      ...more,
+    }) as CaseRow;
 
   it("finds cases without accents and by what needs a look", () => {
-    const rows = [row({}), row({ ref: "PROC-2", title: "Carro", status: "attention", categories: ["tvde"] })];
+    const rows = [
+      row({}),
+      row({ ref: "PROC-2", title: "Carro", status: "attention", categories: ["tvde"] }),
+    ];
     expect(filterCases(rows, { query: "joao", category: "", attention: false })).toHaveLength(1);
     expect(filterCases(rows, { query: "", category: "tvde", attention: false })).toHaveLength(1);
     expect(filterCases(rows, { query: "", category: "", attention: true })[0]?.ref).toBe("PROC-2");
   });
 
   it("asks for a page only when NSVX can still read the source", () => {
-    const proof = { previewable: true, source_state: "current", extraction_state: "extracted" } as Evidence;
+    const proof = {
+      previewable: true,
+      source_state: "current",
+      extraction_state: "extracted",
+    } as Evidence;
     expect(proofHasPages(proof)).toBe(true);
     expect(proofHasPages({ ...proof, source_state: "removed" })).toBe(false);
   });
