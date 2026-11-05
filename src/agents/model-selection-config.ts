@@ -7,6 +7,11 @@ import {
   resolveAgentModelFallbacksOverride,
   resolveSubagentSpawnModelFallbacksOverride,
 } from "./agent-scope.js";
+import {
+  BRAIN_MODEL_ID,
+  BRAIN_MODEL_PROVIDER,
+  isBrainAgentId,
+} from "./brain-agent-model-default.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
 import type { ModelFallbackAvailability } from "./model-fallback.types.js";
 import type { ModelManifestNormalizationContext, ModelRef } from "./model-ref-shared.js";
@@ -20,6 +25,9 @@ export function resolveDefaultModelForAgent(
     allowPluginNormalization?: boolean;
   } & ModelManifestNormalizationContext,
 ): ModelRef {
+  if (isBrainAgentId(params.agentId)) {
+    return { provider: BRAIN_MODEL_PROVIDER, model: BRAIN_MODEL_ID };
+  }
   return resolveConfiguredModelRef({
     ...params,
     defaultProvider: DEFAULT_PROVIDER,

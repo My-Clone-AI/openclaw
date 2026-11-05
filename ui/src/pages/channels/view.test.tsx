@@ -213,15 +213,18 @@ describe("channels setup access", () => {
     );
     const container = renderHub(props);
 
-    const availableLabels = texts(container, ".channels-item__detail .settings-row__title");
+    const availableGrid = container.querySelectorAll(".channel-grid")[1]!;
+    const availableLabels = texts(availableGrid, ".channels-item__detail .settings-row__title");
     expect(availableLabels).toEqual([
-      "whatsapp",
-      "telegram",
-      "discord",
-      "googlechat",
-      "signal",
-      "imessage",
-      "nostr",
+      "Gmail",
+      "WhatsApp",
+      "Telegram",
+      "Instagram",
+      "Discord",
+      "Google Chat",
+      "Signal",
+      "iMessage",
+      "Nostr",
     ]);
   });
 
@@ -235,7 +238,7 @@ describe("channels setup access", () => {
     expect(container.textContent).toContain(
       "You can view channels, but only admins can change them.",
     );
-    expect(texts(container, "button")).not.toContain("Set up");
+    expect(texts(container, "button")).not.toContain("Add");
     expect(container.textContent).not.toContain("More channels…");
     expect(onStartSetup).not.toHaveBeenCalled();
   });
@@ -312,7 +315,7 @@ describe("channel status issues", () => {
   }
 
   function findChannelRow(container: HTMLElement, label: string) {
-    return Array.from(container.querySelectorAll<HTMLButtonElement>("button.channels-item")).find(
+    return Array.from(container.querySelectorAll<HTMLElement>(".channels-item")).find(
       (row) => row.querySelector(".settings-row__title")?.textContent === label,
     )!;
   }
@@ -352,7 +355,7 @@ describe("channel status issues", () => {
     expect(text(findChannelRow(container, "Slack"), ".settings-status")).toBe("Running");
     expect(container.textContent).not.toContain("Some channel checks did not finish");
 
-    discord.click();
+    discord.querySelector<HTMLButtonElement>(".channels-item__detail")!.click();
 
     const detail = container.querySelector(".channels-detail")!;
     const notices = detail.querySelectorAll('[role="note"]');
@@ -782,9 +785,7 @@ describe("channel detail", () => {
           renderChannelView(ChannelsView, props, container);
         };
         renderChannelView(ChannelsView, props, container);
-        const trigger = container.querySelector<HTMLButtonElement>(
-          configured ? "button.channels-item" : ".channels-item__detail",
-        );
+        const trigger = container.querySelector<HTMLButtonElement>(".channels-item__detail");
 
         expect(trigger).toBeInstanceOf(HTMLButtonElement);
         trigger!.click();
@@ -797,6 +798,56 @@ describe("channel detail", () => {
       }
     },
   );
+});
+
+describe("channel account cards", () => {
+  it("lists every account on one card per channel, including Instagram", () => {
+    const ago = Date.now() - 5 * 60_000;
+    const props = channelProps(
+      {
+        whatsapp: { configured: true, connected: true },
+        telegram: { configured: true, running: true },
+        gmail: { configured: true },
+      },
+      {
+        channelAccounts: {
+          whatsapp: [
+            { accountId: "+15551212", name: "Miguel", connected: true, lastInboundAt: ago },
+            { accountId: "+15559876", name: "Shop", connected: false, configured: true },
+          ],
+          telegram: [
+            { accountId: "default", name: "News bot", running: true },
+            { accountId: "alerts", running: false, configured: true },
+          ],
+          gmail: [
+            { accountId: "miguel@example.com", connected: true },
+            { accountId: "ops@example.com", configured: true },
+          ],
+        },
+      },
+    );
+    const onStartSetup = vi.fn();
+    props.onStartSetup = onStartSetup;
+    const container = renderHub(props);
+    const card = (label: string) =>
+      Array.from(container.querySelectorAll(".channel-card")).find((node) =>
+        node.querySelector(".settings-row__title")?.textContent?.includes(label),
+      )!;
+
+    expect(card("WhatsApp").querySelectorAll(".channel-account__name").length).toBe(2);
+    expect(card("WhatsApp").textContent).toContain("Miguel");
+    expect(card("WhatsApp").textContent).toContain("Shop");
+    expect(card("WhatsApp").textContent).not.toMatch(/UTC|T\d{2}:\d{2}:\d{2}/);
+    expect(card("Telegram").textContent).toContain("News bot");
+    expect(card("Telegram").textContent).toContain("Alerts");
+    expect(card("Gmail").textContent).toContain("miguel@example.com");
+    expect(card("Gmail").textContent).toContain("ops@example.com");
+    const instagram = card("Instagram");
+    expect(instagram.textContent).toContain("No accounts yet");
+    expect(instagram.querySelector("img, .channels-tile")).toBeTruthy();
+    instagram.querySelector<HTMLButtonElement>(".btn")!.click();
+    expect(onStartSetup).toHaveBeenCalledWith("instagram");
+  });
 });
 
 describe("channel display selectors", () => {

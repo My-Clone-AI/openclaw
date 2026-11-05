@@ -25,7 +25,120 @@
 
 .channels-item {
   width: 100%;
+  min-width: 0;
   text-align: left;
+}
+
+.channel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.channel-card {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+.channel-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.channel-card .channels-item__detail {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.channel-card .settings-row__text {
+  min-width: 0;
+}
+
+.channel-card .settings-row__title,
+.channel-card .settings-row__desc,
+.channel-account__name,
+.channel-account__time,
+.channel-card .settings-status > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.channel-card__head > .btn {
+  flex: none;
+  white-space: nowrap;
+}
+
+.channel-card__head > .settings-status,
+.channel-account__meta .settings-status {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.channel-accounts {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.channel-account {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 46%);
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+}
+
+.channel-account__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.channel-account--empty {
+  color: var(--muted);
+}
+
+.channels-tile--brand {
+  color: #fff;
+}
+
+.channels-tile--gmail {
+  background: #b3261e;
+  border-color: #b3261e;
+}
+
+.channels-tile--whatsapp {
+  background: #0b6b3a;
+  border-color: #0b6b3a;
+}
+
+.channels-tile--telegram {
+  background: #14689a;
+  border-color: #14689a;
+}
+
+.channels-tile--instagram {
+  background: #9b1d62;
+  border-color: #9b1d62;
+}
+
+.channel-brand {
+  width: 26px;
+  height: 26px;
 }
 
 .channels-tile {

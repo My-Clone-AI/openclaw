@@ -1,6 +1,6 @@
 import type { JSX } from "@solidjs/web";
 import { createMemo, Errored, For, Loading, Show } from "solid-js";
-import type { ChannelsStatusSnapshot } from "../../api/types.ts";
+import type { ChannelAccountSnapshot, ChannelsStatusSnapshot } from "../../api/types.ts";
 import "../../styles/channels.css";
 import { ChannelIcon } from "../../components/solid/channel-icon.tsx";
 import { Icon } from "../../components/solid/icon.tsx";
@@ -14,12 +14,14 @@ import { WizardBusyButton, WizardStepControls } from "../../components/wizard-st
 import { registerSettingsEnglish } from "../../i18n/locales/en-settings.ts";
 import {
   channelSnapshotEntryIsActive,
+  resolveChannelAccounts,
   type ChannelRead,
   type ChannelsState,
 } from "../../lib/channels/index.ts";
 import { formatUiError, formatUiExternalText } from "../../lib/format-error.ts";
-import { registerEnglishCatalog, t } from "../../lib/reactive/i18n.ts";
+import { formatRelativeTimestamp } from "../../lib/format.ts";
 import "../../components/modal-dialog.tsx";
+import { registerEnglishCatalog, t } from "../../lib/reactive/i18n.ts";
 import { channelDocsUrl } from "./hub-meta.ts";
 import { renderChannelDetail as ChannelDetail } from "./view.detail.tsx";
 import { renderChannelPairingPrompt, renderChannelPairingQueue } from "./view.pairing.tsx";
@@ -34,8 +36,10 @@ import type { ChannelWizardState } from "./wizard-runner.ts";
 registerEnglishCatalog(registerSettingsEnglish);
 
 const RECOMMENDED_CHANNEL_ORDER: string[] = [
+  "gmail",
   "whatsapp",
   "telegram",
+  "instagram",
   "discord",
   "googlechat",
   "slack",
@@ -43,6 +47,53 @@ const RECOMMENDED_CHANNEL_ORDER: string[] = [
   "imessage",
   "nostr",
 ];
+
+const CHANNEL_LABELS: Record<string, string> = {
+  gmail: "Gmail",
+  imap: "Email",
+  email: "Email",
+  whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  instagram: "Instagram",
+  discord: "Discord",
+  googlechat: "Google Chat",
+  slack: "Slack",
+  signal: "Signal",
+  imessage: "iMessage",
+  nostr: "Nostr",
+};
+
+export function humanChannelLabel(channelId: string, provided?: string): string {
+  const known = CHANNEL_LABELS[channelId];
+  if (!provided || provided === channelId) {
+    return known ?? provided ?? channelId;
+  }
+  return provided;
+}
+
+export function humanAccountLabel(account: { accountId: string; name?: string }): string {
+  const name = account.name?.trim();
+  if (name && name !== account.accountId) {
+    return name;
+  }
+  if (account.accountId === "default" || account.accountId === "main") {
+    return "Main account";
+  }
+  if (account.accountId.includes("@") || account.accountId.startsWith("+")) {
+    return account.accountId;
+  }
+  return account.accountId
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase());
+}
+
+export function newYorkClock(timestampMs: number): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(timestampMs);
+}
 
 function ChannelStatusNotices(props: { channels: ChannelsState; error: string | null }) {
   const showingStaleSnapshot = () =>
@@ -155,7 +206,9 @@ export function ChannelsView(props: ChannelsProps) {
               <SettingsEmpty message={t("channels.hub.noneConnected")} />
             </div>
           ) : (
-            <For each={connected()}>{(key) => <ConnectedRow channelId={key} props={props} />}</For>
+            <div class="channel-grid">
+              <For each={connected()}>{(key) => <ChannelCard channelId={key} props={props} />}</For>
+            </div>
           )}
         </SettingsSection>
         <SettingsSection
@@ -168,9 +221,11 @@ export function ChannelsView(props: ChannelsProps) {
             </div>
           ) : (
             <>
-              <For each={available()}>
-                {(key) => <AvailableRow channelId={key} props={props} />}
-              </For>
+              <div class="channel-grid">
+                <For each={available()}>
+                  {(key) => <ChannelCard channelId={key} props={props} />}
+                </For>
+              </div>
               {renderBrowseAllRow(props)}
             </>
           )}
@@ -209,11 +264,11 @@ function resolveChannelPlugin(props: ChannelsProps, key: string) {
 export function resolveChannelLabel(props: ChannelsProps, key: string): string {
   const snapshot = props.channels.channelsSnapshot;
   const labels = snapshot?.channelLabels;
-  return (
+  return humanChannelLabel(
+    key,
     resolveChannelPlugin(props, key)?.name ??
-    snapshot?.channelMeta?.find((entry) => entry.id === key)?.label ??
-    (labels && Object.hasOwn(labels, key) ? labels[key] : undefined) ??
-    key
+      snapshot?.channelMeta?.find((entry) => entry.id === key)?.label ??
+      (labels && Object.hasOwn(labels, key) ? labels[key] : undefined),
   );
 }
 
@@ -226,8 +281,121 @@ function resolveChannelDetailLabel(props: ChannelsProps, key: string): string | 
   return detail && detail !== resolveChannelLabel(props, key) ? detail : null;
 }
 
-function ConnectedRow(params: { channelId: string; props: ChannelsProps }) {
+function ChannelMark(props: { channelId: string; label: string; pluginIconUrl?: string }) {
+  const iconUrl = createMemo(() => props.pluginIconUrl);
+  const brand = createMemo(() => channelBrand(props.channelId));
+  const channelId = createMemo(() => props.channelId);
+  const label = createMemo(() => props.label);
+  return (
+    <Show
+      when={iconUrl()}
+      fallback={
+        <Show
+          when={brand()}
+          fallback={<ChannelIcon channelId={channelId()} label={label()} variant="tile" />}
+        >
+          {(mark) => (
+            <span
+              class={["channels-tile", "channels-tile--brand", `channels-tile--${channelId()}`]}
+              aria-hidden="true"
+            >
+              {mark()}
+            </span>
+          )}
+        </Show>
+      }
+    >
+      {(url) => (
+        <ChannelIcon channelId={channelId()} label={label()} variant="tile" pluginIconUrl={url()} />
+      )}
+    </Show>
+  );
+}
+
+function channelBrand(channelId: string) {
+  if (channelId === "gmail") {
+    return (
+      <svg viewBox="0 0 24 24" class="channel-brand">
+        <rect
+          x="3.5"
+          y="5.5"
+          width="17"
+          height="13"
+          rx="1.5"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.8"
+        />
+        <path fill="none" stroke="#fff" stroke-width="1.8" d="M4 7.5 12 13l8-5.5" />
+      </svg>
+    );
+  }
+  if (channelId === "whatsapp") {
+    return (
+      <svg viewBox="0 0 24 24" class="channel-brand">
+        <path
+          fill="#fff"
+          d="M12 4a8 8 0 0 0-6.9 12L4 20l4.1-1.1A8 8 0 1 0 12 4Zm4.2 10.3c-.2.5-1 .9-1.4 1-.4.1-.8.1-1.3-.1-.3-.1-1.2-.5-2.3-1.4-1.1-.9-1.8-2-2-2.3-.2-.3-.4-.8-.1-1.2.2-.3.4-.5.6-.7l.4-.4c.1-.1.1-.3 0-.4l-.7-1.6c-.2-.4-.4-.3-.6-.3h-.5c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.9 4.4 4 .6.3 1.1.4 1.5.5.6.2 1.2.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3l-1.1-.5c-.2-.1-.4 0-.5.1l-.4.5Z"
+        />
+      </svg>
+    );
+  }
+  if (channelId === "telegram") {
+    return (
+      <svg viewBox="0 0 24 24" class="channel-brand">
+        <path
+          fill="#fff"
+          d="M19.5 5.2 4.7 10.8c-1 .4-1 1 .1 1.3l3.8 1.2 1.5 4.6c.2.5.1.7.6.7.3 0 .5-.1.7-.4l2.1-2 3.8 2.8c.7.4 1.2.2 1.4-.6l2.5-11.8c.2-1-.4-1.5-1.2-1.2Z"
+        />
+      </svg>
+    );
+  }
+  if (channelId === "instagram") {
+    return (
+      <svg viewBox="0 0 24 24" class="channel-brand">
+        <rect
+          x="5"
+          y="5"
+          width="14"
+          height="14"
+          rx="4"
+          fill="none"
+          stroke="#fff"
+          stroke-width="1.8"
+        />
+        <circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="1.8" />
+        <circle cx="16.2" cy="7.8" r="1" fill="#fff" />
+      </svg>
+    );
+  }
+  return undefined;
+}
+
+function accountHealth(account: ChannelAccountSnapshot) {
+  if (account.lastError) {
+    return "attention" as const;
+  }
+  if (account.running || account.connected) {
+    return "running" as const;
+  }
+  if (account.configured || account.linked) {
+    return "configured" as const;
+  }
+  return "notConfigured" as const;
+}
+
+function ChannelCard(params: { channelId: string; props: ChannelsProps }) {
+  const plugin = createMemo(() => resolveChannelPlugin(params.props, params.channelId));
   const label = createMemo(() => resolveChannelLabel(params.props, params.channelId));
+  const active = createMemo(() =>
+    channelSnapshotEntryIsActive(params.props.channels.channelsSnapshot, params.channelId),
+  );
+  const accounts = createMemo(() =>
+    resolveChannelAccounts(
+      params.props.channels.channelsSnapshot?.channelAccounts,
+      params.channelId,
+    ),
+  );
   const statusIssue = createMemo(() =>
     params.props.channels.channelsSnapshot?.statusIssues?.find(
       (issue) => issue.channel === params.channelId,
@@ -236,84 +404,89 @@ function ConnectedRow(params: { channelId: string; props: ChannelsProps }) {
   const description = createMemo(() => {
     const issue = statusIssue() ? formatUiExternalText(statusIssue()?.message) : null;
     if (params.props.configEdits[params.channelId]) {
-      // Unsaved edits never hide what is wrong with the channel.
       return issue
         ? t("channels.config.unsavedWithDetail", { detail: issue })
         : t("channels.config.unsaved");
     }
+    if (active()) {
+      return (
+        issue ??
+        channelLastActivity(params.channelId, params.props) ??
+        resolveChannelDetailLabel(params.props, params.channelId) ??
+        t("channels.hub.openDetails")
+      );
+    }
     return (
       issue ??
-      channelLastActivity(params.channelId, params.props) ??
+      plugin()?.description ??
       resolveChannelDetailLabel(params.props, params.channelId) ??
-      t("channels.hub.openDetails")
+      t("channels.hub.guidedSetup")
     );
   });
   return (
-    <button
-      type="button"
-      class="settings-row settings-row--nav channels-item"
-      onClick={() => params.props.onShowDetail(params.channelId)}
-    >
-      <ChannelIcon
-        channelId={params.channelId}
-        label={label()}
-        variant="tile"
-        pluginIconUrl={params.props.presentation.pluginIconUrls[params.channelId]}
-      />
-      <div class="settings-row__text">
-        <span class="settings-row__title">{label()}</span>
-        <span class="settings-row__desc">{description()}</span>
-      </div>
-      <div class="settings-row__control">
-        <ChannelHealthStatus health={resolveChannelHealth(params.channelId, params.props)} />
-        <span class="settings-row__chevron">
-          <Icon name="chevronRight" />
-        </span>
-      </div>
-    </button>
-  );
-}
-
-function AvailableRow(params: { channelId: string; props: ChannelsProps }) {
-  const plugin = createMemo(() => resolveChannelPlugin(params.props, params.channelId));
-  const label = createMemo(() => resolveChannelLabel(params.props, params.channelId));
-  const description = createMemo(() =>
-    params.props.configEdits[params.channelId]
-      ? t("channels.config.unsaved")
-      : (plugin()?.description ??
-        resolveChannelDetailLabel(params.props, params.channelId) ??
-        t("channels.hub.guidedSetup")),
-  );
-  return (
-    <div class="settings-row channels-item">
-      <button
-        type="button"
-        class="channels-item__detail"
-        title={t("channels.hub.openDetails")}
-        onClick={() => params.props.onShowDetail(params.channelId)}
-      >
-        <ChannelIcon
-          channelId={params.channelId}
-          label={label()}
-          variant="tile"
-          pluginIconUrl={params.props.presentation.pluginIconUrls[params.channelId]}
-        />
-        <span class="settings-row__text">
-          <span class="settings-row__title">{label()}</span>
-          <span class="settings-row__desc">{description()}</span>
-        </span>
-      </button>
-      <div class="settings-row__control">
+    <article class="channel-card channels-item">
+      <div class="channel-card__head">
         <button
           type="button"
-          class="btn btn--sm"
-          disabled={!params.props.channels.connected}
-          onClick={() => params.props.onStartSetup(params.channelId)}
+          class="channels-item__detail"
+          title={t("channels.hub.openDetails")}
+          onClick={() => params.props.onShowDetail(params.channelId)}
         >
-          {t("channels.hub.setUp")}
+          <ChannelMark
+            channelId={params.channelId}
+            label={label()}
+            pluginIconUrl={params.props.presentation.pluginIconUrls[params.channelId]}
+          />
+          <span class="settings-row__text">
+            <span class="settings-row__title">{label()}</span>
+            <span class="settings-row__desc">{description()}</span>
+          </span>
         </button>
+        <ChannelHealthStatus health={resolveChannelHealth(params.channelId, params.props)} />
+        {params.props.canAdmin ? (
+          <button
+            type="button"
+            class="btn btn--sm"
+            disabled={!params.props.channels.connected}
+            onClick={() => params.props.onStartSetup(params.channelId)}
+          >
+            {t("channels.hub.addAccount")}
+          </button>
+        ) : undefined}
       </div>
-    </div>
+      <ul class="channel-accounts">
+        <Show
+          when={accounts().length > 0}
+          fallback={
+            <li class="channel-account channel-account--empty">{t("channels.hub.noAccounts")}</li>
+          }
+        >
+          <For each={accounts()} keyed={(account) => account.accountId}>
+            {(account) => {
+              const name = () => humanAccountLabel(account());
+              const when = () => account().lastInboundAt ?? account().lastConnectedAt ?? null;
+              const relative = () =>
+                typeof when() === "number" && when()! > 0 ? formatRelativeTimestamp(when()) : "";
+              const clock = () =>
+                typeof when() === "number" && when()! > 0 ? newYorkClock(when()!) : "";
+              return (
+                <li class="channel-account">
+                  <openclaw-tooltip prop:content={clock() ? `${name()} · ${clock()} ET` : name()}>
+                    <span class="channel-account__name">{name()}</span>
+                  </openclaw-tooltip>
+                  <span class="channel-account__meta">
+                    {relative() ? (
+                      <span class="channel-account__time">{relative()}</span>
+                    ) : undefined}
+                    <ChannelHealthStatus health={accountHealth(account())} />
+                  </span>
+                </li>
+              );
+            }}
+          </For>
+        </Show>
+      </ul>
+    </article>
   );
 }
 

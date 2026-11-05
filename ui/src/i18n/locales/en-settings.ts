@@ -265,6 +265,8 @@ const enSettings = {
       stateNotConfigured: "Not configured",
       details: "Details",
       setUp: "Set up",
+      addAccount: "Add",
+      noAccounts: "No accounts yet",
       guidedSetup: "Guided step-by-step setup",
       openDetails: "Open details",
       lastMessageAgo: "Last message {ago}",

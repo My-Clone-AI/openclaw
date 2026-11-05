@@ -1,0 +1,11 @@
+{
+  "name": "openclaw-control",
+  "private": true,
+  "version": "1.3.0",
+  "type": "module",
+  "description": "Forwards the OpenClaw Control desktop panel to the native Control UI.",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test test/*.test.mjs"
+  }
+}
