@@ -1661,7 +1661,7 @@
     },
     {
       "id": "ai-models",
-      "title": "AI models, routing and keys",
+      "title": "AI routes, accounts, usage and request log",
       "family": "07",
       "priority": "P1",
       "status": "partial",
@@ -1700,17 +1700,24 @@
       },
       "openclaw": {
         "uiRoutes": [
+          "plugin",
           "model-providers",
           "model-setup",
           "usage"
         ],
         "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change",
           "models.list"
         ],
-        "extensions": [],
-        "chatTools": []
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
       },
-      "adapter": "Native pages cover providers and usage; NSVX routing rules stay in the inference service.",
+      "adapter": "nsvx plugin AI tab (Routes, Accounts, Log) reads NSVX /api/ai/state and /api/ai/requests through nsvx.view and changes lanes, fallback order, skips, limits, repair approval, and subscription accounts through nsvx.ai.change (operator.admin), one fixed owner route each with the owner session and its CSRF token. nsvx_ai gives chat status, requests, lane and account changes, and one-call tests on the owner's turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -1725,21 +1732,38 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Ai.tsx",
-          "backend/clone/inference/"
+          "backend/clone/inference/api.py",
+          "extensions/nsvx/src/ai-tab.tsx",
+          "extensions/nsvx/src/ai.ts",
+          "extensions/nsvx/src/ai-tool.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): lanes with the model answering now, fallback order with provider logos, lane switch and move down send laneEnabled and laneOrder; accounts with provider-reported usage.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_ai was unit tested, not run by a live agent turn.",
+        "Account sign-in, adding or removing accounts, identity edits, evaluations, and request summaries are not in Control yet; they need the owner's provider login flow or stay NSVX-only."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too."
+      ]
     },
     {
       "id": "architecture-providers",
@@ -1771,13 +1795,21 @@
       },
       "openclaw": {
         "uiRoutes": [
+          "plugin",
           "model-providers"
         ],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
       },
-      "adapter": "Native provider list covers reads; registration stays in openclaw_admin.",
+      "adapter": "nsvx plugin AI tab, Clone AI view: reads /api/ai/openclaw/providers through nsvx.view and registers the clone-ai provider through nsvx.ai.change (cloneAiRegister) with the config hash NSVX gave, so a changed config answers conflict.",
       "verification": {
         "requires": [
           "discovery",
@@ -1792,51 +1824,70 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/providers_api.py",
-          "ops/openclaw/clone-ai-shim/README.md"
+          "extensions/nsvx/src/ai-clone.tsx",
+          "extensions/nsvx/src/ai.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): OpenClaw provider registered and healthy states.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn: cloneAiRegister sends the hash to /api/ai/openclaw/providers/clone-ai/register."
+        ]
       },
-      "blockers": [],
-      "unknowns": []
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too."
+      ]
     },
     {
       "id": "clone-ai-training",
       "title": "clone-ai models and training",
       "family": "07",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/apps"
         ],
         "backendPackages": [
-          "group_companies"
+          "group_companies",
+          "inference"
         ],
         "jobPackages": [],
         "apiPrefixes": [
+          "/api/ai/local/training",
+          "/internal/inference",
+          "/v1/batches",
+          "/v1/chat",
           "/v1/mac-bench",
           "/v1/mac-training",
-          "/v1/models",
-          "/v1/chat",
-          "/v1/batches",
-          "/internal/inference"
+          "/v1/models"
         ],
         "sourceFiles": [
           "backend/clone/group_companies/clone_ai_bench.py",
           "backend/clone/inference/gateway.py",
+          "backend/clone/inference/local_training.py",
           "backend/clone/inference/service_api.py",
           "backend/clone/training_transfer.py",
-          "web/src/screens/Apps.tsx"
+          "web/src/screens/Apps.tsx",
+          "web/src/screens/CloneAiAdmin.tsx"
         ],
         "permissions": [
-          "inference service key"
+          "inference service key",
+          "owner session + CSRF"
         ],
         "effect": "write",
         "integrations": [
@@ -1845,12 +1896,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin AI tab, Clone AI view: training progress from /api/group-companies/clone-ai/bench/dashboard, Train/Pause/Resume through nsvx.ai.change (training) to /bench/commands with a command id kept until NSVX confirms, and synthetic local experiments (/api/ai/local/training prepare and withdraw). The Mac-side /v1 device routes stay between NSVX and the Mac.",
       "verification": {
         "requires": [
           "discovery",
@@ -1865,23 +1925,321 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/group_companies/clone_ai_bench.py",
           "backend/clone/inference/gateway.py",
           "backend/clone/inference/service_api.py",
-          "backend/clone/training_transfer.py"
+          "backend/clone/training_transfer.py",
+          "backend/clone/inference/local_training.py",
+          "extensions/nsvx/src/ai-clone.tsx",
+          "extensions/nsvx/src/ai.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): training progress with Train sending a start command with a UUID command id; experiments with baseline and candidate scores.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn: training commands keep the caller's command_id so NSVX dedupes a repeat; unknown commands and ids are refused."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_ai was unit tested, not run by a live agent turn.",
+        "Benchmarks, dataset views, and per-metric charts of the bench dashboard are not in Control yet."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too.",
+        "The bench routes are bound inside bind() in clone_ai_bench.py, which the generator does not see; their /api/group-companies/clone-ai prefix is owned by clone-ai-admin."
+      ]
+    },
+    {
+      "id": "clone-ai-admin",
+      "title": "Clone AI admin: Mac, routing, promotion",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/clone-ai"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/clone_ai_panel.py",
+          "web/src/screens/CloneAiAdmin.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Mac nodes"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
+      },
+      "adapter": "nsvx plugin AI tab, Clone AI view: reads /api/group-companies/clone-ai (Mac heartbeat, relay, routing positions, promotion, training) through nsvx.view; use in routes, check, and roll back (after a confirm) through nsvx.ai.change. Routing never starts or stops the Mac.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/screens/CloneAiAdmin.tsx",
+          "backend/clone/group_companies/clone_ai_panel.py",
+          "extensions/nsvx/src/ai-clone.tsx",
+          "extensions/nsvx/src/ai.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): Mac online, relay, memory and disk, routing positions, promotion window bars, roll back behind a confirm.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn: cloneAiRouting reaches /api/group-companies/clone-ai/routing."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_ai was unit tested, not run by a live agent turn."
+      ],
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too.",
+        "CloneAiAdmin.tsx changed between the pin and clone develop 6cacba0; Control follows develop."
+      ]
+    },
+    {
+      "id": "gpt-voice-settings",
+      "title": "GPT voice-note settings",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "(root)"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/voice/gpt"
+        ],
+        "sourceFiles": [
+          "backend/clone/gpt_voice_api.py",
+          "web/src/screens/GptVoiceSettings.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "OpenAI Realtime"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
+      },
+      "adapter": "nsvx plugin AI tab, Voice view: reads /api/voice/gpt/settings through nsvx.view and saves voice, style, language, length, playback, mic, and limits through nsvx.ai.change (voice), with NSVX's own bounds; instructions are never echoed to chat.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/screens/GptVoiceSettings.tsx",
+          "backend/clone/gpt_voice_api.py",
+          "extensions/nsvx/src/ai-clone.tsx",
+          "extensions/nsvx/src/ai.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): OpenAI connected, today's spend against the daily limit, channel mic states with logos; Length Short sends only the changed field.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn: voice settings reach /api/voice/gpt/settings and out-of-range limits are refused."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_ai was unit tested, not run by a live agent turn."
+      ],
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too."
+      ]
+    },
+    {
+      "id": "inference-flows",
+      "title": "Inference flows: models, servers, apps",
+      "family": "07",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "inference"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/inference-ops",
+          "/api/ai/api-keys"
+        ],
+        "sourceFiles": [
+          "backend/clone/inference/ops_api.py",
+          "backend/clone/inference/api_keys_admin.py",
+          "backend/clone/openclaw_admin/server_accounts.py",
+          "web/src/components/InferenceOps.tsx",
+          "web/src/components/AiApiKeys.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Claude",
+          "Codex",
+          "OpenClaw Gateway"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ai.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_ai"
+        ]
+      },
+      "adapter": "nsvx plugin AI tab, Flow view: draws which model serves chat, work, and code and every lane's chain from /api/ai/inference-ops; moves a server between the odd and even account groups through nsvx.ai.change (serverParity), which reads NSVX's document at the point of change and saves it whole; lists apps calling NSVX AI with key prefixes and use from /api/ai/api-keys and switches the apps gateway (stopping asks first). nsvx_ai flows/setServer/appsOn/appsOff give chat the same.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/components/InferenceOps.tsx",
+          "web/src/components/AiApiKeys.tsx",
+          "backend/clone/inference/ops_api.py",
+          "backend/clone/inference/api_keys_admin.py",
+          "extensions/nsvx/src/ai-flow.tsx",
+          "extensions/nsvx/src/ai.ts",
+          "extensions/nsvx/src/ai-tool.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-ai.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-ai/): chat, work, and code flows with provider logos; servers with odd, even, or none and their accounts, Even on box sends serverParity; apps with key prefixes, state, and use; stopping apps asks first, then sends appsGateway off.",
+          "extensions/nsvx/src/ai.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, owner cookie); invalid values never reach NSVX; a lost answer is reported as uncertain; nsvx_ai answers only the owner and changes only on the current turn: serverParity re-reads the document and changes only that server; an unknown server is not-found; appsGateway reaches /api/ai/api-keys/settings."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_ai was unit tested, not run by a live agent turn.",
+        "Creating, rotating, and revoking app keys and managing key users stay in NSVX: a new key is shown once and Control never handles secrets. Owner batches and per-server account overrides are not in Control yet."
+      ],
+      "unknowns": [
+        "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too."
+      ]
     },
     {
       "id": "agentos",

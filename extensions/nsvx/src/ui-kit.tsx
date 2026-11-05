@@ -78,6 +78,7 @@ const ICONS = {
   archive: "M3 4h18v4H3zm2 4v12h14V8m-9 4h4",
   hand: "M8 13V5a1.5 1.5 0 0 1 3 0v6m0-1V4a1.5 1.5 0 0 1 3 0v6m0-1V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3 14a1.5 1.5 0 0 1 2.4-1.8L8 15",
   copy: "M9 9h11v11H9zM5 15H4V4h11v1",
+  trash: "M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3",
   device: "M4 5h16v10H4zM2 19h20M9 15l-1 4m7-4 1 4",
   health:
     "M3 12h4l2-5 4 10 2-5h6M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11",
@@ -104,7 +105,13 @@ const ICONS = {
   marketing: "M3 11v3l13 5V6zm13 1h2a3 3 0 0 0 0-6M7 15.5V19a2 2 0 0 0 4 0v-2",
   image: "M4 5h16v14H4zm0 11 5-5 4 4 2-2 5 5M15 9h.01",
   euro: "M17 5.5A7 7 0 1 0 17 18.5M4 10h9m-9 4h9",
-  trash: "M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3",
+  ai: "M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m14-6h2m-2 6h2M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2m3 5h4v4h-4z",
+  flask: "M9 3h6m-5 0v6L4.5 18.5A1.6 1.6 0 0 0 5.9 21h12.2a1.6 1.6 0 0 0 1.4-2.5L14 9V3M7 15h10",
+  up: "m6 15 6-6 6 6",
+  down: "m6 9 6 6 6-6",
+  skip: "M5 5l9 7-9 7zm14 0v14",
+  scale: "M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zm14 0-3 7a3 3 0 0 0 6 0z",
+  laptop: "M5 5h14v10H5zM2 19h20",
 } as const;
 
 export type IconName = keyof typeof ICONS;
@@ -149,7 +156,12 @@ export function createSource<V>(host: ControlUiHost, load: () => Promise<V>) {
       }
     }
   };
-  return { state, refresh };
+  /** Shows an answer the owner's own change returned (NSVX sends the new state), without another read. */
+  const replace = (data: V) => {
+    generation++;
+    setState({ data, loading: false });
+  };
+  return { state, refresh, replace };
 }
 
 /** Connection states that need the owner, not a retry of the same request. */

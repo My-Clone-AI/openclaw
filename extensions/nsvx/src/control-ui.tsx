@@ -6,6 +6,8 @@ import { AccessTab } from "./access-tab.js";
 import { ActionsTab } from "./actions-tab.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { AgendaTab } from "./agenda-tab.js";
+import { aiTranslator, type AT } from "./ai-i18n.js";
+import { AI_VIEWS, AiTab, type AiView } from "./ai-tab.js";
 import { AviationTab } from "./aviation-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
@@ -47,6 +49,7 @@ const mountNsvx: ControlUiView = (container, context) => {
   const mt: MT = (key) => messagesTranslator(locale())(key);
   const pt: PT = (key) => peopleTranslator(locale())(key);
   const dt: DT = (key) => deviceTranslator(locale())(key);
+  const at: AT = (key) => aiTranslator(locale())(key);
   const label = (id: Tab) => tabLabel(locale(), id);
   const search = new URLSearchParams(location.search);
   const initial = search.get("tab") ?? "today";
@@ -66,6 +69,10 @@ const mountNsvx: ControlUiView = (container, context) => {
   );
   const [agent, setAgent] = createSignal(search.get("agent") ?? undefined);
   const [skill, setSkill] = createSignal(search.get("skill") ?? undefined);
+  const aiParam = search.get("ai") as AiView | null;
+  const [aiView, setAiView] = createSignal<AiView>(
+    aiParam && AI_VIEWS.includes(aiParam) ? aiParam : "routes",
+  );
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
@@ -80,6 +87,7 @@ const mountNsvx: ControlUiView = (container, context) => {
       agent?: string;
       skill?: string;
       event?: string;
+      ai?: AiView;
     } = {},
   ) => {
     const url = new URL(location.href);
@@ -124,6 +132,11 @@ const mountNsvx: ControlUiView = (container, context) => {
         url.searchParams.delete(name);
       }
     }
+    if (nextTab === "ai" && open.ai) {
+      url.searchParams.set("ai", open.ai);
+    } else {
+      url.searchParams.delete("ai");
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -137,7 +150,12 @@ const mountNsvx: ControlUiView = (container, context) => {
       people: personOpen(),
       agent: agent(),
       skill: skill(),
+      ai: aiView(),
     });
+  };
+  const openAi = (view: AiView) => {
+    setAiView(view);
+    remember("ai", { ai: view });
   };
   const showMission = (id: string) => {
     setMission(id);
@@ -374,6 +392,9 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "access"}>
               <AccessTab host={host} t={t} query={query()} locale={locale()} />
+            </Show>
+            <Show when={tab() === "ai"}>
+              <AiTab host={host} t={t} at={at} query={query()} view={aiView()} onView={openAi} />
             </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />

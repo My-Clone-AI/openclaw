@@ -1,6 +1,7 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createNsvxAccessTool } from "./src/access-tool.js";
 import { createAgentSettings } from "./src/agent-settings.js";
+import { createNsvxAiTool } from "./src/ai-tool.js";
 import { createNsvxAviationTool } from "./src/aviation-tool.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig, readNsvxToken } from "./src/config.js";
@@ -80,6 +81,7 @@ export default definePluginEntry({
     api.registerTool((context) => createNsvxMarketingTool(client, context), {
       name: "nsvx_marketing",
     });
+    api.registerTool((context) => createNsvxAiTool(client, context), { name: "nsvx_ai" });
     api.registerTool((context) => createNsvxFinanceTool(client, context), {
       name: "nsvx_finance",
       optional: true,

@@ -371,6 +371,17 @@ const OWNER_VIEWS = {
   marketingChannels: { path: "/api/group-companies/marketing/channels" },
   marketingAnalytics: { path: "/api/group-companies/marketing/analytics" },
   marketingJob: { path: "/api/group-companies/marketing/jobs/{id}" },
+  // AI (`/apps/ia`, Clone AI, Voz): the reads the NSVX AI, Clone AI admin, and GPT voice screens make.
+  aiState: { path: "/api/ai/state" },
+  aiRequests: { path: "/api/ai/requests", query: ["lane", "provider", "status", "limit"] },
+  aiRequest: { path: "/api/ai/requests/{id}" },
+  aiOps: { path: "/api/ai/inference-ops" },
+  aiProviders: { path: "/api/ai/openclaw/providers" },
+  cloneAi: { path: "/api/group-companies/clone-ai" },
+  localTraining: { path: "/api/ai/local/training" },
+  gptVoice: { path: "/api/voice/gpt/settings" },
+  cloneAiBench: { path: "/api/group-companies/clone-ai/bench/dashboard", query: ["model"] },
+  aiKeys: { path: "/api/ai/api-keys" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -394,7 +405,12 @@ type OwnerWriteSpec = {
   origin?: true;
   /** File upload: the caller passes a `FormData` body and fetch sets its boundary. */
   multipart?: true;
+  /** Routes that wait for a real model answer; NSVX itself allows the test up to 300 s. */
+  slow?: true;
 };
+
+/** Longer than NSVX's own 300 s test limit, so its answer (not this timeout) decides. */
+const SLOW_TIMEOUT_MS = 320_000;
 
 const OWNER_WRITES = {
   ...accessWrites,
@@ -616,6 +632,26 @@ const OWNER_WRITES = {
   researchSettings: { method: "POST", path: "/api/research/settings" },
   researchName: { method: "POST", path: "/api/research/{id}/name" },
   researchAct: { method: "POST", path: "/api/research/{id}/{item}" },
+  // AI routing, subscriptions, Clone AI, training, and voice: the changes the NSVX AI screens make.
+  aiLane: { method: "PUT", path: "/api/ai/lanes/{id}" },
+  aiLaneSkip: { method: "POST", path: "/api/ai/lanes/{id}/skip" },
+  aiLaneRestore: { method: "DELETE", path: "/api/ai/lanes/{id}/skip" },
+  aiLaneTest: { method: "POST", path: "/api/ai/lanes/{id}/test", slow: true },
+  aiProviderTest: { method: "POST", path: "/api/ai/providers/{id}/test", slow: true },
+  aiProviderRefresh: { method: "POST", path: "/api/ai/providers/{id}/refresh" },
+  aiProviderEnabled: { method: "POST", path: "/api/ai/providers/{id}/enabled" },
+  aiProviderPreferred: { method: "POST", path: "/api/ai/providers/{id}/preferred" },
+  aiRepairApproval: { method: "PUT", path: "/api/ai/repair/approval" },
+  cloneAiRouting: { method: "POST", path: "/api/group-companies/clone-ai/routing" },
+  cloneAiHealth: { method: "POST", path: "/api/group-companies/clone-ai/health" },
+  cloneAiRollback: { method: "POST", path: "/api/group-companies/clone-ai/rollback" },
+  cloneAiRegister: { method: "POST", path: "/api/ai/openclaw/providers/clone-ai/register" },
+  trainingPrepare: { method: "POST", path: "/api/ai/local/training" },
+  trainingRevoke: { method: "POST", path: "/api/ai/local/training/{id}/revoke" },
+  gptVoice: { method: "POST", path: "/api/voice/gpt/settings" },
+  cloneAiBench: { method: "POST", path: "/api/group-companies/clone-ai/bench/commands" },
+  aiServerAccounts: { method: "PUT", path: "/api/ai/inference-ops/server-accounts" },
+  aiKeysSettings: { method: "PUT", path: "/api/ai/api-keys/settings" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -854,7 +890,7 @@ export function createNsvxClient(options: {
           : spec.form
             ? new URLSearchParams(body as Record<string, string>).toString()
             : JSON.stringify(body ?? {}),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(spec.slow ? SLOW_TIMEOUT_MS : TIMEOUT_MS),
       });
     } catch {
       throw new NsvxError("uncertain", "NSVX did not confirm the result. Check before repeating.");
