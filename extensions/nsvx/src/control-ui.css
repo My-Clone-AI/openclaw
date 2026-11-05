@@ -1,0 +1,472 @@
+.nsvx {
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: var(--space-5);
+  color: var(--text);
+}
+
+.nsvx__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.nsvx__tabs {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.nsvx__tab,
+.nsvx__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: default;
+}
+
+.nsvx__tab:hover,
+.nsvx__button:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.nsvx__tab--active {
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx__button {
+  border-color: var(--border);
+}
+
+.nsvx__button:disabled {
+  opacity: 0.5;
+}
+
+.nsvx__button--primary {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.nsvx__button--primary:hover:not(:disabled) {
+  background: var(--primary-active);
+}
+
+.nsvx__button--icon {
+  width: 44px;
+  padding: 0;
+}
+
+.nsvx__icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.nsvx__search {
+  flex: 1 1 140px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+.nsvx__heading {
+  margin: var(--space-5) 0 var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Reserved so a saved notice does not move the rows below it. */
+.nsvx__notice {
+  min-height: 20px;
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nsvx__notice--bad {
+  color: var(--danger);
+}
+
+.nsvx__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-md);
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.nsvx__empty {
+  margin: var(--space-6) 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.nsvx__state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.nsvx__state--running .nsvx__dot {
+  background: var(--ok);
+}
+
+.nsvx__state--error .nsvx__dot {
+  background: var(--danger);
+}
+
+.nsvx__chip {
+  flex: none;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx__chip--write {
+  border-color: var(--warn);
+  color: var(--text-strong);
+}
+
+.nsvx-team,
+.nsvx-list,
+.nsvx-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-agent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: calc(var(--nsvx-depth) * 20px);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-agent__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.nsvx-agent__main {
+  display: flex;
+  flex: 1 1 120px;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nsvx-agent__name {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-agent__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.nsvx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-field select,
+.nsvx-field input {
+  width: 100%;
+  min-width: 130px;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 14px;
+}
+
+.nsvx-action,
+.nsvx-approval,
+.nsvx-task {
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-action__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: default;
+}
+
+.nsvx-action__head:hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-action__title {
+  min-width: 0;
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.nsvx-action__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.nsvx-action__description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nsvx-action__buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.nsvx-action__output {
+  max-height: 320px;
+  margin: 0;
+  padding: var(--space-3);
+  overflow: auto;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  font-size: 12px;
+}
+
+.nsvx-approval,
+.nsvx-task {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.nsvx-connect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+  text-align: center;
+}
+
+.nsvx-connect strong {
+  color: var(--text-strong);
+  font-size: 18px;
+}
+
+.nsvx-connect__icon {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nsvx-connect code {
+  color: var(--muted);
+}
+
+.nsvx-hero {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  color: var(--muted);
+}
+
+.nsvx-hero__value {
+  color: var(--text-strong);
+  font-size: 40px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.nsvx-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-legend .nsvx-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.nsvx-swatch--native {
+  background: var(--ok);
+}
+
+.nsvx-swatch--partial {
+  background: var(--warn);
+}
+
+.nsvx-swatch--blocked {
+  background: var(--danger);
+}
+
+.nsvx-swatch--missing {
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+.nsvx-progress {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.nsvx-progress th[scope="row"] {
+  width: 42%;
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-progress__count {
+  width: 52px;
+  padding-inline-start: var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.nsvx-progress td:nth-child(2) {
+  width: auto;
+}
+
+.nsvx-bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+
+.nsvx-bar .nsvx-swatch {
+  min-width: 4px;
+  border-radius: 2px;
+}
+
+.nsvx-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .nsvx {
+    padding: var(--space-3);
+  }
+
+  .nsvx__tabs {
+    width: 100%;
+  }
+
+  .nsvx__tab {
+    flex: 1;
+  }
+
+  .nsvx-agent {
+    margin-left: calc(var(--nsvx-depth) * 8px);
+  }
+
+  .nsvx-agent__controls {
+    width: 100%;
+  }
+
+  .nsvx-agent__controls .nsvx-field {
+    flex: 1 1 130px;
+  }
+
+  .nsvx-progress th[scope="row"] {
+    width: 48%;
+  }
+}

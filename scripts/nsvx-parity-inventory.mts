@@ -785,6 +785,27 @@ export function summarizeParity(registry: Registry) {
   };
 }
 
+/** The plugin's copy of the registry: public titles and states, shown in Control and chat. */
+export function renderPluginParity(registry: Registry): string {
+  const { families, ...totals } = summarizeParity(registry);
+  const data = {
+    ...totals,
+    sources: { nsvx: registry.sources.nsvx.commit, openclaw: registry.sources.openclaw.commit },
+    families,
+    entries: registry.entries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      family: entry.family,
+      priority: entry.priority,
+      status: entry.status,
+      verified: entry.verification.requires.every((name) =>
+        entry.verification.passed.includes(name),
+      ),
+    })),
+  };
+  return `${JSON.stringify(data, null, 2)}\n`;
+}
+
 function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const item of sortBy([...items], key)) {
@@ -884,17 +905,23 @@ function main(argv: string[]) {
     throw new Error(`Registry is invalid:\n${errors.join("\n")}`);
   }
   const rendered = renderInventory(registry, nsvx, openclaw);
+  const pluginParityPath = path.join(root, "extensions/nsvx/src/parity-data.json");
+  const pluginParity = renderPluginParity(registry);
   if (options.has("--full-out")) {
     fs.writeFileSync(options.get("--full-out") ?? "", `${JSON.stringify(nsvx, null, 2)}\n`);
   }
   if (flags.has("--check")) {
-    if (fs.readFileSync(inventoryPath, "utf8") !== rendered) {
-      throw new Error("source-inventory.json is stale. Run the generator without --check.");
+    if (
+      fs.readFileSync(inventoryPath, "utf8") !== rendered ||
+      fs.readFileSync(pluginParityPath, "utf8") !== pluginParity
+    ) {
+      throw new Error("Generated parity files are stale. Run the generator without --check.");
     }
     process.stdout.write("nsvx-parity: registry valid, inventory current\n");
     return;
   }
   fs.writeFileSync(inventoryPath, rendered);
+  fs.writeFileSync(pluginParityPath, pluginParity);
   process.stdout.write(`nsvx-parity: wrote ${path.relative(root, inventoryPath)}\n`);
 }
 

@@ -1,0 +1,27 @@
+{
+  "id": "nsvx",
+  "name": "NSVX",
+  "description": "Run NSVX actions, manage the agent team, and track parity from Control",
+  "categories": ["productivity"],
+  "enabledByDefault": false,
+  "activation": {
+    "onStartup": true
+  },
+  "uiCapabilities": ["page", "navigation"],
+  "uiHints": {
+    "baseUrl": {
+      "label": "NSVX address",
+      "help": "HTTPS origin of the NSVX server. HTTP is allowed only for localhost and 127.0.0.1."
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": {
+        "type": "string",
+        "default": "https://nsvx.com"
+      }
+    }
+  }
+}
