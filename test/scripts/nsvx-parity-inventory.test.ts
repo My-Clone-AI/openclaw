@@ -84,9 +84,12 @@ const APP_ROUTE_DEFINITIONS = {
 export const CORE_GATEWAY_METHOD_SPECS = [
   ["health", "health", "operator.read", "<=2026.7"],
   ["exec.approval.get", null, "operator.approvals", "<=2026.7"],
+  ["agent", "agent", "dynamic", "<=2026.7", { startup: true }],
 ];`,
   "extensions/board/openclaw.plugin.json": `{"id":"board","categories":["x"],"controlUi":{"entry":"a"}}`,
   "extensions/board/index.ts": `api.registerGatewayMethod("board.list", handler);`,
+  "extensions/pane/openclaw.plugin.json": `{"id":"pane"}`,
+  "extensions/pane/package.json": `{"openclaw":{"controlUi":"./src/control-ui.tsx"}}`,
 };
 
 function tempGitRepo(files: Record<string, string>) {
@@ -194,11 +197,13 @@ describe("nsvx parity inventory", () => {
       ],
       pages: ["chat"],
       gatewayMethods: [
+        { name: "agent", group: "agent", scope: "dynamic" },
         { name: "exec.approval.get", group: null, scope: "operator.approvals" },
         { name: "health", group: "health", scope: "operator.read" },
       ],
       extensions: [
         { id: "board", categories: ["x"], controlUi: true, gatewayMethods: ["board.list"] },
+        { id: "pane", categories: [], controlUi: true, gatewayMethods: [] },
       ],
     });
   });

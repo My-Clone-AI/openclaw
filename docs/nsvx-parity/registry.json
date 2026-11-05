@@ -3,7 +3,7 @@
   "sources": {
     "nsvx": {
       "repo": "My-Clone-AI/clone",
-      "commit": "228296050da9da6fe364a88d5f5901bd9ce8b9b2"
+      "commit": "68978f9f91620832707fe0a0a5d6db1deb7868ed"
     },
     "openclaw": {
       "repo": "My-Clone-AI/openclaw",
@@ -1040,7 +1040,7 @@
         "sourceFiles": [
           "backend/clone/inference/api.py",
           "backend/clone/inference/api_keys_admin.py",
-          "backend/clone/inference/hermes_api.py",
+          "backend/clone/inference/openclaw_api.py",
           "backend/clone/inference/local_training.py",
           "backend/clone/inference/ops_api.py",
           "web/src/screens/Ai.tsx",
@@ -1318,7 +1318,7 @@
       "title": "Agent org chart",
       "family": "08",
       "priority": "P0",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1346,7 +1346,8 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "agents"
+          "agents",
+          "plugin"
         ],
         "gatewayMethods": [
           "agents.list",
@@ -1354,10 +1355,12 @@
           "node.list",
           "sessions.list"
         ],
-        "extensions": [],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "None needed: read the same Gateway methods openclaw_admin reads.",
+      "adapter": "nsvx plugin Team tab reads the same Gateway methods openclaw_admin reads.",
       "verification": {
         "requires": [
           "discovery",
@@ -1372,21 +1375,30 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/graph.py",
+          "extensions/nsvx/src/control-ui.tsx",
+          "extensions/nsvx/src/org.ts",
           "web/src/components/OpenClawManager.tsx",
           "web/src/logic/openclawGraph.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [],
       "unknowns": [
-        "Tier labels and layout are read from source only; the NSVX screen was not opened."
+        "Tier labels and layout are read from source only; the NSVX screen was not opened.",
+        "Not yet run against the live Gateway."
       ]
     },
     {
@@ -1394,7 +1406,7 @@
       "title": "Change who an agent reports to",
       "family": "08",
       "priority": "P0",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1420,15 +1432,19 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
+        "uiRoutes": [
+          "plugin"
+        ],
         "gatewayMethods": [
           "config.get",
           "config.patch"
         ],
-        "extensions": [],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "Same config.patch shape as openclaw_admin move_patch. Writes made here skip the NSVX version log.",
+      "adapter": "Team tab: same config.patch shape as openclaw_admin move_patch, pinned to the read hash.",
       "verification": {
         "requires": [
           "discovery",
@@ -1450,19 +1466,25 @@
         "level": "source",
         "source": [
           "backend/clone/openclaw_admin/mutations.py",
-          "backend/clone/openclaw_admin/service.py"
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/org.test.ts",
+          "extensions/nsvx/src/org.ts"
         ],
         "runtime": []
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Changes made here are not written to the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
+        "NSVX refuses to move a paused agent; this page cannot see NSVX pause state.",
+        "Not yet run against the live Gateway."
+      ]
     },
     {
       "id": "architecture-assign",
       "title": "Run an agent on a device",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1486,15 +1508,19 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
+        "uiRoutes": [
+          "plugin"
+        ],
         "gatewayMethods": [
           "config.patch",
           "node.list"
         ],
-        "extensions": [],
+        "extensions": [
+          "nsvx"
+        ],
         "chatTools": []
       },
-      "adapter": "config.patch on tools.exec.node, as openclaw_admin assign_patch.",
+      "adapter": "Team tab: config.patch on tools.exec, as openclaw_admin assign_patch.",
       "verification": {
         "requires": [
           "discovery",
@@ -1515,12 +1541,17 @@
       "evidence": {
         "level": "source",
         "source": [
-          "backend/clone/openclaw_admin/mutations.py"
+          "backend/clone/openclaw_admin/mutations.py",
+          "extensions/nsvx/src/org.test.ts",
+          "extensions/nsvx/src/org.ts"
         ],
         "runtime": []
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Changes made here are not written to the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
+        "Not yet run against the live Gateway."
+      ]
     },
     {
       "id": "architecture-history",
@@ -1662,6 +1693,165 @@
       ],
       "unknowns": [
         "Which owner should hold paused state."
+      ]
+    },
+    {
+      "id": "architecture-stop",
+      "title": "Stop an agent's runs",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "openclaw_admin"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/openclaw/agents"
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/service.py",
+          "web/src/components/OpenClawManager.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "sessions.abort",
+          "sessions.list"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": []
+      },
+      "adapter": "Team tab Stop: sessions.abort with clearQueued for each live run, as openclaw_admin restart.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/control-ui.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
+      },
+      "blockers": [],
+      "unknowns": [
+        "Not yet run against the live Gateway."
+      ]
+    },
+    {
+      "id": "architecture-task",
+      "title": "Give an agent a task",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "openclaw_admin"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/ai/openclaw/tasks"
+        ],
+        "sourceFiles": [
+          "backend/clone/openclaw_admin/api.py",
+          "backend/clone/openclaw_admin/service.py"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "agent"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": []
+      },
+      "adapter": "Team tab Task: the agent method with one idempotency key per message, as openclaw_admin task.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/control-ui.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
+      },
+      "blockers": [],
+      "unknowns": [
+        "NSVX has no screen for this route yet; it is backend-only at the pin.",
+        "Not yet run against the live Gateway."
       ]
     },
     {
@@ -2274,6 +2464,74 @@
       ],
       "unknowns": [
         "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+      ]
+    },
+    {
+      "id": "openclaw-brain",
+      "title": "OpenClaw brain inbox and roles",
+      "family": "09",
+      "priority": "P1",
+      "status": "missing",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [
+          "inference"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/v1/admin/ai/openclaw"
+        ],
+        "sourceFiles": [
+          "backend/clone/inference/openclaw_api.py",
+          "backend/clone/inference/openclaw_control_proxy.py",
+          "web/src/components/OpenClawPanel.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [],
+        "gatewayMethods": [],
+        "extensions": [],
+        "chatTools": []
+      },
+      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned; the inbox and status files live on the NSVX host.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/inference/openclaw_api.py",
+          "web/src/components/OpenClawPanel.tsx"
+        ],
+        "runtime": []
+      },
+      "blockers": [
+        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+      ],
+      "unknowns": [
+        "Whether the brain inbox should move into the Gateway task queue instead of staying an NSVX file inbox."
       ]
     },
     {

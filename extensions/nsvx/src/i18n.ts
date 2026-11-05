@@ -52,6 +52,11 @@ const en = {
   missing: "Missing",
   blocked: "Blocked",
   features: "Features",
+  stop: "Stop",
+  stopped: "Stopped",
+  task: "Task",
+  send: "Send",
+  sent: "Sent",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -110,6 +115,11 @@ const pt: Record<MessageKey, string> = {
   missing: "Em falta",
   blocked: "Bloqueado",
   features: "Funções",
+  stop: "Parar",
+  stopped: "Parado",
+  task: "Tarefa",
+  send: "Enviar",
+  sent: "Enviado",
 };
 
 const es: Record<MessageKey, string> = {
@@ -166,6 +176,11 @@ const es: Record<MessageKey, string> = {
   missing: "Falta",
   blocked: "Bloqueado",
   features: "Funciones",
+  stop: "Detener",
+  stopped: "Detenido",
+  task: "Tarea",
+  send: "Enviar",
+  sent: "Enviado",
 };
 
 const CATALOGS: Record<string, Record<MessageKey, string>> = { en, pt, es };

@@ -62,6 +62,11 @@
   background: var(--primary-active);
 }
 
+.nsvx__button--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 .nsvx__button--icon {
   width: 44px;
   padding: 0;
@@ -214,6 +219,7 @@
 .nsvx-agent__controls {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: var(--space-3);
 }
 
@@ -238,6 +244,33 @@
   color: var(--text-strong);
   font: inherit;
   font-size: 14px;
+}
+
+.nsvx-task-box {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.nsvx-task-box textarea {
+  flex: 1 1 220px;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 16px;
+  resize: vertical;
+}
+
+.nsvx-task-box .nsvx__notice {
+  flex: 1 0 100%;
+  margin: 0;
 }
 
 .nsvx-action,
