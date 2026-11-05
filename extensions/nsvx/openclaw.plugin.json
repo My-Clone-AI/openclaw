@@ -20,7 +20,8 @@
       "nsvx_messages",
       "nsvx_finance",
       "nsvx_agenda",
-      "nsvx_people"
+      "nsvx_people",
+      "nsvx_group"
     ]
   },
   "uiCapabilities": [

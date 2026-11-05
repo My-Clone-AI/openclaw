@@ -10,6 +10,8 @@ import { ActivityTab, FindTab } from "./activity-tab.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { AgendaTab } from "./agenda-tab.js";
 import { FinanceTab } from "./finance-tab.js";
+import { groupTranslator } from "./group-i18n.js";
+import { GroupTab } from "./group-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
@@ -44,6 +46,7 @@ type Tab =
   | "agenda"
   | "people"
   | "money"
+  | "group"
   | "team"
   | "actions"
   | "progress";
@@ -380,6 +383,7 @@ const TABS: Tab[] = [
   "agenda",
   "people",
   "money",
+  "group",
   "team",
   "actions",
   "progress",
@@ -399,7 +403,9 @@ const mountNsvx: ControlUiView = (container, context) => {
         ? mt(id)
         : id === "people"
           ? pt(id)
-          : t(id);
+          : id === "group"
+            ? groupTranslator(locale())("group")
+            : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
@@ -663,6 +669,9 @@ const mountNsvx: ControlUiView = (container, context) => {
               <FinanceTab host={host} t={t} query={query()} />
             </Show>
 
+            <Show when={tab() === "group"}>
+              <GroupTab host={host} t={t} query={query()} locale={locale()} />
+            </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />
             </Show>

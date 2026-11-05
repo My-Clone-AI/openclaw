@@ -96,6 +96,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Agenda      | Day, week, month; book, move, cancel; Meet, guests, help     | NSVX Google Calendar (workspace) |
 | Tasks       | Task list with filters and each task's history               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
+| Group       | Apps, app page, Errors, Visits, Servers, Mail                | NSVX owner screens and changes   |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
 | Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
 | Progress    | This registry by family                                      | `registry.json`, copied at build |
@@ -131,6 +132,14 @@ event, free, summary, book, move, and cancel; a change Google would announce to 
 terms instead of running. `ui/src/e2e/nsvx-agenda.e2e.test.ts` covers week, month, event, booking, and review at
 1280 and 390 wide.
 
+Group (Grupo Open, NSVX `/empresas-do-grupo`) reads `/api/group-companies/*` through `nsvx.view` and changes it only
+through `nsvx.group.*`, one fixed route each. Dev actions (CI, dev redeploy or restart, Grow) and server actions need
+`operator.admin`; app operations and app mail need `operator.write`. App operations are checked first when the app
+offers a preview, confirmed, typed for high risk, and sent with one idempotency key per intent. Mail is saved as a
+draft and sent only after a second confirm; bodies show as plain text. Adult apps never appear. Chat gets the optional
+owner-only `nsvx_group`: reads, plus dev actions, which NSVX limits to development; it never sends mail, runs app
+operations, or touches servers. `ui/src/e2e/nsvx-group.e2e.test.ts` covers every section at 1280 and 390 wide.
+
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
 counts toward `ui`, `desktop`, and `mobile`; `data` and `chat` stay open until a live Gateway run is recorded.
@@ -144,22 +153,17 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply, and Money
-  read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
-  `NSVX_OWNER_SESSION`; Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those
+- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply, Money, and
+  Group read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
+  `NSVX_OWNER_SESSION`; Messages, Quick reply, and Group also make the fixed `OWNER_WRITES` changes. Until it is set, those
   tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live
   NSVX.
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
   The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`,
-  `nsvx_people`, and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never send; finance is
-  read-only).
-- **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
-  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
-  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, and `nsvx_messages` tools
-  (and `nsvx_messages` never sends).
+  `nsvx_people`, and optional `nsvx_finance` and `nsvx_group` tools (`nsvx_messages` and `nsvx_people` never send;
+  finance is read-only; group reads and runs dev-only actions).
 - **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
   Everything else needs a contract in NSVX.
 - **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.

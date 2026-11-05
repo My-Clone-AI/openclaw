@@ -5491,10 +5491,40 @@
         "digest": "5a91129c301be29104f56a8f21ae186f4ed3f69ee7512aed63418d9200aebe26"
       },
       "group-companies": {
-        "routes": 71,
-        "reads": 40,
-        "writes": 31,
-        "digest": "fb736ebd5aca20ba2de63d6d8d395f94ddf2478e7af695935dd9e3aa667e5240"
+        "routes": 56,
+        "reads": 28,
+        "writes": 28,
+        "digest": "30fd1e65590e47d618a5d841f045eba1916090d6b4ceec175ec82169efdb25ea"
+      },
+      "group-overview": {
+        "routes": 4,
+        "reads": 3,
+        "writes": 1,
+        "digest": "701f3cd71fc873d80358550c01e36cee39b81de2e72e5a70265c69f1efef8df5"
+      },
+      "group-mail": {
+        "routes": 2,
+        "reads": 2,
+        "writes": 0,
+        "digest": "1e73f117f0b25256d6caec0ead7d03aeae93f64bd900ab29008eb2f183d5db17"
+      },
+      "group-metrics": {
+        "routes": 1,
+        "reads": 1,
+        "writes": 0,
+        "digest": "196a39351294c58762895c3f993d65292b3c63345261420df65d10b8989052c0"
+      },
+      "group-errors": {
+        "routes": 1,
+        "reads": 1,
+        "writes": 0,
+        "digest": "274d4799ba87c57aa1c4aafdaa3c071eec117341a394b7ed258cae076c024d09"
+      },
+      "group-servers": {
+        "routes": 7,
+        "reads": 5,
+        "writes": 2,
+        "digest": "376785325be92c30ab60c3853a2fe57c5fc81f6e2da7290bc8a57ea338819cef"
       },
       "documents": {
         "routes": 120,
@@ -5666,20 +5696,20 @@
       }
     },
     "parity": {
-      "discovered": 68,
+      "discovered": 73,
       "native": 9,
-      "partial": 27,
-      "missing": 31,
+      "partial": 33,
+      "missing": 30,
       "blocked": 1,
       "verified": 0,
       "families": [
         {
           "id": "10",
           "name": "Group companies",
-          "discovered": 1,
+          "discovered": 6,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 6,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

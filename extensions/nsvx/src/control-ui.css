@@ -18,6 +18,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
+  max-width: 100%;
 }
 
 .nsvx__tab {
@@ -997,4 +998,3 @@
     padding-left: var(--space-3);
   }
 }
-
