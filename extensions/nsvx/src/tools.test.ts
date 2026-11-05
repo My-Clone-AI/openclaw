@@ -1,7 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import manifest from "../openclaw.plugin.json" with { type: "json" };
 import type { NsvxClient } from "./client.js";
-import { createNsvxFinanceTool, createNsvxTools, FINANCE_VIEWS } from "./tools.js";
+import {
+  createNsvxFinanceTool,
+  createNsvxMessagesTool,
+  createNsvxOwnerTools,
+  createNsvxTeamTool,
+  createNsvxTools,
+  FINANCE_VIEWS,
+  NSVX_OWNER_TOOL_NAMES,
+} from "./tools.js";
 
 describe("nsvx_finance", () => {
   const client = { readOwnerView: vi.fn(async () => ({ obligations: [] })) };
@@ -26,9 +34,28 @@ describe("nsvx_finance", () => {
 });
 
 it("declares every registered tool, because the loader drops undeclared tools", () => {
+  const team = {
+    snapshot: async () => ({ agents: [] }),
+    move: async () => ({}),
+    assign: async () => ({}),
+    task: async () => ({}),
+    stop: async () => ({}),
+    pause: async () => ({}),
+    resume: async () => ({}),
+    history: async () => ([]),
+    undo: async () => ({}),
+  };
+  const ctx = { senderIsOwner: true };
   const names = [
     ...createNsvxTools({} as NsvxClient).map((tool) => tool.name),
-    createNsvxFinanceTool({} as NsvxClient, {}).name,
+    createNsvxTeamTool(team as never, ctx as never).name,
+    ...createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name),
+    createNsvxMessagesTool({} as NsvxClient, ctx as never).name,
+    createNsvxFinanceTool({} as NsvxClient, ctx as never).name,
   ];
-  expect(manifest.contracts.tools.toSorted()).toEqual(names.toSorted());
+  expect(NSVX_OWNER_TOOL_NAMES.toSorted()).toEqual(
+    createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name).toSorted(),
+  );
+  expect(manifest.contracts.tools.toSorted()).toEqual([...new Set(names)].toSorted());
+  expect(manifest.contracts.tools).toHaveLength(8);
 });
