@@ -17,6 +17,9 @@ import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
 import { registerGrowMethods } from "./grow.js";
+import { registerLegalMethods } from "./legal.js";
+import { registerMarketingMethods } from "./marketing.js";
+import { registerResearchMethods } from "./research.js";
 import { askFleet, changeFleet } from "./fleet.js";
 import {
   mailAction,
@@ -199,6 +202,9 @@ export function registerNsvxGatewayMethods(
   registerDeviceMethods(method, client);
   registerGrowMethods(method, client);
   registerAviationMethods(method, client);
+  registerLegalMethods(method, client);
+  registerResearchMethods(method, client);
+  registerMarketingMethods(method, client);
   // Fleet (TVDE, Transports) reads through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
   // None pays or approves money; access links and driver news reach drivers only through their own portal.
   method("nsvx.fleet.change", "operator.write", (params) => changeFleet(client, params));

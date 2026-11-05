@@ -3,6 +3,7 @@ import type { ControlUiHost } from "openclaw/plugin-sdk/control-ui";
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import {
   authorOf,
+  canLegalReview,
   isPreparing,
   replyBody,
   splitOutbox,
@@ -14,6 +15,7 @@ import {
   type QuickReplyDraft,
 } from "./messages-data.js";
 import type { MessagesKey, MT } from "./messages-i18n.js";
+import { LegalReplyButton } from "./legal-reply.js";
 import { Avatar, every, ownerChange, Speak, waitForDraft } from "./messages-ui.js";
 import { createSource, Icon, SourceView, type T } from "./ui-kit.js";
 
@@ -124,6 +126,7 @@ const OUTBOX_LABELS: Record<string, MessagesKey> = {
 function ReviewCard(props: {
   host: ControlUiHost;
   mt: MT;
+  locale: string;
   item: OutboxItem;
   onDone: (notice: Notice) => void;
 }) {
@@ -159,6 +162,20 @@ function ReviewCard(props: {
         onInput={(event) => setText(event.currentTarget.value)}
       />
       <span class="nsvx-action__buttons">
+        <Show when={canLegalReview(props.item)}>
+          <LegalReplyButton
+            host={props.host}
+            locale={props.locale}
+            outboxId={props.item.id}
+            revision={props.item.revision}
+            savedReview={props.item.payload?.legal_review_id}
+            text={text()}
+            disabled={
+              busy() || !props.host.connection.canWrite || Boolean(props.item.payload?.revision_pending)
+            }
+            onChange={() => props.onDone({ text: props.mt("draftUpdated") })}
+          />
+        </Show>
         <button
           type="button"
           class="nsvx__button"
@@ -588,7 +605,13 @@ export function Thread(props: {
                 <ul class="nsvx-list">
                   <For each={outbox().review} keyed={(o) => o.id}>
                     {(o) => (
-                      <ReviewCard host={props.host} mt={props.mt} item={o()} onDone={settled} />
+                      <ReviewCard
+                        host={props.host}
+                        mt={props.mt}
+                        locale={props.locale}
+                        item={o()}
+                        onDone={settled}
+                      />
                     )}
                   </For>
                 </ul>

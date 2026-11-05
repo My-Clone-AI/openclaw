@@ -5,8 +5,11 @@ import { fleetTranslator } from "./fleet-i18n.js";
 import { growTranslator } from "./grow-i18n.js";
 import { groupTranslator } from "./group-i18n.js";
 import { translator } from "./i18n.js";
+import { legalTranslator } from "./legal-i18n.js";
+import { marketingTranslator } from "./marketing-i18n.js";
 import { messagesTranslator } from "./messages-i18n.js";
 import { peopleTranslator } from "./people-i18n.js";
+import { researchTranslator } from "./research-i18n.js";
 
 /** The NSVX page's tabs, in bar order; each label comes from the catalog of the tab that owns it. */
 export const TABS = [
@@ -24,6 +27,9 @@ export const TABS = [
   "group",
   "fleet",
   "aviation",
+  "legal",
+  "research",
+  "marketing",
   "team",
   "setup",
   "skills",
@@ -56,6 +62,12 @@ export function tabLabel(locale: string, id: Tab): string {
       return messagesTranslator(locale)(id);
     case "people":
       return peopleTranslator(locale)(id);
+    case "legal":
+      return legalTranslator(locale)("legal");
+    case "research":
+      return researchTranslator(locale)("research");
+    case "marketing":
+      return marketingTranslator(locale)("marketing");
     case "device":
     case "health":
       return deviceTranslator(locale)(id);

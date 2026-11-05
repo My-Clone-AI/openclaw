@@ -13,6 +13,12 @@ import { FleetTab } from "./fleet-tab.js";
 import { GroupTab } from "./group-tab.js";
 import { growTranslator } from "./grow-i18n.js";
 import { GrowTab } from "./grow-tab.js";
+import { legalTranslator } from "./legal-i18n.js";
+import { LegalTab } from "./legal-tab.js";
+import { marketingTranslator } from "./marketing-i18n.js";
+import { MarketingTab } from "./marketing-tab.js";
+import { researchTranslator } from "./research-i18n.js";
+import { ResearchTab } from "./research-tab.js";
 import { HealthTab } from "./health-tab.js";
 import { translator } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
@@ -649,6 +655,36 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "health"}>
               <HealthTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
+            <Show when={tab() === "legal"}>
+              <LegalTab
+                host={host}
+                t={t}
+                dt={dt}
+                lt={legalTranslator(locale())}
+                locale={locale()}
+                query={query()}
+              />
+            </Show>
+            <Show when={tab() === "research"}>
+              <ResearchTab
+                host={host}
+                t={t}
+                dt={dt}
+                rt={researchTranslator(locale())}
+                locale={locale()}
+                query={query()}
+              />
+            </Show>
+            <Show when={tab() === "marketing"}>
+              <MarketingTab
+                host={host}
+                t={t}
+                dt={dt}
+                kt={marketingTranslator(locale())}
+                locale={locale()}
+                query={query()}
+              />
             </Show>
             <Show when={tab() === "fleet"}>
               <FleetTab host={host} t={t} locale={locale()} query={query()} />

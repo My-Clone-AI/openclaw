@@ -46,11 +46,12 @@ export function createAction(ctx: () => AvCtx) {
 }
 
 /** Saves a file NSVX produced (base64 over the Gateway socket) without leaving Control. */
-export async function saveNsvxFile(host: ControlUiHost, params: Record<string, unknown>) {
-  const file = await host.request<{ fileName: string; mime: string; data: string }>(
-    "nsvx.aviation.file",
-    params,
-  );
+export async function saveNsvxFile(
+  host: ControlUiHost,
+  params: Record<string, unknown>,
+  method = "nsvx.aviation.file",
+) {
+  const file = await host.request<{ fileName: string; mime: string; data: string }>(method, params);
   const bytes = Uint8Array.from(atob(file.data), (char) => char.charCodeAt(0));
   const url = URL.createObjectURL(new Blob([bytes], { type: file.mime }));
   try {
