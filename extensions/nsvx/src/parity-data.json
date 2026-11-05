@@ -1,0 +1,724 @@
+{
+  "discovered": 61,
+  "native": 9,
+  "partial": 13,
+  "missing": 38,
+  "blocked": 1,
+  "verified": 0,
+  "sources": {
+    "nsvx": "68978f9f91620832707fe0a0a5d6db1deb7868ed",
+    "openclaw": "dfc33ec231d4afd31ae7eeb8b9b218575b39a596"
+  },
+  "families": [
+    {
+      "id": "10",
+      "name": "Group companies",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "11",
+      "name": "Documents and Drive",
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "12",
+      "name": "Finance",
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "13",
+      "name": "Real estate",
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "14",
+      "name": "Short-stay rentals",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "15",
+      "name": "Aviation",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "16",
+      "name": "TVDE and transport",
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "17",
+      "name": "Legal",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "18",
+      "name": "Research and web",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "19",
+      "name": "Marketing and social",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "20",
+      "name": "Business and personal",
+      "discovered": 4,
+      "native": 0,
+      "partial": 0,
+      "missing": 4,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "21",
+      "name": "Permissions and integrations",
+      "discovered": 5,
+      "native": 0,
+      "partial": 1,
+      "missing": 4,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "22",
+      "name": "Everything else",
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "01",
+      "name": "Today, search and commands",
+      "discovered": 3,
+      "native": 0,
+      "partial": 2,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "02",
+      "name": "Messages",
+      "discovered": 2,
+      "native": 0,
+      "partial": 1,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "03",
+      "name": "People",
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "04",
+      "name": "Calls and voice",
+      "discovered": 1,
+      "native": 0,
+      "partial": 1,
+      "missing": 0,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "05",
+      "name": "Tasks and automation",
+      "discovered": 4,
+      "native": 0,
+      "partial": 3,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "06",
+      "name": "Calendar and Google",
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "07",
+      "name": "AI and inference",
+      "discovered": 3,
+      "native": 0,
+      "partial": 2,
+      "missing": 1,
+      "blocked": 0,
+      "verified": 0
+    },
+    {
+      "id": "08",
+      "name": "Agents",
+      "discovered": 15,
+      "native": 9,
+      "partial": 3,
+      "missing": 2,
+      "blocked": 1,
+      "verified": 0
+    },
+    {
+      "id": "09",
+      "name": "Grow and development",
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
+      "verified": 0
+    }
+  ],
+  "entries": [
+    {
+      "id": "home-today",
+      "title": "Today and decisions",
+      "family": "01",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "unified-search",
+      "title": "Unified search",
+      "family": "01",
+      "priority": "P1",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "activity-log",
+      "title": "Activity log",
+      "family": "01",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "messages",
+      "title": "Messages and coverage",
+      "family": "02",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "quick-reply",
+      "title": "Quick Reply",
+      "family": "02",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "people",
+      "title": "People and groups",
+      "family": "03",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "social-context",
+      "title": "Social context",
+      "family": "03",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "calls-voice",
+      "title": "Calls and voice",
+      "family": "04",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "automations",
+      "title": "Automations",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "live-tasks",
+      "title": "Live task view",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "missions",
+      "title": "Tasks and missions",
+      "family": "05",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "autonomy-controls",
+      "title": "Autonomy, plans and fixes",
+      "family": "05",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "agenda",
+      "title": "Agenda",
+      "family": "06",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "ai-models",
+      "title": "AI models, routing and keys",
+      "family": "07",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "architecture-providers",
+      "title": "Register the clone-ai provider",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "clone-ai-training",
+      "title": "clone-ai models and training",
+      "family": "07",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "agentos",
+      "title": "Action contracts and approvals",
+      "family": "08",
+      "priority": "P0",
+      "status": "blocked",
+      "verified": false
+    },
+    {
+      "id": "architecture-chart",
+      "title": "Agent org chart",
+      "family": "08",
+      "priority": "P0",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-move",
+      "title": "Change who an agent reports to",
+      "family": "08",
+      "priority": "P0",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-assign",
+      "title": "Run an agent on a device",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-history",
+      "title": "Config history and rollback",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-pause",
+      "title": "Pause and resume an agent",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-stop",
+      "title": "Stop an agent's runs",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-task",
+      "title": "Give an agent a task",
+      "family": "08",
+      "priority": "P1",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-create",
+      "title": "Create and delete agents",
+      "family": "08",
+      "priority": "P2",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-devices",
+      "title": "Approve and reject devices",
+      "family": "08",
+      "priority": "P2",
+      "status": "native",
+      "verified": false
+    },
+    {
+      "id": "architecture-instructions",
+      "title": "Agent instructions",
+      "family": "08",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "architecture-permissions",
+      "title": "Agent tool permissions",
+      "family": "08",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "architecture-policies",
+      "title": "Fleet defaults",
+      "family": "08",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "architecture-suggest",
+      "title": "AI agent suggestions",
+      "family": "08",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "skills",
+      "title": "Skills",
+      "family": "08",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "group-grow",
+      "title": "Development progress board",
+      "family": "09",
+      "priority": "P1",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "build-me",
+      "title": "Build Me requests",
+      "family": "09",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "openclaw-brain",
+      "title": "OpenClaw brain inbox and roles",
+      "family": "09",
+      "priority": "P1",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "group-companies",
+      "title": "Group companies",
+      "family": "10",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "documents",
+      "title": "Documents, forms and signatures",
+      "family": "11",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "drive",
+      "title": "Drive",
+      "family": "11",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "finance",
+      "title": "Finance and accounting",
+      "family": "12",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "bank-broker",
+      "title": "Bank broker service",
+      "family": "12",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "mortgage",
+      "title": "Mortgage",
+      "family": "13",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "real-estate",
+      "title": "Real estate",
+      "family": "13",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "rentals",
+      "title": "Rentals",
+      "family": "13",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "short-stay",
+      "title": "Short-stay rentals",
+      "family": "14",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "aviation",
+      "title": "Aviation",
+      "family": "15",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "transports",
+      "title": "Transports",
+      "family": "16",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "tvde",
+      "title": "TVDE fleet",
+      "family": "16",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "legal",
+      "title": "Legal cases",
+      "family": "17",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "research",
+      "title": "Research",
+      "family": "18",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "marketing",
+      "title": "Marketing",
+      "family": "19",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "business",
+      "title": "Business workspace",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "orders",
+      "title": "Orders",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "utilities",
+      "title": "Home utilities",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "warranties",
+      "title": "Warranties",
+      "family": "20",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "owner-auth",
+      "title": "Sign-in and devices",
+      "family": "21",
+      "priority": "P1",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "settings-apps",
+      "title": "Apps, logins and devices",
+      "family": "21",
+      "priority": "P1",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "browser-sessions",
+      "title": "Browser sessions",
+      "family": "21",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "permissions",
+      "title": "Shared file access",
+      "family": "21",
+      "priority": "P2",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "provider-webhooks",
+      "title": "Provider webhooks",
+      "family": "21",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "desktop-companion",
+      "title": "Desktop app",
+      "family": "22",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "health-and-legal",
+      "title": "Health and legal pages",
+      "family": "22",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    },
+    {
+      "id": "offline-sync",
+      "title": "Offline sync",
+      "family": "22",
+      "priority": "P3",
+      "status": "missing",
+      "verified": false
+    }
+  ]
+}

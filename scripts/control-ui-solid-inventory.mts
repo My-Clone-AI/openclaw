@@ -14,6 +14,7 @@ export const PLUGIN_UI_SOURCE_ROOTS = [
   "extensions/whatsapp/browser",
   "extensions/clawrouter/src/control-ui.tsx",
   "extensions/x/src/control-ui.tsx",
+  "extensions/nsvx/src/control-ui.tsx",
 ];
 const ROOTS = ["ui/src", ...PLUGIN_UI_SOURCE_ROOTS];
 const CODE = /\.(?:[cm]?[jt]s|[jt]sx)$/u;
