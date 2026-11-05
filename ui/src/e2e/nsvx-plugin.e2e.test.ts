@@ -431,6 +431,247 @@ suite.define(() => {
     );
   });
 
+  it("shows NSVX activity and unified search natively, with filters, summary, and export", async () => {
+    await suite.withPage(
+      { viewport: desktop, locale: "en-US", serviceWorkers: "block", acceptDownloads: true },
+      async ({ page }) => {
+        const pageErrors: string[] = [];
+        page.on("pageerror", (error) => pageErrors.push(error.message));
+        const at = (hoursAgo: number) => new Date(Date.now() - hoursAgo * 3_600_000).toISOString();
+        // Synthetic payloads shaped like /api/auto/activity, /api/auto/activity/workflows, and /api/find.
+        const activity = {
+          items: [
+            {
+              id: 41,
+              at: at(1),
+              kind: "status",
+              summary: "Invoice filed in Drive",
+              from_status: "in_progress",
+              to_status: "completed",
+              actor: "auto",
+              actor_name: "AUTO",
+              task_id: "t1",
+              task_title: "File the garage invoice",
+            },
+            {
+              id: 40,
+              at: at(3),
+              kind: "delegated",
+              summary: "The clone took this task",
+              from_status: null,
+              to_status: null,
+              actor: "owner",
+              actor_name: "Me",
+              task_id: "t2",
+              task_title: "Renew the car insurance",
+            },
+            {
+              id: 39,
+              at: at(30),
+              kind: "status",
+              summary: "Waiting for the landlord",
+              from_status: "in_progress",
+              to_status: "waiting",
+              actor: "auto",
+              actor_name: "AUTO",
+              task_id: "t3",
+              task_title: "Fix the boiler",
+            },
+          ],
+          next: null,
+        };
+        const workflows = {
+          items: [
+            {
+              id: "w1",
+              name: "Invoice to accounting",
+              status: "running",
+              updated_at: at(2),
+              last_durable_step: "upload",
+              steps: [
+                {
+                  step_key: "scan",
+                  app: "drive",
+                  action: "scan",
+                  status: "verified",
+                  updated_at: at(2),
+                },
+                {
+                  step_key: "upload",
+                  app: "toconline",
+                  action: "upload",
+                  status: "pending",
+                  updated_at: at(2),
+                },
+              ],
+            },
+          ],
+        };
+        const found = {
+          version: 2,
+          groups: [
+            {
+              group: "people",
+              total: 1,
+              total_exact: true,
+              capped: false,
+              next: null,
+              error: null,
+              items: [
+                {
+                  ref: { kind: "person", id: "p1" },
+                  title: "Ana Garage",
+                  excerpt: "Mechanic",
+                  meta: ["WhatsApp"],
+                  updated_at: at(5),
+                  href: "/pessoas/p1",
+                },
+              ],
+            },
+            {
+              group: "missions",
+              total: 1,
+              total_exact: true,
+              capped: false,
+              next: null,
+              error: null,
+              items: [
+                {
+                  ref: { kind: "mission", id: "m1" },
+                  title: "Pay the garage",
+                  excerpt: null,
+                  meta: ["needs_owner"],
+                  updated_at: at(1),
+                  href: "/tarefas/m1",
+                },
+              ],
+            },
+            { group: "documents", total: 0, next: null, error: null, items: [], capped: false },
+          ],
+        };
+        const gateway = await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          featureMethods: [
+            ...defaultControlUiFeatureMethods,
+            "nsvx.view",
+            "nsvx.search",
+            "nsvx.activity.summary",
+            "nsvx.activity.export",
+          ],
+          methodResponses: {
+            "plugins.list": { plugins: [], diagnostics: [], mutationAllowed: true },
+            "nsvx.view": {
+              cases: [
+                { match: { view: "activity" }, response: activity },
+                { match: { view: "activityWorkflows" }, response: workflows },
+                { match: { view: "activityCount" }, response: { count: 2 } },
+                { match: { view: "missions" }, response: missions },
+                { match: { view: "missionEvents" }, response: { items: [], next: null } },
+              ],
+            },
+            "nsvx.activity.summary": {
+              count: 2,
+              text: "Two tasks moved: the garage invoice is filed and insurance is with the clone.",
+              unavailable: false,
+              sources: [],
+              cited: [],
+            },
+            "nsvx.activity.export": {
+              fileName: "auto-activity-2026-11-04-2026-11-05.csv",
+              csv: "at_utc,kind,summary\n",
+            },
+            "nsvx.search": found,
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx&tab=activity`);
+        const surface = page.locator(".nsvx");
+        const tab = (name: string) =>
+          surface.getByRole("tab", { name: new RegExp(`^${name}(:|$)`) });
+
+        // The log, newest first, with the cross-app flow and its steps.
+        await surface.getByText("Invoice filed in Drive", { exact: true }).waitFor();
+        await surface.getByText("Invoice to accounting", { exact: true }).waitFor();
+        expect(await tab("Activity").getAttribute("aria-selected")).toBe("true");
+
+        // Kind filter narrows the loaded rows; the header box searches inside them.
+        await surface.getByRole("combobox", { name: "Kind" }).selectOption("delegated");
+        await surface.getByText("The clone took this task", { exact: true }).waitFor();
+        expect(await surface.getByText("Invoice filed in Drive", { exact: true }).count()).toBe(0);
+        await surface.getByRole("button", { name: "Clear" }).click();
+        await surface.getByRole("searchbox").fill("boiler");
+        await surface.getByText("Waiting for the landlord", { exact: true }).waitFor();
+        expect(await surface.getByText("Invoice filed in Drive", { exact: true }).count()).toBe(0);
+        await surface.getByRole("searchbox").fill("");
+
+        // Picked rows drive the summary and the CSV export, with a count before the download.
+        await surface.getByRole("checkbox", { name: /Invoice filed in Drive/ }).check();
+        await surface.getByRole("checkbox", { name: /The clone took this task/ }).check();
+        await surface.getByRole("button", { name: "Summary" }).click();
+        await surface.getByText(/garage invoice is filed/).waitFor();
+        const summary = await gateway.waitForRequest("nsvx.activity.summary");
+        expect((summary.params as { ids: number[] }).ids.toSorted()).toEqual([40, 41]);
+        await surface.getByRole("button", { name: "CSV" }).click();
+        await surface.getByText("2 entries", { exact: true }).waitFor();
+
+        if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
+          for (const viewport of [desktop, { width: 390, height: 844 }]) {
+            const frame = await takeControlUiScreenshotFrame(page, surface, [tab("Activity")], {
+              animations: "disabled",
+              viewport,
+            });
+            await writeFile(
+              path.join(suite.artifactDir, `nsvx-activity-${viewport.width}.png`),
+              frame.png,
+            );
+          }
+          await page.setViewportSize(desktop);
+        }
+
+        const download = page.waitForEvent("download");
+        await surface.getByRole("button", { name: "Download" }).click();
+        expect((await download).suggestedFilename()).toBe(
+          "auto-activity-2026-11-04-2026-11-05.csv",
+        );
+        expect(
+          ((await gateway.waitForRequest("nsvx.activity.export")).params as { ids: number[] }).ids,
+        ).toHaveLength(2);
+
+        // Find: the header box searches people, chats, tasks, AUTO, and docs at once.
+        await tab("Find").click();
+        await surface.getByText("Type to find", { exact: true }).waitFor();
+        await surface.getByRole("searchbox").fill("garage");
+        await surface.getByText("Ana Garage", { exact: true }).waitFor();
+        expect((await gateway.waitForRequest("nsvx.search")).params).toEqual({
+          q: "garage",
+          limit: 10,
+        });
+
+        if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
+          for (const viewport of [desktop, { width: 390, height: 844 }]) {
+            const frame = await takeControlUiScreenshotFrame(page, surface, [tab("Find")], {
+              animations: "disabled",
+              viewport,
+            });
+            await writeFile(
+              path.join(suite.artifactDir, `nsvx-find-${viewport.width}.png`),
+              frame.png,
+            );
+          }
+          await page.setViewportSize(desktop);
+        }
+
+        // A task result opens natively in Tasks.
+        await surface.getByRole("tab", { name: /^Tasks: 1$/ }).click();
+        await surface.getByRole("button", { name: /Pay the garage/ }).click();
+        await surface.getByRole("button", { name: /Pay the garage/, expanded: true }).waitFor();
+        expect(new URL(page.url()).searchParams.get("tab")).toBe("tasks");
+        expect(new URL(page.url()).searchParams.get("mission")).toBe("m1");
+        expect(pageErrors).toEqual([]);
+      },
+    );
+  });
+
   it("asks for the NSVX sign-in instead of showing an error when the Gateway has none", async () => {
     await suite.withPage(
       { viewport: { width: 390, height: 844 }, locale: "pt-PT", serviceWorkers: "block" },

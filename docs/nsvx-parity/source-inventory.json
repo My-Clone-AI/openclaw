@@ -5270,10 +5270,10 @@
         "digest": "65fb5eea3a6045d0ea25e0a7af90954f9dad539083dd24f6ac547e9f624f9527"
       },
       "activity-log": {
-        "routes": 61,
-        "reads": 23,
+        "routes": 64,
+        "reads": 26,
         "writes": 38,
-        "digest": "008c25d3c9f549e5553cc7c816e991bda4781b4929e9bd4e21c7d017c0536552"
+        "digest": "9b8b65629bb85e8711cbe25f8186a7e88ba5c96f2cef226bfe1e8be277cf87e1"
       },
       "messages": {
         "routes": 83,
@@ -5622,13 +5622,25 @@
         "reads": 1,
         "writes": 4,
         "digest": "7b720a68075100221d352d27779dcae2964408fbc942691bdf8794be90215391"
+      },
+      "activities-hub": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "activities-filters": {
+        "routes": 3,
+        "reads": 3,
+        "writes": 0,
+        "digest": "2e59a4c11c362a4d080a37ef8810526c516d3f6de79f3aae0b7ff7ad3794f4df"
       }
     },
     "parity": {
-      "discovered": 61,
+      "discovered": 63,
       "native": 9,
-      "partial": 13,
-      "missing": 38,
+      "partial": 16,
+      "missing": 37,
       "blocked": 1,
       "verified": 0,
       "families": [

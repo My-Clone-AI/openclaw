@@ -126,7 +126,7 @@
       "title": "Unified search",
       "family": "01",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/"
@@ -141,7 +141,9 @@
         ],
         "sourceFiles": [
           "backend/clone/experience_api.py",
-          "web/src/screens/TodayScreen.tsx"
+          "backend/clone/finder.py",
+          "web/src/components/Finder.tsx",
+          "web/src/logic/finder.ts"
         ],
         "permissions": [
           "owner session + CSRF"
@@ -151,12 +153,20 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.search"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_search"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin: nsvx.search posts to /api/find with the owner session and its CSRF token, fetched per call for this fixed read path only (OWNER_READ_POSTS in extensions/nsvx/src/client.ts). The Find tab renders grouped results with paging; task hits open the native Tasks tab. Chat: owner-only nsvx_search.",
       "verification": {
         "requires": [
           "discovery",
@@ -171,21 +181,32 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
-          "backend/clone/experience_api.py",
-          "web/src/screens/TodayScreen.tsx"
+          "web/src/components/Finder.tsx",
+          "backend/clone/finder.py",
+          "backend/clone/experience_api.py"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium (headless shell) against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390; shots in ui/e2e-shots/nsvx-activities/: people, chats, tasks, AUTO and docs groups with counts; a task hit opens Tasks with ?mission=",
+          "extensions/nsvx/src/activity.test.ts and client.test.ts, 2026-11-05: owner-only tool gate, CSRF read-post allowlist, CSV export, request bounds"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
       ],
-      "unknowns": []
+      "unknowns": [
+        "People, chat and document hits show inline; their detail pages belong to families 02, 03 and 11."
+      ]
     },
     {
       "id": "activity-log",
@@ -195,23 +216,28 @@
       "status": "partial",
       "nsvx": {
         "webRoutes": [
-          "/"
+          "/",
+          "/tarefas"
         ],
         "backendPackages": [
-          "oplog"
+          "oplog",
+          "auto"
         ],
         "jobPackages": [],
         "apiPrefixes": [
           "/api/ai",
           "/api/audit",
           "/api/client-errors",
-          "/api/ops"
+          "/api/ops",
+          "/api/auto/activity"
         ],
         "sourceFiles": [
           "backend/clone/api.py",
           "backend/clone/oplog/api.py",
+          "backend/clone/auto/api.py",
           "web/src/screens/LiveTasks.tsx",
-          "web/src/screens/TodayScreen.tsx"
+          "web/src/screens/TodayScreen.tsx",
+          "web/src/screens/Auto.tsx"
         ],
         "permissions": [
           "owner session + CSRF"
@@ -223,13 +249,22 @@
       "openclaw": {
         "uiRoutes": [
           "logs",
-          "activity"
+          "activity",
+          "plugin"
         ],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.activity.summary",
+          "nsvx.activity.export"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_activity"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/ai; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin: nsvx.view reads GET /api/auto/activity (paged by before) and /api/auto/activity/workflows with the owner session; the Activity tab in extensions/nsvx/src/activity-tab.tsx renders them. Chat: owner-only nsvx_activity. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -244,23 +279,205 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
-          "web/src/screens/LiveTasks.tsx",
-          "backend/clone/oplog/"
+          "web/src/screens/Auto.tsx",
+          "backend/clone/auto/api.py"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium (headless shell) against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390; shots in ui/e2e-shots/nsvx-activities/: newest-first log, cross-app flows with step bars, row detail, load more",
+          "extensions/nsvx/src/activity.test.ts and client.test.ts, 2026-11-05: owner-only tool gate, CSRF read-post allowlist, CSV export, request bounds"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
       ],
       "unknowns": [
-        "The NSVX log and native logs hold different records.",
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "The NSVX log and native logs hold different records; they stay separate views.",
+        "The ops and audit logs (/api/ops, /api/audit) have no native view yet; only the AUTO activity log does."
+      ]
+    },
+    {
+      "id": "activities-hub",
+      "title": "Activities hub",
+      "family": "01",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas"
+        ],
+        "backendPackages": [
+          "auto"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/auto/activity"
+        ],
+        "sourceFiles": [
+          "backend/clone/auto/api.py",
+          "backend/clone/auto/activity_summary.py",
+          "web/src/screens/Auto.tsx",
+          "web/src/logic/activityExport.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [
+          "in-apps inference (summary)"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.activity.summary"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_activity"
+        ]
+      },
+      "adapter": "nsvx plugin Activity tab: one screen with the log, picked rows, AI summary (POST /api/auto/activity/summary with the owner CSRF, read only), and cross-app flows. Chat: nsvx_activity with summarize.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/screens/Auto.tsx",
+          "backend/clone/auto/activity_summary.py"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium (headless shell) against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390; shots in ui/e2e-shots/nsvx-activities/: picked rows summarized with their ids",
+          "extensions/nsvx/src/activity.test.ts and client.test.ts, 2026-11-05: owner-only tool gate, CSRF read-post allowlist, CSV export, request bounds"
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "Workflow share links (GET /api/auto/activity/workflows/{id}/share) mint public tokens and are left out on purpose."
+      ]
+    },
+    {
+      "id": "activities-filters",
+      "title": "Activity filters and export",
+      "family": "01",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tarefas"
+        ],
+        "backendPackages": [
+          "auto"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/auto/activity/export"
+        ],
+        "sourceFiles": [
+          "backend/clone/auto/api.py",
+          "web/src/logic/activityExport.ts",
+          "web/src/logic/activity.ts",
+          "web/src/screens/Auto.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.activity.export"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_activity"
+        ]
+      },
+      "adapter": "nsvx plugin: kind, day-range and text filters over loaded rows (as NSVX filters its loaded list); CSV export counts first (GET /api/auto/activity/export/count) and downloads the NSVX-built CSV (GET /api/auto/activity/export) for the picked, filtered, or last-7-day rows.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "web/src/logic/activityExport.ts",
+          "backend/clone/auto/api.py"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium (headless shell) against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390; shots in ui/e2e-shots/nsvx-activities/: kind and text filters, count preview, CSV download with picked ids",
+          "extensions/nsvx/src/activity.test.ts and client.test.ts, 2026-11-05: owner-only tool gate, CSRF read-post allowlist, CSV export, request bounds"
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "NSVX's visible-rows TXT download is replaced by the CSV of the same rows."
       ]
     },
     {

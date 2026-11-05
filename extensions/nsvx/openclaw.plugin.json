@@ -8,7 +8,7 @@
     "onStartup": true
   },
   "contracts": {
-    "tools": ["nsvx_actions", "nsvx_run", "nsvx_parity", "nsvx_team"]
+    "tools": ["nsvx_actions", "nsvx_run", "nsvx_parity", "nsvx_team", "nsvx_search", "nsvx_activity"]
   },
   "uiCapabilities": ["page", "navigation"],
   "uiHints": {
