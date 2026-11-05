@@ -223,11 +223,12 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens wait on NSVX.** The Gateway signs in only with the bearer token from `NSVX_AGENTOS_TOKEN_FILE`, but
-  NSVX has no owner-read actions yet, so Today, Find, Work, Activity, Messages, Quick reply, Money, and the other owner
-  tabs show Not connected, or Coming soon once a token is set. They were proven against a mock Gateway with synthetic
-  NSVX payloads, not against a live NSVX. `NSVX_OWNER_SESSION` is deprecated and goes away with this cutover; never
-  use a browser cookie as a Gateway credential.
+- **Owner screens wait on NSVX.** The Gateway signs in only with the bearer token from `NSVX_AGENTOS_TOKEN_FILE`.
+  Access, Legal, Research, and Marketing read through AgentOS read actions (`extensions/nsvx/src/owner-actions.ts`) and
+  stay Coming soon, read by read, until NSVX serves each action; their changes still need the owner session. Today, Find,
+  Work, Activity, Messages, Quick reply, Money, and the other owner tabs show Not connected, or Coming soon once a token
+  is set. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live NSVX.
+  `NSVX_OWNER_SESSION` is deprecated and goes away with this cutover; never use a browser cookie as a Gateway credential.
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header, so the Actions tab and
   the `nsvx_actions` and `nsvx_run` chat tools show Sign-in rejected until the bearer token work (`AD-8` in the NSVX
