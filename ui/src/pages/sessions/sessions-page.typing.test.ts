@@ -782,7 +782,7 @@ describe("Sessions transcript search", () => {
       expect(find("snippet")?.textContent).toBe("The <launch code> is ready."),
     );
     await page.updateComplete;
-    expect(page.transcriptSearchQuery).toBe("launch code");
+    expect(page.transcriptSearchQuery).toBe("  launch code  ");
     expect(find("result-header strong")?.textContent).toBe(row.label);
     expect(find("snippet")?.textContent).toBe("The <launch code> is ready.");
     expect(find("result")?.textContent).toContain("Assistant");
