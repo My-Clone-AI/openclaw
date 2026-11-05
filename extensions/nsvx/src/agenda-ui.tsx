@@ -36,6 +36,8 @@ const PATHS = {
   task: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
   clock: "M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0",
   close: "M6 6l12 12M18 6 6 18",
+  bell: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9m4.3 13a1.9 1.9 0 0 0 3.4 0",
+  calendar: "M4 6h16v15H4zm0 5h16M8 3v5m8-5v5",
 } as const;
 
 export function Glyph(props: { name: keyof typeof PATHS; class?: string }) {
@@ -157,8 +159,12 @@ export function ChangeFlow(props: {
   const [busy, setBusy] = createSignal(false);
   const [note, setNote] = createSignal<{ text: string; bad: boolean }>();
   const [intent, setIntent] = createSignal<Intent>();
+  const mail = props.built.operation.startsWith("gmail.");
   const commitLabel = (terms: Preview): AgendaKey => {
     const external = terms.effect === "external";
+    if (mail) {
+      return external ? "send" : "draft";
+    }
     if (props.built.operation === "calendar.cancel_event") {
       return "cancelEvent";
     }
@@ -204,13 +210,23 @@ export function ChangeFlow(props: {
             <p class="nsvx-agenda__terms">{terms().summary}</p>
             <ul class="nsvx-agenda__facts">
               <li>
-                <BrandLogo channel="googlecalendar" size={18} />
+                <BrandLogo channel={mail ? "gmail" : "googlecalendar"} size={18} />
                 <span>{ctx.at("account")}</span>
                 <strong>{terms().account}</strong>
               </li>
               <li class={terms().effect === "external" ? "nsvx-agenda__fact--warn" : ""}>
                 <Glyph name={terms().effect === "external" ? "send" : "lock"} />
-                <strong>{ctx.at(terms().effect === "external" ? "guestsTold" : "onlyYou")}</strong>
+                <strong>
+                  {ctx.at(
+                    terms().effect === "external"
+                      ? mail
+                        ? "mailOut"
+                        : "guestsTold"
+                      : mail
+                        ? "draftOnly"
+                        : "onlyYou",
+                  )}
+                </strong>
               </li>
             </ul>
             <Show

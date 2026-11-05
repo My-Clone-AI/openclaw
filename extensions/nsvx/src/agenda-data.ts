@@ -106,13 +106,36 @@ export type Preview = {
   terms_hash: string;
 };
 
-/** The only NSVX workspace operations the Agenda reaches; Gmail and Chat sends stay out. */
 export const CALENDAR_OPERATIONS = [
   "calendar.create_event",
   "calendar.update_event",
   "calendar.cancel_event",
 ] as const;
 export type CalendarOperation = (typeof CALENDAR_OPERATIONS)[number];
+
+/** The only NSVX workspace operations the Agenda reaches: its event changes and the follow-up email; Chat stays out. */
+export const AGENDA_OPERATIONS = [...CALENDAR_OPERATIONS, "gmail.draft", "gmail.send"] as const;
+export type AgendaOperation = (typeof AGENDA_OPERATIONS)[number];
+
+/** NSVX's own reminder for an event (`owner_reminders`, kind `calendar`); `target_id` is the event's NSVX id. */
+export type Reminder = { target_id: string; label: string; due_at: string };
+
+/** The follow-up email the NSVX Agenda sends from an event: to every guest but the owner, linked to the event. */
+export function followUpPayload(
+  event: CalendarEvent,
+  mail: { subject: string; body: string },
+  send: boolean,
+) {
+  return {
+    operation: send ? ("gmail.send" as const) : ("gmail.draft" as const),
+    payload: {
+      to: event.attendees.filter((attendee) => !attendee.self).map((attendee) => attendee.email),
+      subject: mail.subject.trim(),
+      body: mail.body,
+      ...(event.id ? { event_ref: event.id } : {}),
+    },
+  };
+}
 
 /** NSVX keeps an intent here until Google answers; `unknown` and `in_flight` are never shown as done or failed. */
 export const SETTLED_STATES = ["accepted", "failed", "blocked", "cancelled"];

@@ -3,10 +3,12 @@ import { createSignal, For, Show } from "solid-js";
 import {
   cancelPayload,
   dayKey,
+  followUpPayload,
   REPLY_STANCES,
   type CalendarEvent,
   type EventDetail,
   type MeetingAiKind,
+  type Reminder,
 } from "./agenda-data.js";
 import type { AgendaKey } from "./agenda-i18n.js";
 import {
@@ -15,6 +17,7 @@ import {
   Glyph,
   intentKey,
   intentTone,
+  timeOf,
   view,
   whenText,
   type Ctx,
@@ -37,10 +40,19 @@ export function EventView(props: {
   void detail.refresh();
   const [cancelling, setCancelling] = createSignal(false);
   const [notify, setNotify] = createSignal(true);
-  const [cancelBuilt, setCancelBuilt] = createSignal<{
-    operation: string;
-    payload: Record<string, unknown>;
+  // The change under review: cancelling the event or the follow-up email, each with its own NSVX client key.
+  const [pending, setPending] = createSignal<{
+    built: { operation: string; payload: Record<string, unknown> };
+    key: string;
   }>();
+  const [mail, setMail] = createSignal<{ subject: string; body: string }>();
+  const [remindAt, setRemindAt] = createSignal<string>();
+  const reminders = createSource(ctx.host, () =>
+    view<{ reminders: Reminder[] }>(ctx.host, "ownerReminders", { kind: "calendar" }),
+  );
+  void reminders.refresh();
+  const reminder = () =>
+    reminders.state().data?.reminders.find((item) => item.target_id === props.id);
   const [help, setHelp] = createSignal<{
     kind: MeetingAiKind;
     text: string | null;
@@ -49,6 +61,25 @@ export function EventView(props: {
   const [stance, setStance] = createSignal<(typeof REPLY_STANCES)[number]>("neutral");
   const [notice, setNotice] = createSignal<string>();
   const cancelKey = crypto.randomUUID();
+  const mailKey = crypto.randomUUID();
+  const remind = async (action: "set" | "dismiss", label: string) => {
+    const at = remindAt();
+    try {
+      await ctx.host.request("nsvx.agenda.remind", {
+        eventId: props.id,
+        action,
+        label,
+        // datetime-local is the browser's wall time; NSVX stores an instant.
+        ...(action === "set" && at ? { at: new Date(at).toISOString() } : {}),
+      });
+      setRemindAt(undefined);
+      setNotice(action === "set" ? ctx.at("reminderSet") : undefined);
+    } catch (cause) {
+      setNotice(errorMessage(ctx.host, cause));
+    } finally {
+      await reminders.refresh();
+    }
+  };
   const ask = async (kind: MeetingAiKind) => {
     setHelp({ kind, text: null, busy: true });
     try {
@@ -112,7 +143,7 @@ export function EventView(props: {
                 </div>
               </header>
               <Show
-                when={cancelBuilt()}
+                when={pending()}
                 fallback={
                   <>
                     <div class="nsvx-agenda__actions nsvx-agenda__actions--start">
@@ -163,7 +194,154 @@ export function EventView(props: {
                           </a>
                         )}
                       </Show>
+                      <Show when={guests().length > 0}>
+                        <button
+                          type="button"
+                          class="nsvx__button"
+                          aria-pressed={mail() ? "true" : "false"}
+                          disabled={!ctx.host.connection.canWrite}
+                          onClick={() =>
+                            setMail(
+                              mail()
+                                ? undefined
+                                : {
+                                    subject: `${ctx.at("followUpSubject")}${event().summary}`,
+                                    body: "",
+                                  },
+                            )
+                          }
+                        >
+                          <BrandLogo channel="gmail" size={18} />
+                          <span>{ctx.at("followUp")}</span>
+                        </button>
+                      </Show>
+                      <button
+                        type="button"
+                        class="nsvx__button"
+                        aria-pressed={remindAt() !== undefined ? "true" : "false"}
+                        disabled={!ctx.host.connection.canWrite}
+                        onClick={() => setRemindAt(remindAt() === undefined ? "" : undefined)}
+                      >
+                        <Glyph name="bell" />
+                        <span>{ctx.at("remind")}</span>
+                      </button>
                     </div>
+                    <Show when={reminder()}>
+                      {(set) => (
+                        <p class="nsvx-agenda__reminder" role="status">
+                          <Glyph name="bell" />
+                          <span>
+                            {dayLabel(
+                              ctx,
+                              dayKey(
+                                { start: set().due_at, start_date: null, all_day: false },
+                                ctx.zone,
+                              ),
+                            )}{" "}
+                            · {timeOf(ctx, set().due_at)}
+                          </span>
+                          <button
+                            type="button"
+                            class="nsvx__button nsvx__button--icon"
+                            aria-label={ctx.at("dismiss")}
+                            title={ctx.at("dismiss")}
+                            disabled={!ctx.host.connection.canWrite}
+                            onClick={() => void remind("dismiss", event().summary)}
+                          >
+                            <Glyph name="check" />
+                          </button>
+                        </p>
+                      )}
+                    </Show>
+                    <Show when={remindAt() !== undefined}>
+                      <form
+                        class="nsvx-agenda__remind-form"
+                        onSubmit={(submit) => {
+                          submit.preventDefault();
+                          void remind("set", event().summary);
+                        }}
+                      >
+                        <label class="nsvx-field">
+                          <span>{ctx.at("remindAt")}</span>
+                          <input
+                            type="datetime-local"
+                            required
+                            value={remindAt() ?? ""}
+                            onInput={(input) => setRemindAt(input.currentTarget.value)}
+                          />
+                        </label>
+                        <button
+                          type="submit"
+                          class="nsvx__button nsvx__button--primary"
+                          disabled={!remindAt()}
+                        >
+                          <Glyph name="check" />
+                          <span>{ctx.at("save")}</span>
+                        </button>
+                      </form>
+                    </Show>
+                    <Show when={mail()}>
+                      {(draft) => (
+                        <div class="nsvx-agenda__mail">
+                          <div class="nsvx-agenda__to">
+                            <span class="nsvx-agenda__meta">{ctx.at("to")}</span>
+                            <For each={guests()} keyed={(attendee) => attendee.email}>
+                              {(attendee) => <span class="nsvx__chip">{attendee().email}</span>}
+                            </For>
+                          </div>
+                          <label class="nsvx-field">
+                            <span>{ctx.at("subject")}</span>
+                            <input
+                              value={draft().subject}
+                              maxlength={250}
+                              onInput={(input) =>
+                                setMail({ ...draft(), subject: input.currentTarget.value })
+                              }
+                            />
+                          </label>
+                          <label class="nsvx-field">
+                            <span>{ctx.at("message")}</span>
+                            <textarea
+                              rows={6}
+                              value={draft().body}
+                              onInput={(input) =>
+                                setMail({ ...draft(), body: input.currentTarget.value })
+                              }
+                            />
+                          </label>
+                          <div class="nsvx-agenda__actions">
+                            <button
+                              type="button"
+                              class="nsvx__button"
+                              disabled={!draft().body.trim()}
+                              onClick={() =>
+                                setPending({
+                                  built: followUpPayload(event(), draft(), false),
+                                  key: `${mailKey}:draft`,
+                                })
+                              }
+                            >
+                              <Glyph name="doc" />
+                              <span>{ctx.at("draft")}</span>
+                            </button>
+                            <button
+                              type="button"
+                              class="nsvx__button nsvx__button--primary"
+                              disabled={!draft().body.trim()}
+                              onClick={() =>
+                                setPending({
+                                  built: followUpPayload(event(), draft(), true),
+                                  key: mailKey,
+                                })
+                              }
+                            >
+                              <Glyph name="send" />
+                              <span>{ctx.at("review")}</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </Show>
                     <Show when={!event().can_edit}>
                       <p class="nsvx__notice">
                         <Glyph name="lock" /> {ctx.at("organizerOnly")}
@@ -192,7 +370,9 @@ export function EventView(props: {
                         <button
                           type="button"
                           class="nsvx__button nsvx__button--danger"
-                          onClick={() => setCancelBuilt(cancelPayload(event(), notify()))}
+                          onClick={() =>
+                            setPending({ built: cancelPayload(event(), notify()), key: cancelKey })
+                          }
                         >
                           {ctx.at("review")}
                         </button>
@@ -201,16 +381,24 @@ export function EventView(props: {
                   </>
                 }
               >
-                {(built) => (
+                {(shown) => (
                   <ChangeFlow
                     ctx={ctx}
-                    built={built()}
-                    clientKey={cancelKey}
+                    built={shown().built}
+                    clientKey={shown().key}
                     onBack={() => {
-                      setCancelBuilt(undefined);
+                      setPending(undefined);
                       setCancelling(false);
                     }}
-                    onDone={props.onCancelled}
+                    onDone={() => {
+                      if (shown().key === cancelKey) {
+                        props.onCancelled();
+                        return;
+                      }
+                      setPending(undefined);
+                      setMail(undefined);
+                      void detail.refresh();
+                    }}
                   />
                 )}
               </Show>
