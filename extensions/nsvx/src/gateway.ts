@@ -15,6 +15,15 @@ import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
 import {
+  mailAction,
+  previewOperation,
+  runDevAction,
+  runOperation,
+  saveMailDraft,
+  sendMail,
+  serverAction,
+} from "./group.js";
+import {
   approveDraft,
   deleteQuickReply,
   regenerateQuickReply,
@@ -169,6 +178,15 @@ export function registerNsvxGatewayMethods(
   // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
   method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));
   method("nsvx.groups.change", "operator.write", (params) => changeGroup(client, params));
+  // Group companies read through nsvx.view. Operation previews only ask the app; mail and app operations reach
+  // people or app data (write scope, like chat.send); dev deploys and server actions touch infrastructure (admin).
+  method("nsvx.group.preview", "operator.write", (params) => previewOperation(client, params));
+  method("nsvx.group.operation", "operator.write", (params) => runOperation(client, params));
+  method("nsvx.group.mailAction", "operator.write", (params) => mailAction(client, params));
+  method("nsvx.group.mailDraft", "operator.write", (params) => saveMailDraft(client, params));
+  method("nsvx.group.mailSend", "operator.write", (params) => sendMail(client, params));
+  method("nsvx.group.devAction", "operator.admin", (params) => runDevAction(client, params));
+  method("nsvx.group.serverAction", "operator.admin", (params) => serverAction(client, params));
   registerDeviceMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());

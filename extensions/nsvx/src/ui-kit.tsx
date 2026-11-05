@@ -17,6 +17,8 @@ const ICONS = {
   team: "M12 3v5m0 0a3 3 0 1 0 0 .01M5 21v-3a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3M12 11v4",
   actions: "M13 2 4 14h7l-1 8 9-12h-7z",
   money: "M17 5.5A7 7 0 1 0 17 18.5M4 10h9m-9 4h9",
+  group:
+    "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16m0-10h2a2 2 0 0 1 2 2v8M8 7h4m-4 4h4m-4 4h4M2 21h20",
   progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
   // Setup and Skills tabs.
   setup: "M4 6h16M4 12h16M4 18h16M9 4v4m6 2v4m-8 2v4",

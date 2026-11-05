@@ -64,14 +64,17 @@ async function problemFrom(response: Response): Promise<Problem> {
 }
 
 function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
-  // Some NSVX routes nest the text: `{"detail": {"detail": "...", "existing_id": "..."}}`.
-  const nested = (problem.detail as { detail?: unknown } | null | undefined)?.detail;
+  // Some NSVX routes nest the text: `{"detail": {"detail": "...", "existing_id": "..."}}`;
+  // group companies send `{"detail": {"code": "...", "message": "..."}}`.
+  const nested = problem.detail as { detail?: unknown; message?: unknown } | null | undefined;
   const message =
     (typeof problem.detail === "string"
       ? problem.detail
-      : typeof nested === "string"
-        ? nested
-        : problem.title) ?? `NSVX answered ${status}.`;
+      : typeof nested?.detail === "string"
+        ? nested.detail
+        : typeof nested?.message === "string"
+          ? nested.message
+          : problem.title) ?? `NSVX answered ${status}.`;
   const correlation = problem.correlation_id;
   if (status === 401) {
     return new NsvxError("signed-out", "NSVX rejected the sign-in token.", correlation);
@@ -199,6 +202,35 @@ const OWNER_VIEWS = {
   socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
   socialGroup: { path: "/api/social-groups/{id}" },
   conversationContext: { path: "/api/conversations/{id}/context" },
+  // Group companies (`/empresas-do-grupo`): the reads the NSVX Grupo screens make.
+  groupOverview: { path: "/api/group-companies/overview" },
+  groupIncidents: { path: "/api/group-companies/overview/incidents" },
+  groupDevActions: { path: "/api/group-companies/actions" },
+  groupCompany: { path: "/api/group-companies/{cid}/summary" },
+  groupManifest: { path: "/api/group-companies/{cid}/manifest" },
+  groupResources: {
+    path: "/api/group-companies/{cid}/resources/{kind}",
+    query: ["q", "status", "cursor"],
+  },
+  groupResource: { path: "/api/group-companies/{cid}/resources/{kind}/{rid}" },
+  groupAudit: { path: "/api/group-companies/{cid}/audit", query: ["cursor"] },
+  groupRun: { path: "/api/group-companies/{cid}/runs/{runId}" },
+  groupErrors: { path: "/api/group-companies/errors", query: ["hours"] },
+  groupMetrics: { path: "/api/group-companies/metrics", query: ["from", "to"] },
+  groupServers: { path: "/api/group-companies/servers" },
+  groupServerServices: { path: "/api/group-companies/servers/{sid}/services" },
+  groupServerLogs: { path: "/api/group-companies/servers/{sid}/logs", query: ["unit", "n"] },
+  groupMail: { path: "/api/group-companies/mail/overview" },
+  groupMailThreads: {
+    path: "/api/group-companies/mail/threads",
+    query: ["q", "unread", "hasAttachment", "from", "to", "cursor"],
+  },
+  groupMailboxThreads: {
+    path: "/api/group-companies/{cid}/mail/threads",
+    query: ["box", "mailbox", "q", "unread", "hasAttachment", "from", "to", "cursor"],
+  },
+  groupMailboxes: { path: "/api/group-companies/{cid}/mail/mailboxes", query: ["box"] },
+  groupMailThread: { path: "/api/group-companies/{cid}/mail/threads/{tid}", query: ["box"] },
   // Skills (`/apps` Competências): the owner's list, one skill with its runs, and failed-verification alerts.
   skills: { path: "/api/skills", query: ["review"] },
   skill: { path: "/api/skills/{id}" },
@@ -211,9 +243,9 @@ const OWNER_VIEWS = {
   memoryFacts: { path: "/api/desktop/memory/{bot}/facts", query: ["person_id", "limit"] },
   memoryRecall: { path: "/api/desktop/memory/{bot}/recall", query: ["q", "person_id", "limit"] },
   memoryRevocations: { path: "/api/desktop/memory/{bot}/revocations" },
-  skills: { path: "/api/desktop/skills" },
+  desktopSkills: { path: "/api/desktop/skills" },
   skillVersions: { path: "/api/desktop/skills/{slug}/versions" },
-  skill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
+  desktopSkill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
   // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
   syncChanges: { path: "/api/sync/changes" },
   runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
@@ -290,6 +322,30 @@ const OWNER_WRITES = {
     query: ["group_id", "person_id"],
     idempotency: "Idempotency-Key",
   },
+  // Group companies: NSVX confirms, audits, and limits each one (dev only for dev actions).
+  groupDevAction: {
+    method: "POST",
+    path: "/api/group-companies/actions/{cid}/{action}",
+    idempotency: "Idempotency-Key",
+  },
+  groupPreview: { method: "POST", path: "/api/group-companies/{cid}/operations/{op}/preview" },
+  groupOperation: { method: "POST", path: "/api/group-companies/{cid}/operations/{op}" },
+  groupMailAction: {
+    method: "POST",
+    path: "/api/group-companies/{cid}/mail/actions",
+    query: ["box"],
+  },
+  groupMailDraft: {
+    method: "POST",
+    path: "/api/group-companies/{cid}/mail/drafts",
+    query: ["box"],
+  },
+  groupMailSend: {
+    method: "POST",
+    path: "/api/group-companies/{cid}/mail/drafts/{did}/send",
+    query: ["box"],
+  },
+  groupServerAction: { method: "POST", path: "/api/group-companies/servers/{sid}/actions/{verb}" },
   skillState: { method: "POST", path: "/api/skills/{id}/state" },
   skillReview: { method: "POST", path: "/api/skills/{id}/review" },
   desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
