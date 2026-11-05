@@ -27,7 +27,10 @@
       "nsvx_device",
       "nsvx_grow",
       "nsvx_aviation",
-      "nsvx_fleet"
+      "nsvx_fleet",
+      "nsvx_legal",
+      "nsvx_research",
+      "nsvx_marketing"
     ]
   },
   "uiCapabilities": [

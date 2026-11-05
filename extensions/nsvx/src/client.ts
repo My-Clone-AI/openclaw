@@ -345,6 +345,51 @@ const OWNER_VIEWS = {
   fleetMileage: { path: "/api/tvde/vehicles/{id}/mileage" },
   uberPersonal: { path: "/api/transports/uber" },
   uberBusiness: { path: "/api/business/uber" },
+  // Legal (`/processos`): cases, evidence, money, documents, the consent-bound legal AI, and procedures.
+  casesDashboard: { path: "/api/cases/dashboard" },
+  casesVocab: { path: "/api/cases/vocab" },
+  cases: { path: "/api/cases", query: ["status"] },
+  caseSuggestions: { path: "/api/cases/suggestions" },
+  caseSettings: { path: "/api/cases/settings" },
+  caseDrive: { path: "/api/cases/drive/search", query: ["q"] },
+  case: { path: "/api/cases/{id}" },
+  caseHistory: { path: "/api/cases/{id}/history" },
+  caseTimeline: { path: "/api/cases/{id}/timeline" },
+  caseEvidence: { path: "/api/cases/{id}/evidence", query: ["folder"] },
+  casePayments: { path: "/api/cases/{id}/payments" },
+  caseBank: { path: "/api/cases/{id}/bank-candidates" },
+  caseDeadlines: { path: "/api/cases/{id}/deadlines" },
+  caseResearch: { path: "/api/cases/{id}/research" },
+  caseDocuments: { path: "/api/cases/{id}/documents" },
+  caseAi: { path: "/api/cases/{id}/ai" },
+  caseExports: { path: "/api/cases/{id}/exports" },
+  caseSheet: { path: "/api/cases/{id}/sheets/{sheet}" },
+  caseProof: { path: "/api/cases/evidence/{id}", query: ["case"] },
+  caseProofText: { path: "/api/cases/evidence/{id}/text", query: ["q"] },
+  caseProofPages: { path: "/api/cases/evidence/{id}/pages" },
+  caseProofPage: { path: "/api/cases/evidence/{id}/page/{page}", query: ["w"], image: true },
+  caseProofRows: { path: "/api/cases/evidence/{id}/sheet-extract" },
+  caseDocument: { path: "/api/cases/documents/{id}" },
+  caseRun: { path: "/api/cases/ai/{id}" },
+  caseRunMaterial: { path: "/api/cases/ai/{id}/material" },
+  legalReview: { path: "/api/legal-reviews/{id}" },
+  procedures: { path: "/api/procedures" },
+  procedure: { path: "/api/procedures/{id}" },
+  procedureVersion: { path: "/api/procedures/{id}/versions/{version}" },
+  procedureRun: { path: "/api/procedures/runs/{id}" },
+  procedureReconcile: { path: "/api/procedures/runs/{id}/reconcile" },
+  // Research (`/pesquisas`): jobs and who gets automatic delivery.
+  research: { path: "/api/research", query: ["completed"] },
+  researchSettings: { path: "/api/research/settings", query: ["account_id"] },
+  researchJob: { path: "/api/research/{id}" },
+  // Marketing (the Group's marketing admin): queue, gates, social accounts, counts.
+  marketingOverview: { path: "/api/group-companies/marketing/overview" },
+  marketingGate: { path: "/api/group-companies/marketing/gate" },
+  marketingBrands: { path: "/api/group-companies/marketing/brands" },
+  marketingCalendar: { path: "/api/group-companies/marketing/calendar" },
+  marketingChannels: { path: "/api/group-companies/marketing/channels" },
+  marketingAnalytics: { path: "/api/group-companies/marketing/analytics" },
+  marketingJob: { path: "/api/group-companies/marketing/jobs/{id}" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -364,6 +409,8 @@ type OwnerWriteSpec = {
   form?: true;
   /** NSVX also checks `Origin` on this route; the Gateway sends NSVX's own, as the NSVX web app does. */
   origin?: true;
+  /** File upload: the caller passes a `FormData` body and fetch sets its boundary. */
+  multipart?: true;
 };
 
 const OWNER_WRITES = {
@@ -526,6 +573,74 @@ const OWNER_WRITES = {
   uberPersonalCollect: { method: "POST", path: "/api/transports/uber/quarter" },
   uberBusinessCheck: { method: "POST", path: "/api/business/uber/connect" },
   uberBusinessCollect: { method: "POST", path: "/api/business/uber/quarter" },
+  // Legal: the owner's own dossiers. None sends, files, or notifies; legal AI runs only after `caseRunAuthorize`.
+  caseCreate: { method: "POST", path: "/api/cases" },
+  caseUpdate: { method: "PATCH", path: "/api/cases/{id}" },
+  caseSummary: { method: "POST", path: "/api/cases/{id}/summary-draft" },
+  caseSuggestionStatus: { method: "POST", path: "/api/cases/suggestions/{id}/status" },
+  caseSuggestionConvert: { method: "POST", path: "/api/cases/suggestions/{id}/convert" },
+  caseDiscovery: { method: "POST", path: "/api/cases/discovery/run" },
+  caseSettings: { method: "PUT", path: "/api/cases/settings" },
+  casePartyAdd: { method: "POST", path: "/api/cases/{id}/parties" },
+  casePartyUpdate: { method: "PATCH", path: "/api/cases/{id}/parties/{item}" },
+  casePartyRemove: { method: "DELETE", path: "/api/cases/{id}/parties/{item}" },
+  caseFactAdd: { method: "POST", path: "/api/cases/{id}/facts" },
+  caseEventAdd: { method: "POST", path: "/api/cases/{id}/timeline", query: ["supersedes"] },
+  caseProofDrive: { method: "POST", path: "/api/cases/{id}/evidence/drive" },
+  caseProofUpload: { method: "POST", path: "/api/cases/{id}/evidence/upload", multipart: true },
+  caseProofUpdate: { method: "PATCH", path: "/api/cases/{id}/evidence/{item}" },
+  caseProofRemove: { method: "DELETE", path: "/api/cases/{id}/evidence/{item}" },
+  caseProofVersion: { method: "POST", path: "/api/cases/{id}/evidence/{item}/new-version" },
+  caseProofDerive: { method: "POST", path: "/api/cases/{id}/evidence/{item}/derive" },
+  caseProofCheck: { method: "POST", path: "/api/cases/evidence/{id}/check" },
+  caseNoteAdd: { method: "POST", path: "/api/cases/evidence/{id}/annotations" },
+  caseNoteRemove: { method: "DELETE", path: "/api/cases/evidence/{id}/annotations/{item}" },
+  caseObligationAdd: { method: "POST", path: "/api/cases/{id}/obligations" },
+  caseObligationPlan: { method: "POST", path: "/api/cases/{id}/obligations/schedule" },
+  caseObligationRemove: { method: "DELETE", path: "/api/cases/{id}/obligations/{item}" },
+  casePaymentAdd: { method: "POST", path: "/api/cases/{id}/payments" },
+  casePaymentRemove: { method: "DELETE", path: "/api/cases/{id}/payments/{item}" },
+  caseDeadlineAdd: { method: "POST", path: "/api/cases/{id}/deadlines" },
+  caseDeadlineUpdate: { method: "PATCH", path: "/api/cases/{id}/deadlines/{item}" },
+  caseSourceAdd: { method: "POST", path: "/api/cases/{id}/research" },
+  caseSourceUpdate: { method: "PATCH", path: "/api/cases/{id}/research/{item}" },
+  caseSourceRemove: { method: "DELETE", path: "/api/cases/{id}/research/{item}" },
+  caseDocumentProposal: { method: "POST", path: "/api/cases/{id}/documents/proposal" },
+  caseDocumentAdd: { method: "POST", path: "/api/cases/{id}/documents" },
+  caseDocumentEdit: { method: "PUT", path: "/api/cases/documents/{id}" },
+  caseDocumentStatus: { method: "POST", path: "/api/cases/documents/{id}/status" },
+  caseRunPrepare: { method: "POST", path: "/api/cases/{id}/ai/prepare" },
+  caseRunAuthorize: { method: "POST", path: "/api/cases/ai/{id}/authorize" },
+  caseRunCancel: { method: "POST", path: "/api/cases/ai/{id}/cancel" },
+  caseExport: { method: "POST", path: "/api/cases/{id}/export" },
+  caseSheetStart: { method: "POST", path: "/api/cases/{id}/sheets" },
+  caseSheetConfirm: { method: "POST", path: "/api/cases/{id}/sheets/{item}/confirm" },
+  caseSheetCancel: { method: "POST", path: "/api/cases/{id}/sheets/{item}/cancel" },
+  legalReviewPrepare: { method: "POST", path: "/api/outbox/{id}/legal-review" },
+  legalReviewAuthorize: { method: "POST", path: "/api/legal-reviews/{id}/authorize" },
+  legalReviewCancel: { method: "POST", path: "/api/legal-reviews/{id}/cancel" },
+  procedurePropose: { method: "POST", path: "/api/procedures/propose" },
+  procedureCreate: { method: "POST", path: "/api/procedures" },
+  procedureEdit: { method: "PUT", path: "/api/procedures/{id}" },
+  procedureState: { method: "POST", path: "/api/procedures/{id}/state" },
+  procedureRun: { method: "POST", path: "/api/procedures/{id}/runs" },
+  procedureRunResume: { method: "POST", path: "/api/procedures/runs/{id}/resume" },
+  procedureRunCancel: { method: "POST", path: "/api/procedures/runs/{id}/cancel" },
+  // Research: `researchAct` send and resend queue the report to the person who asked, under NSVX's delivery rules.
+  researchCreate: { method: "POST", path: "/api/research" },
+  researchSettings: { method: "POST", path: "/api/research/settings" },
+  researchName: { method: "POST", path: "/api/research/{id}/name" },
+  researchAct: { method: "POST", path: "/api/research/{id}/{item}" },
+  // Marketing: NSVX refuses all but the gates outside development; publishing stays behind its global dry run.
+  marketingGate: { method: "POST", path: "/api/group-companies/marketing/gate" },
+  marketingActivation: { method: "POST", path: "/api/group-companies/marketing/activations/{id}" },
+  marketingGenerate: { method: "POST", path: "/api/group-companies/marketing/generate" },
+  marketingPreview: { method: "POST", path: "/api/group-companies/marketing/preview" },
+  marketingSchedule: { method: "POST", path: "/api/group-companies/marketing/schedule" },
+  marketingPublish: { method: "POST", path: "/api/group-companies/marketing/publish" },
+  marketingRetry: { method: "POST", path: "/api/group-companies/marketing/retry" },
+  marketingPause: { method: "POST", path: "/api/group-companies/marketing/pause" },
+  marketingCancel: { method: "POST", path: "/api/group-companies/marketing/jobs/{id}/cancel" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -555,16 +670,24 @@ const OWNER_READ_POSTS = {
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
 
-/** Owner files Control saves for the owner: logbook exports and one aviation document's bytes. */
+/** Owner files Control saves for the owner: logbook exports, aviation documents, case files, and research PDFs. */
 const OWNER_FILES = {
   aviationCsv: { path: "/api/aviation/logbook/export.csv" },
   aviationXlsx: { path: "/api/aviation/logbook/export.xlsx" },
   aviationPrint: { path: "/api/aviation/logbook/print", query: ["start", "end"] },
   aviationDocFile: { path: "/api/aviation/docs/{id}/content", query: ["download"] },
+  caseProofFile: { path: "/api/cases/evidence/{id}/original", query: ["case"] },
+  caseDocumentFile: { path: "/api/cases/documents/{id}/export", query: ["format"] },
+  caseExportFile: { path: "/api/cases/{id}/exports/{file}" },
+  researchPdf: { path: "/api/research/{id}/pdf" },
+  marketingInventory: { path: "/api/marketing/social-accounts-inventory", query: ["format"] },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;
-/** Files cross the Gateway socket as base64; a pilot's logbook or licence scan is far below this. */
+/**
+ * Files cross the Gateway socket as base64; a logbook or licence scan is far below this. A case dossier ZIP with
+ * originals can pass it: the owner then gets a clear refusal and can export without originals.
+ */
 const FILE_LIMIT = 12 * 1024 * 1024;
 
 /** The CSV export streams; larger ranges than this must be split by the owner. */
@@ -732,7 +855,13 @@ export function createNsvxClient(options: {
         method: spec.method,
         headers: {
           Accept: "application/json",
-          "Content-Type": spec.form ? "application/x-www-form-urlencoded" : "application/json",
+          ...(spec.multipart
+            ? {}
+            : {
+                "Content-Type": spec.form
+                  ? "application/x-www-form-urlencoded"
+                  : "application/json",
+              }),
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
           ...(spec.origin ? { Origin: new URL(options.baseUrl).origin } : {}),
@@ -740,9 +869,11 @@ export function createNsvxClient(options: {
             ? { [spec.idempotency]: more.idempotencyKey }
             : {}),
         },
-        body: spec.form
-          ? new URLSearchParams(body as Record<string, string>).toString()
-          : JSON.stringify(body ?? {}),
+        body: spec.multipart
+          ? (body as FormData)
+          : spec.form
+            ? new URLSearchParams(body as Record<string, string>).toString()
+            : JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
@@ -896,8 +1027,11 @@ export function createNsvxClient(options: {
         throw new NsvxError("invalid", "The file is too large to send here.");
       }
       const disposition = response.headers.get("content-disposition") ?? "";
+      const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
       return {
-        fileName: /filename="([^"]+)"/.exec(disposition)?.[1] ?? "",
+        fileName: encoded
+          ? decodeURIComponent(encoded)
+          : (/filename="([^"]+)"/.exec(disposition)?.[1] ?? ""),
         mime: response.headers.get("content-type")?.split(";")[0] ?? "application/octet-stream",
         data: Buffer.from(bytes).toString("base64"),
       };

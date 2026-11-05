@@ -1,7 +1,6 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
-import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import {
   agendaSummary,
   eventReminder,
@@ -12,11 +11,11 @@ import {
   selectCalendar,
   submitChange,
 } from "./agenda.js";
+import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import { registerAviationMethods } from "./aviation.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
-import { registerGrowMethods } from "./grow.js";
 import { askFleet, changeFleet } from "./fleet.js";
 import {
   mailAction,
@@ -27,6 +26,9 @@ import {
   sendMail,
   serverAction,
 } from "./group.js";
+import { registerGrowMethods } from "./grow.js";
+import { registerLegalMethods } from "./legal.js";
+import { registerMarketingMethods } from "./marketing.js";
 import {
   approveDraft,
   deleteQuickReply,
@@ -39,6 +41,7 @@ import {
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
 import { changeGroup, changePerson } from "./people.js";
+import { registerResearchMethods } from "./research.js";
 import { reviewSkill, setSkillState } from "./skills.js";
 import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
@@ -199,6 +202,9 @@ export function registerNsvxGatewayMethods(
   registerDeviceMethods(method, client);
   registerGrowMethods(method, client);
   registerAviationMethods(method, client);
+  registerLegalMethods(method, client);
+  registerResearchMethods(method, client);
+  registerMarketingMethods(method, client);
   // Fleet (TVDE, Transports) reads through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
   // None pays or approves money; access links and driver news reach drivers only through their own portal.
   method("nsvx.fleet.change", "operator.write", (params) => changeFleet(client, params));

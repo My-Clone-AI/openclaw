@@ -5659,10 +5659,16 @@
         "digest": "8154f7d746461d67edee49a915c43c347b840eb3e69e7898b96b1dd132c642d0"
       },
       "research": {
-        "routes": 8,
-        "reads": 4,
-        "writes": 4,
-        "digest": "c2fc56c1273928eb83e3b2da7a77c783d553e284841e8de5b90e82b557b98677"
+        "routes": 6,
+        "reads": 3,
+        "writes": 3,
+        "digest": "2bfd28b4025ce20fdeaf7c5e2243ec83be2df4536cbb25b42fd5e2383bcb7eb4"
+      },
+      "research-settings": {
+        "routes": 2,
+        "reads": 1,
+        "writes": 1,
+        "digest": "fe49d10ed4dbde5ac2a94a668c14f0ea62d95749ed97ef97c6c200a09fdaae3c"
       },
       "marketing": {
         "routes": 21,
@@ -5744,27 +5750,10 @@
       }
     },
     "parity": {
-      "discovered": 76,
+      "discovered": 82,
       "native": 13,
-      "partial": 39,
-      "missing": 24,
-      "discovered": 73,
-      "native": 13,
-      "partial": 38,
-      "missing": 22,
-      "partial": 35,
-      "missing": 25,
-      "native": 10,
-      "partial": 36,
-      "missing": 26,
-      "native": 9,
-      "partial": 33,
-      "missing": 30,
-      "blocked": 1,
-      "discovered": 68,
-      "native": 12,
-      "partial": 26,
-      "missing": 30,
+      "partial": 53,
+      "missing": 16,
       "blocked": 0,
       "verified": 0,
       "families": [
@@ -5843,18 +5832,18 @@
           "name": "Legal",
           "discovered": 1,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 1,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
         {
           "id": "18",
           "name": "Research and web",
-          "discovered": 1,
+          "discovered": 2,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 2,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
@@ -5863,8 +5852,8 @@
           "name": "Marketing and social",
           "discovered": 1,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 1,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
@@ -5985,8 +5974,6 @@
           "native": 0,
           "partial": 3,
           "missing": 0,
-          "partial": 0,
-          "missing": 3,
           "blocked": 0,
           "verified": 0
         }

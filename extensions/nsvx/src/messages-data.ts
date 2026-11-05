@@ -41,8 +41,17 @@ export type Message = {
 export type OutboxItem = {
   id: string;
   state: string;
-  payload?: { text?: string | null; manual?: boolean } | null;
+  payload?: {
+    text?: string | null;
+    manual?: boolean;
+    legal_review_id?: string;
+    feature_origin?: string;
+    revision_pending?: boolean;
+  } | null;
   revision?: string | null;
+  kind?: string | null;
+  reply_to_message_id?: string | null;
+  mission_id?: string | null;
   state_detail?: string | null;
   created_at?: string;
   updated_at?: string | null;
@@ -115,6 +124,16 @@ export function authorOf(m: Pick<Message, "direction" | "origin">): Author {
     return "them";
   }
   return m.origin === "agent" ? "clone" : m.origin === "human" ? "me" : "system";
+}
+
+/** NSVX offers the legal review only on a plain text reply clone drafted, never on a mission's or a feature's message. */
+export function canLegalReview(item: OutboxItem): boolean {
+  return (
+    Boolean(item.reply_to_message_id) &&
+    !item.mission_id &&
+    !item.payload?.feature_origin &&
+    (item.kind ?? "text") === "text"
+  );
 }
 
 /** Clone drafts waiting for the owner, and sends not yet confirmed, as NSVX splits the outbox. */

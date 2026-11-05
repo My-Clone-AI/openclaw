@@ -8,7 +8,10 @@ import { createNsvxFleetTool } from "./src/fleet-tool.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
 import { createNsvxGrowTool } from "./src/grow.js";
+import { createNsvxLegalTool } from "./src/legal-tool.js";
+import { createNsvxMarketingTool } from "./src/marketing.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
+import { createNsvxResearchTool } from "./src/research.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
   createNsvxAgentsTool,
@@ -65,6 +68,13 @@ export default definePluginEntry({
       name: "nsvx_aviation",
     });
     api.registerTool((context) => createNsvxFleetTool(client, context), { name: "nsvx_fleet" });
+    api.registerTool((context) => createNsvxLegalTool(client, context), { name: "nsvx_legal" });
+    api.registerTool((context) => createNsvxResearchTool(client, context), {
+      name: "nsvx_research",
+    });
+    api.registerTool((context) => createNsvxMarketingTool(client, context), {
+      name: "nsvx_marketing",
+    });
     api.registerTool((context) => createNsvxFinanceTool(client, context), {
       name: "nsvx_finance",
       optional: true,
