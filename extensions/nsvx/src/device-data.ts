@@ -1,4 +1,5 @@
-export { accessRoutes } from "./access-routes.js";
+export { accessRoutes, accessViews, accessWrites } from "./access-routes.js";
+export { marketingWrites } from "./marketing-routes.js";
 /** Shapes of NSVX `/api/desktop/*`, `/api/sync/*`, health, and legal answers, shared by Gateway and page. */
 
 /** NSVX's own avatar set for desktop bots (`desktop_sync.Definition.avatar`). */

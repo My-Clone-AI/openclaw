@@ -1,4 +1,10 @@
-import { LEGAL_LANGS, LEGAL_PAGES, accessRoutes } from "./device-data.js";
+import {
+  LEGAL_LANGS,
+  LEGAL_PAGES,
+  accessRoutes,
+  accessWrites,
+  marketingWrites,
+} from "./device-data.js";
 import { AGENTOS_PATH, TIMEOUT_MS, NsvxError } from "./nsvx-client-core.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
 export { AGENTOS_PATH, NsvxError, type NsvxErrorKind } from "./nsvx-client-core.js";
@@ -383,6 +389,8 @@ type OwnerWriteSpec = {
 };
 
 const OWNER_WRITES = {
+  ...accessWrites,
+  ...marketingWrites,
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
   takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
   autoReply: { method: "POST", path: "/api/conversations/{id}/pause" },
@@ -600,16 +608,6 @@ const OWNER_WRITES = {
   researchSettings: { method: "POST", path: "/api/research/settings" },
   researchName: { method: "POST", path: "/api/research/{id}/name" },
   researchAct: { method: "POST", path: "/api/research/{id}/{item}" },
-  // Marketing: NSVX refuses all but the gates outside development; publishing stays behind its global dry run.
-  marketingGate: { method: "POST", path: "/api/group-companies/marketing/gate" },
-  marketingActivation: { method: "POST", path: "/api/group-companies/marketing/activations/{id}" },
-  marketingGenerate: { method: "POST", path: "/api/group-companies/marketing/generate" },
-  marketingPreview: { method: "POST", path: "/api/group-companies/marketing/preview" },
-  marketingSchedule: { method: "POST", path: "/api/group-companies/marketing/schedule" },
-  marketingPublish: { method: "POST", path: "/api/group-companies/marketing/publish" },
-  marketingRetry: { method: "POST", path: "/api/group-companies/marketing/retry" },
-  marketingPause: { method: "POST", path: "/api/group-companies/marketing/pause" },
-  marketingCancel: { method: "POST", path: "/api/group-companies/marketing/jobs/{id}/cancel" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;

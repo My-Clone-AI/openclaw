@@ -1,5 +1,7 @@
 /** Access tab NSVX HTTP routes (kept out of client.ts for the line-cap ratchet). */
-export const accessRoutes = {
+
+/** Reads: apps, sign-in state, devices, logins, checks, people, hooks. Never returns a stored secret. */
+export const accessViews = {
   // Access (`/apps`, `/permissoes`): connected apps, their browser sign-in, sign-in devices, stored logins,
   // visual checks, people's access, and the provider hooks on WhatsApp and Instagram. `login` with `refresh` makes
   // NSVX ask the browser once, as its screen does; nothing here returns a stored secret.
@@ -11,13 +13,16 @@ export const accessRoutes = {
   authProviders: { path: "/api/auth/providers" },
   appleIdentities: { path: "/api/auth/apple/identities" },
   credentials: { path: "/api/credentials" },
-  credentialImport: { path: "/api/credentials/import/{job}" },
+  credentialImportJob: { path: "/api/credentials/import/{job}" },
   challenges: { path: "/api/browser-challenges" },
   challengeView: { path: "/api/browser-challenges/{account}/view" },
   permissions: { path: "/api/permissions" },
   permissionPeople: { path: "/api/permissions/people", query: ["q"] },
   providerHooks: { path: "/api/meta-messaging/accounts/{aid}" },
-  // Access: the changes the NSVX Apps, Acesso, and Permissões screens make (access.ts validates each body).
+} as const;
+
+/** Writes: the changes the NSVX Apps, Acesso, and Permissões screens make (access.ts validates each body). */
+export const accessWrites = {
   appPause: { method: "POST", path: "/api/apps/{aid}" },
   appCheck: { method: "POST", path: "/api/apps/{aid}/check" },
   appRiskAck: { method: "POST", path: "/api/apps/{aid}/risk-ack" },
@@ -37,3 +42,6 @@ export const accessRoutes = {
   permissionAccount: { method: "PUT", path: "/api/permissions/people/{pid}/account" },
   hookCheck: { method: "POST", path: "/api/meta-messaging/accounts/{aid}/check" },
 } as const;
+
+/** @deprecated Prefer accessViews; kept as alias for existing imports. */
+export const accessRoutes = accessViews;
