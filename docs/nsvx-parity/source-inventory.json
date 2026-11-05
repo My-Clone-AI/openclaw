@@ -5611,16 +5611,46 @@
         "digest": "10cd84863af145135a76e9788b18f0c6147882b2cb745e86a1c0d8c3fbae2264"
       },
       "transports": {
-        "routes": 5,
-        "reads": 2,
-        "writes": 3,
-        "digest": "62cac241dfbf5299e178791592c28e578a1d20101fe864cde0252fa0562a05dc"
+        "routes": 10,
+        "reads": 4,
+        "writes": 6,
+        "digest": "314b1b500d63ba72b0b8919dd1d900f3c98ee6359ba14f83e228fa4bf56ca3ef"
       },
       "tvde": {
-        "routes": 140,
-        "reads": 57,
-        "writes": 83,
-        "digest": "458544589323001f544c6de3102b91e18332e6e921609da9a6baf1ffd58a6e99"
+        "routes": 125,
+        "reads": 51,
+        "writes": 74,
+        "digest": "4322317783eb346dda7900c77cd8264c2755b8a5792194e65186871ec2119631"
+      },
+      "tvde-ops": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "tvde-money": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "tvde-intel": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "tvde-mileage": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "driver-portal": {
+        "routes": 15,
+        "reads": 6,
+        "writes": 9,
+        "digest": "27ddd40e80a68cc45b61965fbf4d98fce9021a2985404bb45636d25faeebc98f"
       },
       "legal": {
         "routes": 84,
@@ -5641,10 +5671,10 @@
         "digest": "f53e5603ffe53b4dbe32b722596c75c8ed9b9939bd24bd7d0e8adac7ac77f648"
       },
       "business": {
-        "routes": 36,
-        "reads": 14,
-        "writes": 22,
-        "digest": "05f3fb6c7f0e0a94fb942bbb248cff6665935ee04a73592042c190773f9a8d56"
+        "routes": 31,
+        "reads": 12,
+        "writes": 19,
+        "digest": "37b93d22467efc603cbd87accb5104ec0d9d481e61ab1cf460b6d4024349276e"
       },
       "orders": {
         "routes": 18,
@@ -5718,6 +5748,18 @@
       "native": 13,
       "partial": 39,
       "missing": 24,
+      "discovered": 73,
+      "native": 10,
+      "partial": 36,
+      "missing": 26,
+      "native": 9,
+      "partial": 33,
+      "missing": 30,
+      "blocked": 1,
+      "discovered": 68,
+      "native": 12,
+      "partial": 26,
+      "missing": 30,
       "blocked": 0,
       "verified": 0,
       "families": [
@@ -5784,10 +5826,10 @@
         {
           "id": "16",
           "name": "TVDE and transport",
-          "discovered": 2,
+          "discovered": 7,
           "native": 0,
-          "partial": 0,
-          "missing": 2,
+          "partial": 7,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

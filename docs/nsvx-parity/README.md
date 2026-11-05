@@ -117,6 +117,21 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages      |
 | Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)       |
 | Progress    | This registry by family                                                      | `registry.json`, copied at build  |
+| Tab         | What it does                                                                 | Data owner                          |
+| ----------- | ---------------------------------------------------------------------------- | ----------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)      |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes      |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts             |
+| People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes      |
+| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace)    |
+| Fleet       | TVDE home, drivers, cars, plan, money, km, ask, driver portal, Uber trips    | NSVX `/api/tvde`, `/api/transports` |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`    |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages        |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)         |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build    |
 
 Every Team tree change (move, device, pause, resume, undo) goes through the plugin's `nsvx.team.*` methods, which log
 the `agents` config section before the change in plugin state (`nsvx-team-history`, last 100). History lists them and

@@ -15,6 +15,7 @@ import { registerAviationMethods } from "./aviation.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
+import { askFleet, changeFleet } from "./fleet.js";
 import {
   mailAction,
   previewOperation,
@@ -190,6 +191,10 @@ export function registerNsvxGatewayMethods(
   method("nsvx.group.serverAction", "operator.admin", (params) => serverAction(client, params));
   registerDeviceMethods(method, client);
   registerAviationMethods(method, client);
+  // Fleet (TVDE, Transports) reads through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
+  // None pays or approves money; access links and driver news reach drivers only through their own portal.
+  method("nsvx.fleet.change", "operator.write", (params) => changeFleet(client, params));
+  method("nsvx.fleet.ask", "operator.read", (params) => askFleet(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

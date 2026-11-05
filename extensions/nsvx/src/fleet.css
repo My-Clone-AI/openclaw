@@ -1,0 +1,1181 @@
+.nsvx-fleet,
+.nsvx-fleet-home,
+.nsvx-fleet-roster,
+.nsvx-fleet-detail,
+.nsvx-fleet-stack {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-fleet > .nsvx-seg {
+  width: 100%;
+}
+
+.nsvx-seg--compact .nsvx-seg__item {
+  min-height: 36px;
+  padding: 0 var(--space-2);
+}
+
+.nsvx-fleet-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-tile {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon value"
+    "label label"
+    "sub sub";
+  align-items: center;
+  gap: 2px var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card, transparent);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-fleet-tile:not(:disabled):hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-fleet-tile--ok {
+  border-left-color: var(--ok);
+}
+
+.nsvx-fleet-tile--warn {
+  border-left-color: var(--warn);
+}
+
+.nsvx-fleet-tile--bad {
+  border-left-color: var(--danger);
+}
+
+.nsvx-fleet-tile__icon {
+  grid-area: icon;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nsvx-fleet-tile__value {
+  grid-area: value;
+  color: var(--text-strong);
+  font-size: 24px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-fleet-tile__label {
+  grid-area: label;
+  font-weight: 600;
+}
+
+.nsvx-fleet-tile__sub {
+  grid-area: sub;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.nsvx-fleet-block,
+.nsvx-fleet-uber,
+.nsvx-fleet-answer {
+  display: grid;
+  /* One shrinkable column, so long rows ellipsize instead of widening the card past the phone. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-block__head,
+.nsvx-fleet-uber__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-fleet-block__head h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 15px;
+}
+
+.nsvx-fleet-block__action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.nsvx-fleet-count {
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.nsvx-fleet-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  color: var(--muted);
+}
+
+.nsvx-fleet-empty__icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 1.8;
+}
+
+.nsvx-fleet-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-chip .nsvx__icon {
+  width: 12px;
+  height: 12px;
+}
+
+.nsvx-fleet-chip--ok {
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+}
+
+.nsvx-fleet-chip--warn {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+}
+
+.nsvx-fleet-chip--bad {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.nsvx-fleet-chip--run {
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+
+.nsvx-fleet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-seen {
+  opacity: 0.6;
+}
+
+.nsvx-fleet-link {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-fleet-add,
+.nsvx-fleet-ask__box,
+.nsvx-fleet-request__reply,
+.nsvx-fleet-reading__form,
+.nsvx-fleet-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-form--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.nsvx-fleet-add input,
+.nsvx-fleet-ask__box input,
+.nsvx-fleet-request__reply input,
+.nsvx-fleet-reading__form input,
+.nsvx-fleet-form input,
+.nsvx-fleet-form textarea,
+.nsvx-fleet-form select,
+.nsvx-fleet-reading__form select,
+.nsvx-fleet-state {
+  flex: 1 1 140px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg, transparent);
+  color: var(--text);
+  font: inherit;
+}
+
+.nsvx-fleet-form textarea {
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+.nsvx-fleet-state {
+  flex: 0 0 auto;
+  min-height: 36px;
+  max-width: 150px;
+}
+
+.nsvx-fleet-state--ok {
+  border-color: var(--ok);
+}
+
+.nsvx-fleet-state--bad {
+  border-color: var(--danger);
+}
+
+.nsvx-fleet-state--run {
+  border-color: var(--info);
+}
+
+.nsvx-fleet-check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--primary-foreground);
+}
+
+.nsvx-fleet-check[aria-checked="true"],
+.nsvx-fleet-stage--done .nsvx-fleet-check {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.nsvx-fleet-check .nsvx__icon {
+  stroke-width: 3;
+}
+
+.nsvx-fleet-more {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-more summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  color: var(--muted);
+}
+
+/* Platform marks: the official Uber mark, Bolt's green wordmark, and plain glyphs for the rest. */
+.nsvx-fleet-mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 34px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx-fleet-mark--lg {
+  min-width: 48px;
+  height: 32px;
+}
+
+.nsvx-fleet-mark--uber {
+  background: #000;
+  color: #fff;
+}
+
+.nsvx-fleet-mark--bolt {
+  background: #34d186;
+  color: #0b2f1f;
+}
+
+.nsvx-fleet-mark__svg {
+  width: 30px;
+  height: 18px;
+  fill: currentcolor;
+}
+
+.nsvx-fleet-mark--lg .nsvx-fleet-mark__svg {
+  width: 40px;
+  height: 24px;
+}
+
+.nsvx-fleet-mark__word {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.nsvx-fleet-mark--lg .nsvx-fleet-mark__word {
+  font-size: 14px;
+}
+
+.nsvx-fleet-dim {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.nsvx-fleet-platforms {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-platform {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* A Portuguese plate: blue EU band, black text on white. */
+.nsvx-plate {
+  display: inline-flex;
+  flex: none;
+  align-items: stretch;
+  height: 26px;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+  border-radius: 4px;
+  background: #fff;
+  color: #111;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nsvx-plate__eu {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  background: #1d4ed8;
+  color: #fde047;
+  font-size: 9px;
+}
+
+.nsvx-plate__text {
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-mini-plate {
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Compliance ring. */
+.nsvx-ring {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+
+.nsvx-ring svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.nsvx-ring circle {
+  fill: none;
+  stroke-width: 3.5;
+}
+
+.nsvx-ring__track {
+  stroke: var(--surface-selected);
+}
+
+.nsvx-ring__value {
+  stroke: var(--muted);
+  stroke-linecap: round;
+}
+
+.nsvx-ring--ok .nsvx-ring__value {
+  stroke: var(--ok);
+}
+
+.nsvx-ring--warn .nsvx-ring__value {
+  stroke: var(--warn);
+}
+
+.nsvx-ring--bad .nsvx-ring__value {
+  stroke: var(--danger);
+}
+
+.nsvx-ring__text {
+  color: var(--text-strong);
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-fleet-cards {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-fleet-card:hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-fleet-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-2);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-fleet-card__marks {
+  display: flex;
+  gap: 4px;
+}
+
+.nsvx-fleet-back {
+  justify-self: start;
+}
+
+.nsvx-fleet-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-fleet-hero__avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+}
+
+.nsvx-fleet-hero__title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-hero .nsvx-plate {
+  height: 34px;
+  font-size: 17px;
+}
+
+.nsvx-fleet-cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-cell {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--muted);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-cell--ok {
+  border-top-color: var(--ok);
+}
+
+.nsvx-fleet-cell--warn {
+  border-top-color: var(--warn);
+}
+
+.nsvx-fleet-cell--bad {
+  border-top-color: var(--danger);
+}
+
+.nsvx-fleet-cell__label {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-cell__state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Service km. */
+.nsvx-fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-forecast {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--muted);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-forecast--ok {
+  border-left-color: var(--ok);
+}
+
+.nsvx-fleet-forecast--warn {
+  border-left-color: var(--warn);
+}
+
+.nsvx-fleet-forecast--bad {
+  border-left-color: var(--danger);
+}
+
+.nsvx-fleet-forecast__head,
+.nsvx-fleet-forecast__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-fleet-forecast__head strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface-selected);
+}
+
+.nsvx-fleet-meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--ok);
+}
+
+.nsvx-fleet-forecast--warn .nsvx-fleet-meter__fill {
+  background: var(--warn);
+}
+
+.nsvx-fleet-forecast--bad .nsvx-fleet-meter__fill {
+  background: var(--danger);
+}
+
+.nsvx-fleet-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-facts span {
+  display: grid;
+}
+
+.nsvx-fleet-facts small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.nsvx-fleet-facts strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-fleet-reading {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-fleet-reading__head,
+.nsvx-fleet-reading__checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-tick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.nsvx-fleet-tick input {
+  width: 20px;
+  height: 20px;
+}
+
+.nsvx-fleet-grow {
+  flex: 1;
+}
+
+/* Plan: a week of shifts. */
+.nsvx-fleet-weekbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.nsvx-fleet-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.nsvx-fleet-day {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  min-height: 120px;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-day h4 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.nsvx-fleet-day--today {
+  border-color: var(--primary);
+}
+
+.nsvx-fleet-shift {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px;
+  border-left: 3px solid var(--info);
+  border-radius: 6px;
+  background: var(--surface-selected);
+  font-size: 12px;
+}
+
+.nsvx-fleet-shift--time_off {
+  border-left-color: var(--muted);
+}
+
+.nsvx-fleet-shift .nsvx-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-shift .nsvx-fleet-state {
+  width: 100%;
+  max-width: none;
+  min-height: 30px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.nsvx-fleet-shift__time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.nsvx-fleet-flows,
+.nsvx-fleet-rules {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-flow {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-flow__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-flow__pct {
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-fleet-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 var(--space-2) 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.nsvx-fleet-stage .nsvx-fleet-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+.nsvx-fleet-dir {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-selected);
+}
+
+.nsvx-fleet-dir--delivery {
+  color: var(--ok);
+}
+
+.nsvx-fleet-dir--return {
+  color: var(--warn);
+}
+
+.nsvx-fleet-row {
+  flex-wrap: wrap;
+}
+
+/* Money. */
+.nsvx-fleet-bar-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-bars {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+  height: 140px;
+}
+
+.nsvx-fleet-bars__col {
+  display: grid;
+  flex: 1;
+  grid-template-rows: 1fr auto;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nsvx-fleet-bars__pair {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.nsvx-fleet-bars__bar {
+  width: min(16px, 40%);
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+}
+
+.nsvx-fleet-bars__bar--in,
+.nsvx-fleet-swatch--in {
+  background: var(--ok);
+}
+
+.nsvx-fleet-bars__bar--out,
+.nsvx-fleet-swatch--out {
+  background: var(--warn);
+}
+
+.nsvx-fleet-bars__label {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.nsvx-fleet-split {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-fleet-split li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-split__bar {
+  flex: 1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--surface-selected);
+}
+
+.nsvx-fleet-split__bar span {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+}
+
+/* Ask, rules, reports. */
+.nsvx-fleet-ask {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.nsvx-fleet-ask__box {
+  flex-wrap: nowrap;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-ask__box input {
+  border: 0;
+}
+
+.nsvx-fleet-quick {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.nsvx-fleet-quick:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.nsvx-fleet-answer header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-fleet-answer__text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.nsvx-fleet-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-rule .nsvx-ppl-switch {
+  flex: none;
+  min-height: 44px;
+}
+
+.nsvx-fleet-rule__code {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nsvx-fleet-report {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-fleet-report--on,
+.nsvx-fleet-report:hover {
+  background: var(--surface-selected);
+}
+
+.nsvx-fleet-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.nsvx-fleet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.nsvx-fleet-table th,
+.nsvx-fleet-table td {
+  padding: 6px var(--space-2);
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.nsvx-fleet-table th {
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Portal and trips. */
+.nsvx-fleet-link-made {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-fleet-link-made code {
+  flex: 1 1 100%;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.nsvx-fleet-request {
+  display: grid;
+  gap: var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-fleet-request .nsvx-row {
+  border-bottom: 0;
+}
+
+.nsvx-fleet-run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius-md);
+  background: var(--surface-selected);
+}
+
+.nsvx-fleet-run--ok {
+  border-left-color: var(--ok);
+}
+
+.nsvx-fleet-run--run {
+  border-left-color: var(--info);
+}
+
+.nsvx-fleet-run--bad {
+  border-left-color: var(--danger);
+}
+
+.nsvx-fleet-note {
+  min-height: 0;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .nsvx-fleet-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nsvx-fleet-week {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nsvx-fleet-day {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .nsvx-fleet-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Phones: nine sections fit only as icons; each keeps its name as aria-label and title. */
+  .nsvx-fleet > .nsvx-seg .nsvx-seg__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nsvx-fleet > .nsvx-seg .nsvx-seg__item {
+    min-width: 40px;
+    padding: 0 var(--space-2);
+  }
+
+  /* Form switches get their own line, so "Driver" and "30 days" stay whole. */
+  .nsvx-fleet-form > .nsvx-seg {
+    flex: 1 1 100%;
+  }
+
+  .nsvx-fleet-card {
+    flex-wrap: wrap;
+  }
+
+  .nsvx-fleet-card .nsvx-row__main {
+    flex: 1 1 140px;
+  }
+
+  .nsvx-fleet-hero__title {
+    font-size: 17px;
+    white-space: normal;
+  }
+
+  .nsvx-fleet-rule {
+    flex-wrap: wrap;
+  }
+
+  .nsvx-fleet-rule .nsvx-row__main {
+    flex: 1 1 calc(100% - 40px);
+  }
+}

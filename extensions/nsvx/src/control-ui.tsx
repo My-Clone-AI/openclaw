@@ -7,14 +7,12 @@ import {
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
-import { agendaTranslator } from "./agenda-i18n.js";
 import { AgendaTab } from "./agenda-tab.js";
-import { aviationTranslator } from "./aviation-i18n.js";
 import { AviationTab } from "./aviation-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
-import { groupTranslator } from "./group-i18n.js";
+import { FleetTab } from "./fleet-tab.js";
 import { GroupTab } from "./group-tab.js";
 import { HealthTab } from "./health-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
@@ -25,6 +23,7 @@ import { peopleTranslator, type PT } from "./people-i18n.js";
 import { PeopleTab, type PeopleOpen } from "./people-tab.js";
 import { ProgressTab } from "./progress-tab.js";
 import { QuickReplyTab } from "./quick-reply-tab.js";
+import { isTab, TABS, tabLabel, type Tab } from "./tabs.js";
 import { SetupTab } from "./setup-tab.js";
 import { SkillsTab } from "./skills-tab.js";
 import { TeamTab } from "./team-tab.js";
@@ -42,27 +41,6 @@ import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
 import "./setup.css";
-
-type Tab =
-  | "today"
-  | "find"
-  | "tasks"
-  | "work"
-  | "activity"
-  | "messages"
-  | "reply"
-  | "agenda"
-  | "people"
-  | "money"
-  | "group"
-  | "aviation"
-  | "team"
-  | "setup"
-  | "skills"
-  | "actions"
-  | "progress"
-  | "device"
-  | "health";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -385,27 +363,6 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = [
-  "today",
-  "find",
-  "tasks",
-  "work",
-  "activity",
-  "messages",
-  "reply",
-  "agenda",
-  "people",
-  "money",
-  "group",
-  "aviation",
-  "team",
-  "setup",
-  "skills",
-  "actions",
-  "progress",
-  "device",
-  "health",
-];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -415,23 +372,10 @@ const mountNsvx: ControlUiView = (container, context) => {
   const mt: MT = (key) => messagesTranslator(locale())(key);
   const pt: PT = (key) => peopleTranslator(locale())(key);
   const dt: DT = (key) => deviceTranslator(locale())(key);
-  const label = (id: Tab) =>
-    id === "agenda"
-      ? agendaTranslator(locale())(id)
-      : id === "aviation"
-        ? aviationTranslator(locale())(id)
-        : id === "messages" || id === "reply"
-          ? mt(id)
-          : id === "people"
-            ? pt(id)
-            : id === "group"
-              ? groupTranslator(locale())("group")
-              : id === "device" || id === "health"
-                ? dt(id)
-                : t(id);
+  const label = (id: Tab) => tabLabel(locale(), id);
   const search = new URLSearchParams(location.search);
-  const initial = (search.get("tab") ?? "today") as Tab;
-  const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
+  const initial = search.get("tab") ?? "today";
+  const [tab, setTab] = createSignal<Tab>(isTab(initial) ? initial : "today");
   const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
   const [conversation, setConversation] = createSignal(search.get("conversation") ?? undefined);
   const [draft, setDraft] = createSignal(search.get("draft") ?? undefined);
@@ -705,6 +649,9 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "health"}>
               <HealthTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
+            <Show when={tab() === "fleet"}>
+              <FleetTab host={host} t={t} locale={locale()} query={query()} />
             </Show>
 
             <Show when={tab() === "group"}>

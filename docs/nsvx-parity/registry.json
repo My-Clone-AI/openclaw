@@ -5126,7 +5126,7 @@
       "title": "Transports",
       "family": "16",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/transportes"
@@ -5138,11 +5138,14 @@
           "transports"
         ],
         "apiPrefixes": [
-          "/api/transports"
+          "/api/transports",
+          "/api/business/uber"
         ],
         "sourceFiles": [
           "backend/clone/transports/api.py",
-          "web/src/screens/Transports.tsx"
+          "backend/clone/transports/business_api.py",
+          "web/src/screens/Transports.tsx",
+          "web/src/screens/UberBusiness.tsx"
         ],
         "permissions": [
           "owner session + CSRF"
@@ -5150,17 +5153,26 @@
         "effect": "external",
         "integrations": [
           "Uber",
-          "Bolt"
+          "Google Drive"
         ],
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/transports; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Fleet tab Trips section reads NSVX /api/transports/uber and /api/business/uber through nsvx.view and runs Check and Collect (one quarter of receipts into Drive) through nsvx.fleet.change on the fixed owner routes; the Uber sign-in stays in NSVX, so no Uber password passes through OpenClaw.",
       "verification": {
         "requires": [
           "discovery",
@@ -5175,22 +5187,40 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
+          "backend/clone/transports/api.py",
+          "backend/clone/transports/business_api.py",
           "web/src/screens/Transports.tsx",
-          "backend/clone/transports/"
+          "web/src/screens/UberBusiness.tsx",
+          "extensions/nsvx/src/fleet-portal.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: Uber Personal and Business cards, year and quarter pick, Check, Collect, last run and filed receipts",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Not native: the Uber sign-in (credentials) form and the live Uber view stay in NSVX on purpose, so passwords never pass through the Gateway."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
       ]
     },
     {
@@ -5198,10 +5228,497 @@
       "title": "TVDE fleet",
       "family": "16",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
-          "/tvde",
+          "/tvde"
+        ],
+        "backendPackages": [
+          "tvde"
+        ],
+        "jobPackages": [
+          "tvde"
+        ],
+        "apiPrefixes": [
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/api.py",
+          "backend/clone/tvde/alerts.py",
+          "backend/clone/tvde/compliance.py",
+          "web/src/screens/Tvde.tsx",
+          "web/src/components/FleetPanel.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Uber",
+          "Bolt"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
+      },
+      "adapter": "nsvx plugin Fleet tab (Home, Drivers, Cars) reads NSVX /api/tvde dashboard, drivers, vehicles, alerts, tasks, matrix, integrations, search and events through nsvx.view, and changes alerts, tasks and platform syncs through nsvx.fleet.change, one fixed owner route each (OWNER_WRITES) with the owner session and CSRF. nsvx_fleet gives chat the same reads and taps on the owner's turns.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/tvde/api.py",
+          "backend/clone/tvde/alerts.py",
+          "backend/clone/tvde/compliance.py",
+          "web/src/screens/Tvde.tsx",
+          "web/src/components/FleetPanel.tsx",
+          "extensions/nsvx/src/fleet-roster.tsx",
+          "extensions/nsvx/src/fleet-rows.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: home tiles, alerts Seen and All seen, task add with one key, driver and car pages with docs, compliance score and platform marks",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Not native yet: creating, editing and archiving drivers and cars, document upload and review, assignments, CSV import and exports, company and settings, alert digest settings, and platform API keys."
+      ],
+      "unknowns": [
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
+      ]
+    },
+    {
+      "id": "tvde-ops",
+      "title": "TVDE ops",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tvde"
+        ],
+        "backendPackages": [
+          "tvde"
+        ],
+        "jobPackages": [
+          "tvde"
+        ],
+        "apiPrefixes": [
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/api_ops.py",
+          "backend/clone/tvde/workflows.py",
+          "web/src/screens/TvdeOps.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
+      },
+      "adapter": "nsvx plugin Fleet tab Plan section reads NSVX shifts, calendar, maintenance, workflows, incidents, handovers and cards through nsvx.view and changes shift, service, workflow step and incident states through nsvx.fleet.change.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/tvde/api_ops.py",
+          "backend/clone/tvde/workflows.py",
+          "web/src/screens/TvdeOps.tsx",
+          "extensions/nsvx/src/fleet-ops.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: week of shifts with state pick, service, workflow steps, incidents, handovers and cards",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Not native yet: creating shifts, services, incidents, handovers, workflows and cards; workflow templates and cancel."
+      ],
+      "unknowns": [
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
+      ]
+    },
+    {
+      "id": "tvde-money",
+      "title": "TVDE money",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tvde"
+        ],
+        "backendPackages": [
+          "tvde"
+        ],
+        "jobPackages": [
+          "tvde"
+        ],
+        "apiPrefixes": [
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/api_finance.py",
+          "backend/clone/tvde/money.py",
+          "web/src/screens/TvdeMoney.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
+      },
+      "adapter": "nsvx plugin Fleet tab Money section reads NSVX finance summary, invoices, earnings, settlements and imports through nsvx.view. Read only on purpose: no payment, payout approval or invoice change runs from OpenClaw.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/tvde/api_finance.py",
+          "backend/clone/tvde/money.py",
+          "web/src/screens/TvdeMoney.tsx",
+          "extensions/nsvx/src/fleet-money.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: 3, 6 and 12 month totals, owed to drivers, by-month bars, invoices, settlements and earnings, Read only mark",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Read only by design: invoice payments, settlements, earnings import and matching stay in NSVX until the owner approves money actions from OpenClaw."
+      ],
+      "unknowns": [
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
+      ]
+    },
+    {
+      "id": "tvde-intel",
+      "title": "TVDE intel",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tvde"
+        ],
+        "backendPackages": [
+          "tvde"
+        ],
+        "jobPackages": [
+          "tvde"
+        ],
+        "apiPrefixes": [
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/api_intel.py",
+          "backend/clone/tvde/automation.py",
+          "web/src/screens/TvdeIntel.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.ask",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
+      },
+      "adapter": "nsvx plugin Fleet tab Ask section asks the NSVX TVDE assistant (/api/tvde/assistant) through nsvx.fleet.ask, reads automation rules, rule previews, reports and analytics through nsvx.view, and turns rules on, off, paused or run through nsvx.fleet.change.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/tvde/api_intel.py",
+          "backend/clone/tvde/automation.py",
+          "web/src/screens/TvdeIntel.tsx",
+          "extensions/nsvx/src/fleet-intel.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: ask with suggested questions and a From records answer, rules with preview and run, reports",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Not native yet: CSV report downloads and alert cause grouping."
+      ],
+      "unknowns": [
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
+      ]
+    },
+    {
+      "id": "tvde-mileage",
+      "title": "TVDE mileage",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/tvde"
+        ],
+        "backendPackages": [
+          "tvde"
+        ],
+        "jobPackages": [
+          "tvde"
+        ],
+        "apiPrefixes": [
+          "/api/tvde"
+        ],
+        "sourceFiles": [
+          "backend/clone/tvde/mileage_forecast/api.py",
+          "backend/clone/tvde/mileage_forecast/service.py",
+          "web/src/screens/TvdeMileage.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
+      },
+      "adapter": "nsvx plugin Fleet tab Km section and car page read NSVX mileage forecasts and readings through nsvx.view and confirm, reject or retry a reading (with its revision) through nsvx.fleet.change. Chat reads only; the owner checks the photo before deciding.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/tvde/mileage_forecast/api.py",
+          "backend/clone/tvde/mileage_forecast/service.py",
+          "web/src/screens/TvdeMileage.tsx",
+          "extensions/nsvx/src/fleet-miles.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: service forecasts with km left, a reading to confirm with value, unit, date and Right car",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "Not native yet: uploading a dashboard photo, the mileage source setting and voice readings."
+      ],
+      "unknowns": [
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
+      ]
+    },
+    {
+      "id": "driver-portal",
+      "title": "Driver portal",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
           "/motorista",
           "/tvde-consulta"
         ],
@@ -5212,36 +5729,38 @@
           "tvde"
         ],
         "apiPrefixes": [
+          "/api/tvde",
           "/api/access",
           "/api/driver",
-          "/api/guest",
-          "/api/tvde"
+          "/api/guest"
         ],
         "sourceFiles": [
-          "backend/clone/tvde/api.py",
-          "backend/clone/tvde/api_finance.py",
-          "backend/clone/tvde/api_intel.py",
-          "backend/clone/tvde/api_ops.py",
           "backend/clone/tvde/api_portal.py",
-          "web/src/screens/Tvde.tsx"
+          "web/src/screens/DriverPortal.tsx"
         ],
         "permissions": [
           "owner session + CSRF"
         ],
-        "effect": "external",
-        "integrations": [
-          "Uber",
-          "Bolt"
-        ],
+        "effect": "write",
+        "integrations": [],
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.fleet.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_fleet"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/tvde, /api/driver, /api/guest; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Fleet tab Portal section is the owner side of the NSVX driver portal: it reads access links, driver requests and news through nsvx.view and creates or revokes links, answers requests and posts or archives news through nsvx.fleet.change. The one-time link is shown once for the owner to send; nothing is sent to a driver. Chat may only revoke.",
       "verification": {
         "requires": [
           "discovery",
@@ -5256,22 +5775,38 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "web/src/screens/Tvde.tsx",
-          "backend/clone/tvde/"
+          "backend/clone/tvde/api_portal.py",
+          "web/src/screens/DriverPortal.tsx",
+          "extensions/nsvx/src/fleet-portal.tsx",
+          "extensions/nsvx/src/fleet-tab.tsx",
+          "extensions/nsvx/src/fleet.ts",
+          "extensions/nsvx/src/fleet-tool.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-fleet.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/tvde, /api/transports/uber and /api/business/uber payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-fleet/), with a check that nothing sticks out past the 390 viewport: links with Revoke, new link for a driver, accountant or auditor shown once with Copy, requests with Answer and Decline, news",
+          "extensions/nsvx/src/fleet.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, body, CSRF, Idempotency-Key on new tasks); invalid values and anything that pays (settlement, payInvoice) never reach NSVX; nsvx_fleet answers only the owner and changes only on the owner's current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_fleet was unit tested, not run by a live agent turn.",
+        "The driver's own pages (/motorista, /tvde-consulta) are for drivers and guests with their link session, not the owner; they stay in NSVX by design."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Sources were read at the clone pin 68978f9f91620832707fe0a0a5d6db1deb7868ed; newer clone develop commits were not compared."
       ]
     },
     {

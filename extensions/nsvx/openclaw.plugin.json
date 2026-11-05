@@ -25,7 +25,8 @@
       "nsvx_people",
       "nsvx_group",
       "nsvx_device",
-      "nsvx_aviation"
+      "nsvx_aviation",
+      "nsvx_fleet"
     ]
   },
   "uiCapabilities": [

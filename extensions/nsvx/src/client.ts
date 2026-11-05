@@ -278,6 +278,47 @@ const OWNER_VIEWS = {
   workConnections: { path: "/api/work/connections" },
   workItems: { path: "/api/work/items", query: ["kind", "start", "end", "limit"] },
   workItem: { path: "/api/work/items/{id}" },
+  // Fleet (`/tvde`, `/transportes`): the reads the NSVX TVDE, Ops, Money, Intel, Mileage, and Transports screens make.
+  fleetDashboard: { path: "/api/tvde/dashboard" },
+  fleetDrivers: { path: "/api/tvde/drivers", query: ["q", "status", "compliance"] },
+  fleetDriver: { path: "/api/tvde/drivers/{id}" },
+  fleetVehicles: { path: "/api/tvde/vehicles", query: ["q", "status", "compliance"] },
+  fleetVehicle: { path: "/api/tvde/vehicles/{id}" },
+  fleetAlerts: { path: "/api/tvde/alerts", query: ["include_resolved"] },
+  fleetTasks: { path: "/api/tvde/tasks", query: ["status"] },
+  fleetMatrix: { path: "/api/tvde/matrix", query: ["subject", "show"] },
+  fleetIntegrations: { path: "/api/tvde/integrations" },
+  fleetPlatform: { path: "/api/tvde/platforms/{code}", query: ["limit"] },
+  fleetSearch: { path: "/api/tvde/search", query: ["q"] },
+  fleetEvents: { path: "/api/tvde/events", query: ["limit", "before"] },
+  fleetCards: { path: "/api/tvde/cards", query: ["kind", "status", "q"] },
+  fleetWorkflows: { path: "/api/tvde/workflows", query: ["status"] },
+  fleetIncidents: { path: "/api/tvde/incidents", query: ["status"] },
+  fleetShifts: { path: "/api/tvde/shifts", query: ["start", "end", "driver_id", "vehicle_id"] },
+  fleetCalendar: { path: "/api/tvde/calendar", query: ["start", "end"] },
+  fleetMaintenance: { path: "/api/tvde/maintenance", query: ["status", "vehicle_id"] },
+  fleetHandovers: { path: "/api/tvde/handovers", query: ["vehicle_id", "driver_id"] },
+  fleetRequests: { path: "/api/tvde/requests", query: ["status"] },
+  fleetAnnouncements: { path: "/api/tvde/announcements" },
+  fleetAccess: { path: "/api/tvde/access" },
+  fleetLocations: { path: "/api/tvde/locations" },
+  fleetFinance: { path: "/api/tvde/finance/summary", query: ["start", "end"] },
+  fleetInvoices: {
+    path: "/api/tvde/invoices",
+    query: ["direction", "status", "q", "start", "end", "driver_id", "vehicle_id"],
+  },
+  fleetEarnings: { path: "/api/tvde/earnings", query: ["start", "end", "driver_id"] },
+  fleetSettlements: { path: "/api/tvde/settlements", query: ["status", "driver_id"] },
+  fleetImports: { path: "/api/tvde/imports" },
+  fleetAutomation: { path: "/api/tvde/automation" },
+  fleetRulePreview: { path: "/api/tvde/automation/{code}/preview" },
+  fleetReports: { path: "/api/tvde/reports" },
+  fleetReport: { path: "/api/tvde/reports/{name}", query: ["start", "end"] },
+  fleetAnalytics: { path: "/api/tvde/analytics" },
+  fleetForecasts: { path: "/api/tvde/mileage/forecasts" },
+  fleetMileage: { path: "/api/tvde/vehicles/{id}/mileage" },
+  uberPersonal: { path: "/api/transports/uber" },
+  uberBusiness: { path: "/api/business/uber" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -416,6 +457,32 @@ const OWNER_WRITES = {
   aviationCheckinCancel: { method: "POST", path: "/api/aviation/checkins/{id}/cancel" },
   aviationCheckinRetry: { method: "POST", path: "/api/aviation/checkins/{id}/retry" },
   workSync: { method: "POST", path: "/api/work/connections/{id}/sync" },
+  // Fleet: the owner's TVDE and Transports taps. None pays, approves money, or messages anyone.
+  fleetAlertAck: { method: "POST", path: "/api/tvde/alerts/{id}/ack" },
+  fleetAlertsAck: { method: "POST", path: "/api/tvde/alerts/bulk-ack" },
+  fleetTaskCreate: { method: "POST", path: "/api/tvde/tasks", idempotency: "Idempotency-Key" },
+  fleetTask: { method: "PATCH", path: "/api/tvde/tasks/{id}" },
+  fleetRequest: { method: "POST", path: "/api/tvde/requests/{id}" },
+  fleetWorkflowStep: { method: "POST", path: "/api/tvde/workflows/{id}/steps/{key}" },
+  fleetIncident: { method: "PATCH", path: "/api/tvde/incidents/{id}" },
+  fleetMaintenance: { method: "PATCH", path: "/api/tvde/maintenance/{id}" },
+  fleetShift: { method: "PATCH", path: "/api/tvde/shifts/{id}" },
+  fleetRule: { method: "PATCH", path: "/api/tvde/automation/{id}" },
+  fleetRulesRun: { method: "POST", path: "/api/tvde/automation/run" },
+  fleetPlatformSync: { method: "POST", path: "/api/tvde/integrations/{id}/sync" },
+  fleetMileageDecision: {
+    method: "POST",
+    path: "/api/tvde/vehicles/{id}/mileage/{reading}/decision",
+  },
+  fleetMileageRetry: { method: "POST", path: "/api/tvde/vehicles/{id}/mileage/{reading}/retry" },
+  fleetAccessCreate: { method: "POST", path: "/api/tvde/access" },
+  fleetAccessRevoke: { method: "POST", path: "/api/tvde/access/{id}/revoke" },
+  fleetAnnounce: { method: "POST", path: "/api/tvde/announcements" },
+  fleetAnnounceArchive: { method: "POST", path: "/api/tvde/announcements/{id}/archive" },
+  uberPersonalCheck: { method: "POST", path: "/api/transports/uber/connect" },
+  uberPersonalCollect: { method: "POST", path: "/api/transports/uber/quarter" },
+  uberBusinessCheck: { method: "POST", path: "/api/business/uber/connect" },
+  uberBusinessCollect: { method: "POST", path: "/api/business/uber/quarter" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -439,6 +506,8 @@ const OWNER_READ_POSTS = {
   inviteReply: "/api/workspace/events/{id}/reply-draft",
   // Dates written next to an expiry label in one aviation document; suggestions only.
   aviationExpiry: "/api/aviation/docs/{id}/expiry-suggest",
+  // The TVDE assistant answers from fleet records (or says it cannot); NSVX only logs that a question was asked.
+  fleetAsk: "/api/tvde/assistant",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
