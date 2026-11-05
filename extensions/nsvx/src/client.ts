@@ -63,9 +63,14 @@ async function problemFrom(response: Response): Promise<Problem> {
 }
 
 function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
+  // Some NSVX routes nest the text: `{"detail": {"detail": "...", "existing_id": "..."}}`.
+  const nested = (problem.detail as { detail?: unknown } | null | undefined)?.detail;
   const message =
-    (typeof problem.detail === "string" ? problem.detail : problem.title) ??
-    `NSVX answered ${status}.`;
+    (typeof problem.detail === "string"
+      ? problem.detail
+      : typeof nested === "string"
+        ? nested
+        : problem.title) ?? `NSVX answered ${status}.`;
   const correlation = problem.correlation_id;
   if (status === 401) {
     return new NsvxError("signed-out", "NSVX rejected the sign-in token.", correlation);
@@ -177,11 +182,38 @@ const OWNER_VIEWS = {
   calendarEvents: { path: "/api/workspace/events", query: ["start", "end", "tz", "live"] },
   calendarEvent: { path: "/api/workspace/events/{id}" },
   workspaceIntent: { path: "/api/workspace/intents/{id}" },
+  // People (`/pessoas`): the reads the NSVX People, person, and group screens make.
+  people: { path: "/api/people" },
+  person: { path: "/api/people/{id}" },
+  personAvatar: { path: "/api/people/{id}/avatar", image: true },
+  personContacts: { path: "/api/people/{id}/contact-details" },
+  personInterests: { path: "/api/people/{id}/interests" },
+  personInterestHistory: {
+    path: "/api/people/{id}/interests/history",
+    query: ["kind", "topic_id", "before"],
+  },
+  personPlaces: { path: "/api/people/{id}/history" },
+  personPhoto: { path: "/api/people/{id}/photos/{photo}", image: true },
+  unlinkedIdentities: { path: "/api/identities/unlinked" },
+  socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
+  socialGroup: { path: "/api/social-groups/{id}" },
+  conversationContext: { path: "/api/conversations/{id}/context" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
 
 export const OWNER_VIEW_NAMES = Object.keys(OWNER_VIEWS) as OwnerView[];
+
+/**
+ * Fixed NSVX owner routes. `{name}` path parts and `query` names come from the caller's validated values;
+ * `idempotency` names the header NSVX reads the caller's key from.
+ */
+type OwnerWriteSpec = {
+  method: "POST" | "PATCH" | "PUT" | "DELETE";
+  path: string;
+  query?: readonly string[];
+  idempotency?: string;
+};
 
 const OWNER_WRITES = {
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
@@ -197,7 +229,49 @@ const OWNER_WRITES = {
   calendarAction: { method: "POST", path: "/api/workspace/actions" },
   meetingRefresh: { method: "POST", path: "/api/workspace/events/{id}/refresh-meeting" },
   meetingDocument: { method: "POST", path: "/api/workspace/meeting-documents" },
-} as const satisfies Record<string, { method: "POST" | "DELETE"; path: string }>;
+  // People and groups: the changes the NSVX People screens make, nothing that sends a message.
+  personCreate: { method: "POST", path: "/api/people" },
+  personUpdate: { method: "PATCH", path: "/api/people/{id}" },
+  personFollowUp: { method: "POST", path: "/api/people/{id}/follow-up-draft" },
+  personLink: { method: "POST", path: "/api/people/{id}/link" },
+  personResume: { method: "DELETE", path: "/api/people/{id}/automation-stop", query: ["confirm"] },
+  personAlias: { method: "POST", path: "/api/people/{id}/aliases" },
+  personMerge: { method: "POST", path: "/api/people/{id}/merge" },
+  personContacts: { method: "PUT", path: "/api/people/{id}/contact-details" },
+  fact: { method: "POST", path: "/api/facts/{id}" },
+  interests: { method: "POST", path: "/api/people/{id}/interests/control" },
+  placesCategory: { method: "POST", path: "/api/people/{id}/categories" },
+  placesPropose: {
+    method: "POST",
+    path: "/api/people/{id}/visits",
+    idempotency: "Idempotency-Key",
+  },
+  placesHide: { method: "POST", path: "/api/people/{id}/visits/{visit}/hide" },
+  placesErase: { method: "POST", path: "/api/people/{id}/profile/erase" },
+  mentionConfirm: { method: "POST", path: "/api/mentions/{id}/confirm" },
+  groupCreate: { method: "POST", path: "/api/social-groups" },
+  groupUpdate: { method: "PATCH", path: "/api/social-groups/{id}", query: ["revision"] },
+  groupDelete: { method: "DELETE", path: "/api/social-groups/{id}", query: ["revision"] },
+  groupMember: {
+    method: "PUT",
+    path: "/api/social-groups/{id}/members/{person}",
+    query: ["revision"],
+  },
+  groupMemberClear: {
+    method: "DELETE",
+    path: "/api/social-groups/{id}/members/{person}",
+    query: ["revision"],
+  },
+  groupMerge: { method: "POST", path: "/api/social-groups/{id}/merge", query: ["revision"] },
+  groupSplit: { method: "POST", path: "/api/social-groups/{id}/split", query: ["revision"] },
+  groupUndo: { method: "POST", path: "/api/social-groups/{id}/undo", query: ["revision"] },
+  groupSuggest: {
+    method: "POST",
+    path: "/api/social-groups/recompute",
+    query: ["group_id", "person_id"],
+    idempotency: "Idempotency-Key",
+  },
+} as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
 
@@ -333,9 +407,24 @@ export function createNsvxClient(options: {
     action: OwnerWrite,
     id: string | undefined,
     body: unknown,
+    more: { params?: Record<string, string>; idempotencyKey?: string } = {},
   ): Promise<T> {
-    const spec = OWNER_WRITES[action];
-    const path = withId(spec.path, id);
+    const spec: OwnerWriteSpec = OWNER_WRITES[action];
+    const value = (name: string) => (name === "id" ? id : more.params?.[name]);
+    const path = spec.path.replace(/\{(\w+)\}/g, (_match, name: string) => {
+      const part = value(name);
+      if (!part || part.length > 200) {
+        throw new NsvxError("invalid", `${name} is required.`);
+      }
+      return encodeURIComponent(part);
+    });
+    const query = new URLSearchParams();
+    for (const name of spec.query ?? []) {
+      const part = value(name);
+      if (part) {
+        query.set(name, part);
+      }
+    }
     const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
       "/api/auth/state",
     );
@@ -344,13 +433,16 @@ export function createNsvxClient(options: {
     }
     let response: Response;
     try {
-      response = await fetchImpl(`${options.baseUrl}${path}`, {
+      response = await fetchImpl(`${options.baseUrl}${path}${query.size > 0 ? `?${query}` : ""}`, {
         method: spec.method,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
+          ...(spec.idempotency && more.idempotencyKey
+            ? { [spec.idempotency]: more.idempotencyKey }
+            : {}),
         },
         body: JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -361,7 +453,8 @@ export function createNsvxClient(options: {
     if (!response.ok) {
       throw errorFor(response.status, await problemFrom(response), true, path);
     }
-    return (await response.json()) as T;
+    // Deletes answer 204 with no body.
+    return (response.status === 204 ? { ok: true } : await response.json()) as T;
   }
 
   async function call<T>(
@@ -465,8 +558,13 @@ export function createNsvxClient(options: {
       return csv;
     },
     /** One owner change on a fixed NSVX route; `body` must already be validated by the caller. */
-    writeOwner<T = unknown>(action: OwnerWrite, id: string | undefined, body: unknown): Promise<T> {
-      return writeOwner(action, id, body);
+    writeOwner<T = unknown>(
+      action: OwnerWrite,
+      id: string | undefined,
+      body: unknown,
+      more?: { params?: Record<string, string>; idempotencyKey?: string },
+    ): Promise<T> {
+      return writeOwner(action, id, body, more);
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

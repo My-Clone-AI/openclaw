@@ -41,7 +41,7 @@ import {
 import parity from "./parity-data.json" with { type: "json" };
 import type { TeamService } from "./team.js";
 
-function outcome(run: () => Promise<unknown>) {
+export function outcome(run: () => Promise<unknown>) {
   return run().then(jsonResult, (cause: unknown) => {
     if (cause instanceof NsvxError) {
       return jsonResult({ ok: false, reason: cause.kind, message: cause.message });
