@@ -1,0 +1,470 @@
+.nsvx-agenda {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.nsvx-agenda__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-agenda__nav,
+.nsvx-agenda__tools {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.nsvx-agenda__tools {
+  margin-left: auto;
+}
+
+.nsvx-agenda__label {
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-agenda__summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx-agenda__fresh {
+  min-height: 18px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-segmented__item {
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+}
+
+.nsvx-segmented__item--on {
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.nsvx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 36px;
+  max-width: 100%;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-chip--on {
+  border-color: var(--nsvx-event-color, var(--primary));
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.nsvx-chip:disabled {
+  opacity: 0.5;
+}
+
+.nsvx-chip__swatch {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--nsvx-event-color, var(--primary));
+}
+
+.nsvx-chip:not(.nsvx-chip--on) .nsvx-chip__swatch {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--nsvx-event-color, var(--primary));
+}
+
+.nsvx-days {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.nsvx-days--week {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.nsvx-day {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  min-height: 120px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-day__events {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nsvx-days--day .nsvx-day {
+  min-height: 0;
+  border: 0;
+  padding: 0;
+}
+
+.nsvx-day--today {
+  border-color: var(--primary);
+}
+
+.nsvx-day__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-day__head strong {
+  color: var(--text-strong);
+  font-size: 16px;
+}
+
+.nsvx-day--today .nsvx-day__head strong {
+  color: var(--primary);
+}
+
+.nsvx-day__empty {
+  color: var(--muted);
+  text-align: center;
+}
+
+.nsvx-days--day .nsvx-day__empty {
+  margin: var(--space-6) 0;
+}
+
+.nsvx-event {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-2);
+  padding-left: calc(var(--space-2) + 4px);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--nsvx-event-color) 0 4px, var(--bg-elevated) 4px);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.nsvx-event:hover {
+  background: linear-gradient(90deg, var(--nsvx-event-color) 0 4px, var(--surface-hover) 4px);
+}
+
+.nsvx-event--declined .nsvx-event__title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.nsvx-event__time {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-event__title {
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-days--day .nsvx-event {
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nsvx-days--day .nsvx-event__title {
+  font-size: 14px;
+}
+
+.nsvx-event__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-event__meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nsvx-reply {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nsvx-reply--ok {
+  background: var(--ok);
+  color: var(--bg-elevated);
+}
+
+.nsvx-reply--bad {
+  background: var(--danger);
+  color: var(--bg-elevated);
+}
+
+.nsvx-reply--warn {
+  background: var(--warn);
+  color: var(--bg-elevated);
+}
+
+.nsvx-reply--muted {
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.nsvx-sheet {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-sheet__head strong {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-sheet__text {
+  margin: 0;
+  color: var(--text);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-sheet__danger {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-facts,
+.nsvx-guests {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-facts li,
+.nsvx-guests li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-facts a.nsvx__button {
+  text-decoration: none;
+}
+
+.nsvx-guests__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.nsvx-form__wide {
+  grid-column: 1 / -1;
+}
+
+.nsvx-form label {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nsvx-form label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-form input {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+.nsvx-review {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.nsvx-review__terms {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+}
+
+.nsvx-review__summary {
+  margin: 0;
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.nsvx-review__account,
+.nsvx-review__state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-review__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.nsvx-review__error {
+  color: var(--danger);
+}
+
+.nsvx__button--danger {
+  border-color: transparent;
+  background: var(--danger);
+  color: var(--bg-elevated);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nsvx-spin .nsvx__icon {
+    animation: nsvx-spin 1s linear infinite;
+  }
+}
+
+@keyframes nsvx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .nsvx-days--week {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+
+  /* Stacked week: one compact row per day, the date beside its events. */
+  .nsvx-days--week .nsvx-day {
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    min-height: 0;
+  }
+
+  .nsvx-days--week .nsvx-day__head {
+    flex-direction: column;
+    align-items: center;
+    align-self: start;
+  }
+
+  .nsvx-days--week .nsvx-day__empty {
+    text-align: left;
+  }
+}
+
+@media (max-width: 640px) {
+  .nsvx-agenda__label {
+    order: -1;
+    flex-basis: 100%;
+  }
+
+  .nsvx-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nsvx-days--day .nsvx-event {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .nsvx-days--day .nsvx-event__time {
+    grid-column: 1 / -1;
+  }
+}

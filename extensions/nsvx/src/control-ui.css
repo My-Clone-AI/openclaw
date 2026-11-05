@@ -78,8 +78,9 @@
   flex: none;
 }
 
+/* Small basis: every tab, the search, and refresh share one row on a laptop. */
 .nsvx__search {
-  flex: 1 1 140px;
+  flex: 1 1 100px;
   min-width: 0;
   min-height: 44px;
   padding: 0 var(--space-3);

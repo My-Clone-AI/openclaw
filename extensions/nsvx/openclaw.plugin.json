@@ -7,6 +7,9 @@
   "activation": {
     "onStartup": true
   },
+  "contracts": {
+    "tools": ["nsvx_actions", "nsvx_run", "nsvx_parity", "nsvx_agenda"]
+  },
   "uiCapabilities": ["page", "navigation"],
   "uiHints": {
     "baseUrl": {

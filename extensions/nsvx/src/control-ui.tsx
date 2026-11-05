@@ -6,6 +6,7 @@ import {
   type ControlUiView,
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
+import { AgendaTab } from "./agenda-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import {
   assignAgentPatch,
@@ -31,7 +32,7 @@ import {
 } from "./ui-kit.js";
 import "./control-ui.css";
 
-type Tab = "today" | "tasks" | "work" | "team" | "actions" | "progress";
+type Tab = "today" | "tasks" | "agenda" | "work" | "team" | "actions" | "progress";
 type TeamData = {
   chart: TeamChart;
   entries: Record<string, AgentEntry>;
@@ -523,7 +524,9 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "tasks", "work", "team", "actions", "progress"];
+const TABS: Tab[] = ["today", "tasks", "agenda", "work", "team", "actions", "progress"];
+/** The address keeps the open record of these tabs. */
+const RECORD_PARAM: Partial<Record<Tab, string>> = { tasks: "mission", agenda: "event" };
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -533,7 +536,8 @@ const mountNsvx: ControlUiView = (container, context) => {
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
-  const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
+  const recordParam = RECORD_PARAM[initial];
+  const [record, setRecord] = createSignal((recordParam && search.get(recordParam)) || undefined);
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and task. Takes the new values
@@ -541,21 +545,23 @@ const mountNsvx: ControlUiView = (container, context) => {
   const remember = (nextTab: Tab, open: string | undefined) => {
     const url = new URL(location.href);
     url.searchParams.set("tab", nextTab);
-    if (nextTab === "tasks" && open) {
-      url.searchParams.set("mission", open);
-    } else {
-      url.searchParams.delete("mission");
+    for (const param of Object.values(RECORD_PARAM)) {
+      url.searchParams.delete(param);
+    }
+    const param = RECORD_PARAM[nextTab];
+    if (param && open) {
+      url.searchParams.set(param, open);
     }
     history.replaceState(history.state, "", url);
   };
-  const select = (next: Tab, open = mission()) => {
+  const select = (next: Tab, open = next === tab() ? record() : undefined) => {
     setTab(next);
-    setMission(open);
+    setRecord(open);
     setQuery("");
     remember(next, open);
   };
-  const openMission = (id: string | undefined) => {
-    setMission(id);
+  const openRecord = (id: string | undefined) => {
+    setRecord(id);
     remember(tab(), id);
   };
   const Page = () => (
@@ -609,7 +615,17 @@ const mountNsvx: ControlUiView = (container, context) => {
               <TodayTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
             </Show>
             <Show when={tab() === "tasks"}>
-              <TasksTab host={host} t={t} query={query()} open={mission()} onOpen={openMission} />
+              <TasksTab host={host} t={t} query={query()} open={record()} onOpen={openRecord} />
+            </Show>
+            <Show when={tab() === "agenda"}>
+              <AgendaTab
+                host={host}
+                t={t}
+                locale={locale()}
+                query={query()}
+                open={record()}
+                onOpen={openRecord}
+              />
             </Show>
             <Show when={tab() === "work"}>
               <WorkTab host={host} t={t} query={query()} />

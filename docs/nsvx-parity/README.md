@@ -91,9 +91,11 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Tasks, and Work read NSVX owner routes (`OWNER_VIEWS` in
-  `extensions/nsvx/src/client.ts`) with `NSVX_OWNER_SESSION`, GET only. Until it is set, those tabs show a sign-in
-  card. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live NSVX.
+- **Owner screens need the owner's session.** Today, Tasks, Work, and Agenda read NSVX owner routes (`OWNER_VIEWS` in
+  `extensions/nsvx/src/client.ts`) with `NSVX_OWNER_SESSION`, GET only. The Agenda also sends fixed `/api/workspace`
+  POSTs (`OWNER_POSTS`) with the session's CSRF token; calendar changes run only through NSVX's preview and terms hash.
+  Until the session is set, those tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX
+  payloads, not against a live NSVX.
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.

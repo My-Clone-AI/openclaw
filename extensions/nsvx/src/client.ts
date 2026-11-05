@@ -63,9 +63,13 @@ async function problemFrom(response: Response): Promise<Problem> {
 }
 
 function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
+  const detail = problem.detail as { message?: unknown } | string | undefined;
   const message =
-    (typeof problem.detail === "string" ? problem.detail : problem.title) ??
-    `NSVX answered ${status}.`;
+    (typeof detail === "string"
+      ? detail
+      : typeof detail?.message === "string"
+        ? detail.message
+        : problem.title) ?? `NSVX answered ${status}.`;
   const correlation = problem.correlation_id;
   if (status === 401) {
     return new NsvxError("signed-out", "NSVX rejected the sign-in token.", correlation);
@@ -112,9 +116,28 @@ const OWNER_VIEWS = {
   missionEvents: { path: "/api/missions/{id}/events", query: ["before"] },
   workSummary: { path: "/api/tarefas-ao-vivo/summary" },
   workTasks: { path: "/api/tarefas-ao-vivo/tasks", query: ["state", "q", "cursor"] },
+  agendaEvents: { path: "/api/workspace/events", query: ["start", "end", "tz", "live"] },
+  agendaEvent: { path: "/api/workspace/events/{id}" },
+  agendaCalendars: { path: "/api/workspace/calendars" },
+  agendaIntent: { path: "/api/workspace/intents/{id}" },
 } as const satisfies Record<string, { path: string; query?: readonly string[] }>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
+
+/**
+ * The only NSVX POST routes the owner session may reach, for the Agenda. `slots`, `summary`, and `preview` read;
+ * `select` shows or hides a calendar; `act` runs a calendar change only with the terms hash NSVX returned for the
+ * preview the owner confirmed, and NSVX replays (never repeats) a known `client_key`.
+ */
+const OWNER_POSTS = {
+  agendaSlots: { path: "/api/workspace/suggestions", write: false },
+  agendaSummary: { path: "/api/workspace/agenda-summary", write: false },
+  agendaPreview: { path: "/api/workspace/preview", write: false },
+  agendaSelect: { path: "/api/workspace/calendars/{id}/select", write: true },
+  agendaAct: { path: "/api/workspace/actions", write: true },
+} as const satisfies Record<string, { path: string; write: boolean }>;
+
+export type OwnerPost = keyof typeof OWNER_POSTS;
 
 const OWNER_COOKIE = "clone_session";
 
@@ -162,25 +185,33 @@ export function createNsvxClient(options: {
 }) {
   const fetchImpl = options.fetchImpl ?? guardedFetch;
 
-  async function readOwner<T>(path: string): Promise<T> {
+  async function ownerRequest<T>(
+    path: string,
+    post?: { body: unknown; csrf: string; write: boolean },
+  ): Promise<T> {
     if (!options.ownerSession) {
       throw new NsvxError("unconfigured", "NSVX owner sign-in is not set up on this Gateway.");
     }
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${path}`, {
-        method: "GET",
+        method: post ? "POST" : "GET",
         headers: {
           Accept: "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
+          ...(post ? { "Content-Type": "application/json", "X-CSRF-Token": post.csrf } : {}),
         },
+        ...(post ? { body: JSON.stringify(post.body) } : {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
-      throw new NsvxError("offline", "NSVX cannot be reached.");
+      // A write that lost its connection may still have reached NSVX.
+      throw post?.write
+        ? new NsvxError("uncertain", "NSVX did not confirm the result. Check before repeating.")
+        : new NsvxError("offline", "NSVX cannot be reached.");
     }
     if (!response.ok) {
-      throw errorFor(response.status, await problemFrom(response), false, path);
+      throw errorFor(response.status, await problemFrom(response), post?.write === true, path);
     }
     return (await response.json()) as T;
   }
@@ -246,7 +277,32 @@ export function createNsvxClient(options: {
       view: string,
       params: Record<string, unknown> = {},
     ): Promise<T> {
-      return readOwner(ownerViewPath(view, params));
+      return ownerRequest(ownerViewPath(view, params));
+    },
+    /** One of the fixed owner POSTs; fetches the session's CSRF token per call, as the NSVX page does. */
+    async postOwner<T = unknown>(
+      name: OwnerPost,
+      body: Record<string, unknown>,
+      id?: string,
+    ): Promise<T> {
+      if (!Object.hasOwn(OWNER_POSTS, name)) {
+        throw new NsvxError("invalid", "Unknown NSVX view.");
+      }
+      const spec: { path: string; write: boolean } = OWNER_POSTS[name];
+      if (spec.path.includes("{id}") && (!id || id.length > 200)) {
+        throw new NsvxError("invalid", "id is required.");
+      }
+      const state = await ownerRequest<{ authenticated?: boolean; csrf?: string | null }>(
+        "/api/auth/state",
+      );
+      if (!state.authenticated || !state.csrf) {
+        throw new NsvxError("signed-out", "NSVX rejected the owner sign-in.");
+      }
+      return ownerRequest(spec.path.replace("{id}", encodeURIComponent(id ?? "")), {
+        body,
+        csrf: state.csrf,
+        write: spec.write,
+      });
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

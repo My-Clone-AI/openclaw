@@ -1,4 +1,5 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+import { agendaRequests } from "./agenda-gateway.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import parity from "./parity-data.json" with { type: "json" };
@@ -74,6 +75,33 @@ export function registerNsvxGatewayMethods(api: OpenClawPluginApi, client: NsvxC
       ),
     ),
     read,
+  );
+  // Agenda POSTs; event, calendar, and intent reads use nsvx.view. Calendar changes need operator.write and run in
+  // NSVX only with the terms hash of the preview the person confirmed.
+  api.registerGatewayMethod(
+    "nsvx.agenda.slots",
+    handler((params) => agendaRequests.slots(client, params)),
+    read,
+  );
+  api.registerGatewayMethod(
+    "nsvx.agenda.summary",
+    handler((params) => agendaRequests.summary(client, params)),
+    read,
+  );
+  api.registerGatewayMethod(
+    "nsvx.agenda.preview",
+    handler((params) => agendaRequests.preview(client, params)),
+    { scope: "operator.write" },
+  );
+  api.registerGatewayMethod(
+    "nsvx.agenda.select",
+    handler((params) => agendaRequests.select(client, params)),
+    { scope: "operator.write" },
+  );
+  api.registerGatewayMethod(
+    "nsvx.agenda.act",
+    handler((params) => agendaRequests.act(client, params)),
+    { scope: "operator.write" },
   );
   api.registerGatewayMethod(
     "nsvx.actions.list",

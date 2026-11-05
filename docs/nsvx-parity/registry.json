@@ -990,7 +990,7 @@
       "title": "Agenda",
       "family": "06",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/agenda"
@@ -1020,12 +1020,25 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.agenda.slots",
+          "nsvx.agenda.summary",
+          "nsvx.agenda.preview",
+          "nsvx.agenda.select",
+          "nsvx.agenda.act"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agenda"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/workspace; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin, Agenda tab (extensions/nsvx/src/agenda-tab.tsx, native Solid). Reads use nsvx.view over fixed GET paths (/api/workspace/events, /events/{id}, /calendars, /status, /intents/{id}); free times, summary, preview, calendar show/hide, and calendar changes are fixed POSTs (OWNER_POSTS in extensions/nsvx/src/client.ts) with the owner session's CSRF token. Changes reuse NSVX's own preview, terms hash, and client_key intents (ops.prepare/submit), limited to calendar.create_event, update_event, and cancel_event; NSVX stays the owner of data, Google calls, and jobs. Chat: owner-only, read-only nsvx_agenda (events and free times).",
       "verification": {
         "requires": [
           "discovery",
@@ -1040,7 +1053,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -1049,13 +1066,17 @@
           "web/src/screens/Agenda.tsx",
           "backend/clone/google_workspace/"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic /api/workspace payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-agenda/): week grid with calendar colors, AI summary, event detail with guests and replies and deep link, new event preview then confirm with terms hash and one client key, intent followed to accepted, day view, calendar hide",
+          "extensions/nsvx/src/agenda.test.ts, 2026-11-05: request shapes match the NSVX editor; CSRF, terms hash, and key on changes; other operations and unreviewed changes refused before NSVX; lost change reported as uncertain; nsvx_agenda answers only the owner"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX or a real Google account.",
+        "Chat changes (make, move, cancel) wait for AgentOS contracts with approvals; until then chat reads and the owner confirms changes in the tab."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Not yet native: month grid, .ics feed and CSV export, meeting preparation, agenda and reply drafts, minutes and Docs buttons, follow-up email, Meet refresh, owner reminders, recurring-series scope."
       ]
     },
     {

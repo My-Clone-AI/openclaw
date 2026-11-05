@@ -1,4 +1,5 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
+import { createNsvxAgendaTool, NSVX_AGENDA_TOOL } from "./src/agenda-tools.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
@@ -19,5 +20,9 @@ export default definePluginEntry({
     for (const tool of createNsvxTools(client)) {
       api.registerTool(tool);
     }
+    api.registerTool(
+      { contextVersion: 2, create: (context) => createNsvxAgendaTool(client, context) },
+      { name: NSVX_AGENDA_TOOL },
+    );
   },
 });
