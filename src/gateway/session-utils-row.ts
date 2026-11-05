@@ -7,6 +7,7 @@ import { normalizeOptionalString } from "@openclaw/normalization-core/string-coe
 import { SESSION_PARTICIPANT_LIMIT } from "../../packages/gateway-protocol/src/schema/session-participant.js";
 import { resolveAgentConfig } from "../agents/agent-scope.js";
 import { countRunningBackgroundProcesses } from "../agents/bash-process-observation.js";
+import { sessionModelSelectionLocked } from "../agents/brain-agent-model-lock.js";
 import { resolveModelContextTokenProjection } from "../agents/context.js";
 import { resolveFastModeState } from "../agents/fast-mode.js";
 import type { AgentHarnessSessionRuntimeOwnership } from "../agents/harness/types.js";
@@ -571,7 +572,7 @@ export function materializeSessionRow(input: ReturnType<typeof readSessionRowInp
       input.selectedModel.storedOverrideSource === "parent"
         ? "inherited"
         : resolveSessionModelOverrideSource(entry),
-    modelSelectionLocked: entry?.modelSelectionLocked,
+    modelSelectionLocked: sessionModelSelectionLocked(input.agentId, entry?.modelSelectionLocked),
     runtimeSelectionLocked: input.thinkingProjection.runtimeSelectionLocked,
     agentRuntime: input.agentRuntime,
     contextTokens: input.contextTokens,

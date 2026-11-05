@@ -18,6 +18,7 @@ import {
 import { getPluginRegistryForContext } from "../plugins/runtime/gateway-request-scope.js";
 import { getPluginRuntimeGenerationRegistry } from "../plugins/runtime/generation-state.js";
 import { resolveAgentConfig, resolveAgentModelConfigForRuntime } from "./agent-scope-config.js";
+import { brainAgentOnlyCandidate, isBrainAgentId } from "./brain-agent-model-lock.js";
 import {
   allowsPluginModelNormalization,
   hasExactConfiguredProviderModel,
@@ -295,6 +296,9 @@ function resolveFallbackCandidateModelProviderCacheParts(cfg: OpenClawConfig | u
 function resolveFallbackCandidatesUncached(
   params: ModelCandidateChainParams,
 ): ModelFallbackCandidate[] {
+  if (isBrainAgentId(params.agentId)) {
+    return [brainAgentOnlyCandidate()];
+  }
   const primary = params.cfg
     ? resolveConfiguredModelRef({
         cfg: params.cfg,

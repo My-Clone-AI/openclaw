@@ -188,6 +188,7 @@ const nativeScripts = [
   "scripts/e2e/parallels-npm-update-smoke.sh",
   "scripts/apple-release-source-check.sh",
   "scripts/build-and-run-mac.sh",
+  "apps/openclaw-control/mac/install-mac.sh",
   "scripts/ops/build-openclaw-mac-fork.sh",
   "scripts/ops/install-openclaw-mac48.sh",
   "scripts/check-swift-tools.sh",
