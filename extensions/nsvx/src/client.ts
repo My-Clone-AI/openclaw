@@ -292,9 +292,17 @@ const OWNER_WRITES = {
   memoryCorrect: { method: "POST", path: "/api/desktop/memory/{id}/correct" },
   memoryForget: { method: "POST", path: "/api/desktop/memory/{id}/forget" },
   syncSave: { method: "POST", path: "/api/sync/mutations" },
-  syncPromote: { method: "POST", path: "/api/sync/tasks/{id}/promote" },
+  syncPromote: {
+    method: "POST",
+    path: "/api/sync/tasks/{id}/promote",
+    idempotency: "Idempotency-Key",
+  },
   syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
-  syncConfirm: { method: "POST", path: "/api/sync/drafts/{id}/confirm" },
+  syncConfirm: {
+    method: "POST",
+    path: "/api/sync/drafts/{id}/confirm",
+    idempotency: "Idempotency-Key",
+  },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
