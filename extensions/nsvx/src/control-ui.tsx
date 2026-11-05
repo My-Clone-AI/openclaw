@@ -2,6 +2,7 @@
 import { render } from "@solidjs/web";
 import { defineControlUiPlugin, type ControlUiView } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
+import { AccessTab } from "./access-tab.js";
 import { ActionsTab } from "./actions-tab.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { AgendaTab } from "./agenda-tab.js";
@@ -370,6 +371,9 @@ const mountNsvx: ControlUiView = (container, context) => {
 
             <Show when={tab() === "group"}>
               <GroupTab host={host} t={t} query={query()} locale={locale()} />
+            </Show>
+            <Show when={tab() === "access"}>
+              <AccessTab host={host} t={t} query={query()} locale={locale()} />
             </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />

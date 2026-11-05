@@ -1,39 +1,7 @@
-import { LEGAL_LANGS, LEGAL_PAGES } from "./device-data.js";
+import { LEGAL_LANGS, LEGAL_PAGES, accessRoutes } from "./device-data.js";
+import { AGENTOS_PATH, TIMEOUT_MS, NsvxError } from "./nsvx-client-core.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
-
-export const AGENTOS_PATH = "/api/agentos/v1";
-const TIMEOUT_MS = 30_000;
-
-/**
- * - `unconfigured`: this Gateway has no token.
- * - `signed-out`: NSVX rejected the token.
- * - `token-pending`: this Gateway has a token, but NSVX has no AgentOS action for this owner screen yet.
- * - `off`: NSVX hides AgentOS while its `agentos.gateway` flag is off.
- * - `uncertain`: a write may have happened; never repeat it with a new key.
- */
-export type NsvxErrorKind =
-  | "unconfigured"
-  | "signed-out"
-  | "token-pending"
-  | "off"
-  | "offline"
-  | "denied"
-  | "not-found"
-  | "invalid"
-  | "conflict"
-  | "uncertain"
-  | "failed";
-
-export class NsvxError extends Error {
-  constructor(
-    readonly kind: NsvxErrorKind,
-    message: string,
-    readonly correlationId?: string,
-  ) {
-    super(message);
-    this.name = "NsvxError";
-  }
-}
+export { AGENTOS_PATH, NsvxError, type NsvxErrorKind } from "./nsvx-client-core.js";
 
 type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 
@@ -327,6 +295,7 @@ const OWNER_VIEWS = {
   fleetRequests: { path: "/api/tvde/requests", query: ["status"] },
   fleetAnnouncements: { path: "/api/tvde/announcements" },
   fleetAccess: { path: "/api/tvde/access" },
+  ...accessRoutes,
   fleetLocations: { path: "/api/tvde/locations" },
   fleetFinance: { path: "/api/tvde/finance/summary", query: ["start", "end"] },
   fleetInvoices: {
