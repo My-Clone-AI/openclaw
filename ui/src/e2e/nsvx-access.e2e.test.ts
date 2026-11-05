@@ -430,7 +430,7 @@ suite.define(() => {
         await refused
           .getByText("NSVX can't open this with a token yet.", { exact: true })
           .waitFor();
-        expect(gateway.findRequests("nsvx.view", { view: "appLogin" })).toEqual([]);
+        expect(await gateway.getRequests("nsvx.view", { view: "appLogin" })).toEqual([]);
         await capture(page, surface, "token-only", [refused]);
       },
     );
