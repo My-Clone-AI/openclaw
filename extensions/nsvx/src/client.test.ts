@@ -15,7 +15,7 @@ const RUN = { actionId: "clone.tasks.add", input: { a: 1 }, idempotencyKey: "key
 async function kindOf(run: Promise<unknown>): Promise<NsvxErrorKind | undefined> {
   return run.then(
     () => undefined,
-    (cause: { kind: NsvxErrorKind }) => cause.kind,
+    (cause: unknown) => (cause as { kind: NsvxErrorKind }).kind,
   );
 }
 
@@ -31,7 +31,7 @@ describe("nsvx client", () => {
       Authorization: "Bearer secret",
       "Idempotency-Key": "key-1",
     });
-    expect(JSON.parse(String(init.body))).toEqual({ input: { a: 1 } });
+    expect(JSON.parse(init.body as string)).toEqual({ input: { a: 1 } });
   });
 
   it("never calls NSVX without a token", async () => {
@@ -74,6 +74,43 @@ describe("nsvx client", () => {
     const signedOut = await readNsvxStatus(clientWith(async () => json(401, {})));
     expect(signedOut).toEqual({ state: "signed-out", address: "nsvx.test" });
     expect(JSON.stringify(signedOut)).not.toContain("secret");
+  });
+});
+
+describe("nsvx owner views", () => {
+  const ownerClient = (fetchImpl: (url: string, init: RequestInit) => Promise<Response>) =>
+    createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: undefined,
+      ownerSession: "owner-cookie",
+      fetchImpl,
+    });
+
+  it("reads a fixed path with the owner session and nothing else", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { items: [] }));
+    await ownerClient(fetchImpl).readOwnerView("missionEvents", { id: "m/1", before: "t", x: "y" });
+    const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://nsvx.test/api/missions/m%2F1/events?before=t");
+    expect(init.method).toBe("GET");
+    expect(init.headers).toEqual({
+      Accept: "application/json",
+      Cookie: "clone_session=owner-cookie",
+    });
+  });
+
+  it("refuses unknown views and missing sign-in before calling NSVX", async () => {
+    const fetchImpl = vi.fn();
+    expect(await kindOf(ownerClient(fetchImpl).readOwnerView("toString"))).toBe("invalid");
+    expect(await kindOf(ownerClient(fetchImpl).readOwnerView("missionEvents"))).toBe("invalid");
+    expect(await kindOf(clientWith(fetchImpl).readOwnerView("today"))).toBe("unconfigured");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("maps an expired owner session and object details", async () => {
+    const answer = (status: number) =>
+      ownerClient(async () => json(status, { detail: { code: "not_provisioned" } }));
+    expect(await kindOf(answer(401).readOwnerView("today"))).toBe("signed-out");
+    await expect(answer(503).readOwnerView("workSummary")).rejects.toThrow("NSVX answered 503.");
   });
 });
 

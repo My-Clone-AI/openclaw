@@ -51,7 +51,8 @@ async function guardedFetch(url: string, init: RequestInit): Promise<Response> {
   return responseWithRelease(guarded.response, guarded.release);
 }
 
-type Problem = { code?: string; title?: string; detail?: string; correlation_id?: string };
+/** AgentOS sends problem+json; other NSVX routes send FastAPI `detail`, sometimes as an object. */
+type Problem = { code?: string; title?: string; detail?: unknown; correlation_id?: string };
 
 async function problemFrom(response: Response): Promise<Problem> {
   try {
@@ -62,7 +63,9 @@ async function problemFrom(response: Response): Promise<Problem> {
 }
 
 function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
-  const message = problem.detail ?? problem.title ?? `NSVX answered ${status}.`;
+  const message =
+    (typeof problem.detail === "string" ? problem.detail : problem.title) ??
+    `NSVX answered ${status}.`;
   const correlation = problem.correlation_id;
   if (status === 401) {
     return new NsvxError("signed-out", "NSVX rejected the sign-in token.", correlation);
@@ -99,14 +102,88 @@ export type NsvxRunRequest = {
   approvalId?: string;
 };
 
+/**
+ * Owner screens NSVX serves only to its signed-in owner. Read-only GETs on fixed paths, so the held session can never
+ * change NSVX data (unsafe methods also need the session's CSRF token, which this Gateway never has).
+ */
+const OWNER_VIEWS = {
+  today: { path: "/api/today" },
+  missions: { path: "/api/missions" },
+  missionEvents: { path: "/api/missions/{id}/events", query: ["before"] },
+  workSummary: { path: "/api/tarefas-ao-vivo/summary" },
+  workTasks: { path: "/api/tarefas-ao-vivo/tasks", query: ["state", "q", "cursor"] },
+} as const satisfies Record<string, { path: string; query?: readonly string[] }>;
+
+type OwnerView = keyof typeof OWNER_VIEWS;
+
+const OWNER_COOKIE = "clone_session";
+
+function ownerViewPath(view: string, params: Record<string, unknown>): string {
+  if (!Object.hasOwn(OWNER_VIEWS, view)) {
+    throw new NsvxError("invalid", "Unknown NSVX view.");
+  }
+  const spec: { path: string; query?: readonly string[] } = OWNER_VIEWS[view as OwnerView];
+  const text = (name: string) => {
+    const value = params[name];
+    if (value === undefined || value === "") {
+      return undefined;
+    }
+    if (typeof value !== "string" || value.length > 200) {
+      throw new NsvxError("invalid", `${name} must be short text.`);
+    }
+    return value;
+  };
+  let path = spec.path;
+  if (path.includes("{id}")) {
+    const id = text("id");
+    if (!id) {
+      throw new NsvxError("invalid", "id is required.");
+    }
+    path = path.replace("{id}", encodeURIComponent(id));
+  }
+  const query = new URLSearchParams();
+  for (const name of spec.query ?? []) {
+    const value = text(name);
+    if (value) {
+      query.set(name, value);
+    }
+  }
+  return query.size > 0 ? `${path}?${query}` : path;
+}
+
 export type NsvxClient = ReturnType<typeof createNsvxClient>;
 
 export function createNsvxClient(options: {
   baseUrl: string;
   token: string | undefined;
+  /** The owner's own NSVX session, for owner screens only; never reaches chat tools. */
+  ownerSession?: string | undefined;
   fetchImpl?: Fetch;
 }) {
   const fetchImpl = options.fetchImpl ?? guardedFetch;
+
+  async function readOwner<T>(path: string): Promise<T> {
+    if (!options.ownerSession) {
+      throw new NsvxError("unconfigured", "NSVX owner sign-in is not set up on this Gateway.");
+    }
+    let response: Response;
+    try {
+      response = await fetchImpl(`${options.baseUrl}${path}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
+        },
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+    } catch {
+      throw new NsvxError("offline", "NSVX cannot be reached.");
+    }
+    if (!response.ok) {
+      throw errorFor(response.status, await problemFrom(response), false, path);
+    }
+    return (await response.json()) as T;
+  }
 
   async function call<T>(
     path: string,
@@ -164,6 +241,12 @@ export function createNsvxClient(options: {
     },
     async listApprovals(): Promise<NsvxApproval[]> {
       return (await call<{ approvals: NsvxApproval[] }>("/approvals")).approvals;
+    },
+    async readOwnerView<T = unknown>(
+      view: string,
+      params: Record<string, unknown> = {},
+    ): Promise<T> {
+      return readOwner(ownerViewPath(view, params));
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

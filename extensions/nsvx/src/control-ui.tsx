@@ -5,7 +5,7 @@ import {
   type ControlUiHost,
   type ControlUiView,
 } from "openclaw/plugin-sdk/control-ui";
-import { createMemo, createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { translator, type MessageKey } from "./i18n.js";
 import {
   assignAgentPatch,
@@ -17,70 +17,21 @@ import {
   type TeamChart,
   type TeamSession,
 } from "./org.js";
-import type {
-  NsvxAction,
-  NsvxApproval,
-  NsvxRunResult,
-  NsvxStatus,
-  NsvxTask,
-  ParityData,
-} from "./types.js";
+import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
+import { ProgressTab } from "./progress-tab.js";
+import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
+import {
+  ConnectCard,
+  createSource,
+  errorMessage,
+  Icon,
+  matches,
+  SourceView,
+  type T,
+} from "./ui-kit.js";
 import "./control-ui.css";
 
-type Tab = "team" | "actions" | "progress";
-type T = (key: MessageKey) => string;
-/** One source's lifecycle; `data` survives a failed refresh so rows never vanish. */
-type Source<V> = { data?: V; error?: string; loading: boolean };
-
-const ICONS: Record<Tab | "refresh", string> = {
-  team: "M12 3v5m0 0a3 3 0 1 0 0 .01M5 21v-3a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3M12 11v4",
-  actions: "M13 2 4 14h7l-1 8 9-12h-7z",
-  progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
-  refresh: "M20 11a8 8 0 0 0-14.3-4L3 10m0-6v6h6m-5 3a8 8 0 0 0 14.3 4L21 14m0 6v-6h-6",
-};
-
-function Icon(props: { name: keyof typeof ICONS }) {
-  return (
-    <svg viewBox="0 0 24 24" class="nsvx__icon" aria-hidden="true">
-      <path d={ICONS[props.name]} />
-    </svg>
-  );
-}
-
-function matches(query: string, ...values: (string | undefined)[]) {
-  const needle = query.trim().toLowerCase();
-  return !needle || values.some((value) => value?.toLowerCase().includes(needle));
-}
-
-function errorMessage(host: ControlUiHost, cause: unknown) {
-  return host.redact(cause instanceof Error ? cause.message : String(cause));
-}
-
-/** Loads a source, dropping any answer that a newer load or disposal has replaced. */
-function createSource<V>(host: ControlUiHost, load: () => Promise<V>) {
-  const [state, setState] = createSignal<Source<V>>({ loading: false });
-  let generation = 0;
-  const refresh = async () => {
-    const id = ++generation;
-    setState((previous) => ({ ...previous, loading: true }));
-    try {
-      const data = await load();
-      if (id === generation && !host.signal.aborted) {
-        setState({ data, loading: false });
-      }
-    } catch (cause) {
-      if (id === generation && !host.signal.aborted) {
-        setState((previous) => ({
-          data: previous.data,
-          error: errorMessage(host, cause),
-          loading: false,
-        }));
-      }
-    }
-  };
-  return { state, refresh };
-}
-
+type Tab = "today" | "tasks" | "work" | "team" | "actions" | "progress";
 type TeamData = {
   chart: TeamChart;
   entries: Record<string, AgentEntry>;
@@ -251,39 +202,6 @@ function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-/** Shared loading, failure, and retry states; loaded rows never return to a skeleton. */
-function SourceView<V>(props: {
-  source: { state: () => Source<V>; refresh: () => Promise<void> };
-  t: T;
-  children: (data: () => V) => unknown;
-}) {
-  const data = createMemo(() => props.source.state().data);
-  return (
-    <>
-      <Show when={props.source.state().error}>
-        <p class="nsvx__error" role="alert">
-          <span>{props.source.state().error}</span>
-          <button type="button" class="nsvx__button" onClick={() => void props.source.refresh()}>
-            {props.t("retry")}
-          </button>
-        </p>
-      </Show>
-      <Show
-        when={data()}
-        fallback={
-          <Show when={!props.source.state().error}>
-            <p class="nsvx__empty" aria-busy="true">
-              {props.t("loading")}
-            </p>
-          </Show>
-        }
-      >
-        {(loaded) => props.children(loaded) as never}
-      </Show>
-    </>
-  );
-}
-
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
   { title: MessageKey; help: MessageKey }
@@ -295,7 +213,7 @@ const STATUS_COPY: Record<
   failed: { title: "failed", help: "failedHelp" },
 };
 
-type Field = { name: string; type: string; required: boolean; options?: string[] };
+type Field = { name: string; type: string; required: boolean; options?: string[] | undefined };
 
 function fieldsOf(contract: Record<string, unknown>): Field[] {
   const input = contract.input as
@@ -305,7 +223,7 @@ function fieldsOf(contract: Record<string, unknown>): Field[] {
     name,
     type: schema.type ?? "string",
     required: input?.required?.includes(name) ?? false,
-    ...(schema.enum ? { options: schema.enum } : {}),
+    options: schema.enum,
   }));
 }
 
@@ -521,19 +439,13 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
         <Show
           when={current().state === "connected"}
           fallback={
-            <div class="nsvx-connect" role="status">
-              <svg viewBox="0 0 24 24" class="nsvx-connect__icon" aria-hidden="true">
-                <path d="M9 7V3m6 4V3M7 7h10v5a5 5 0 0 1-10 0zm5 10v4" />
-              </svg>
-              <strong>
-                {props.t(STATUS_COPY[current().state as keyof typeof STATUS_COPY].title)}
-              </strong>
-              <span>{props.t(STATUS_COPY[current().state as keyof typeof STATUS_COPY].help)}</span>
-              <code>{current().address}</code>
-              <button type="button" class="nsvx__button" onClick={() => void reload()}>
-                {props.t("retry")}
-              </button>
-            </div>
+            <ConnectCard
+              t={props.t}
+              title={STATUS_COPY[current().state as keyof typeof STATUS_COPY].title}
+              help={STATUS_COPY[current().state as keyof typeof STATUS_COPY].help}
+              address={current().address}
+              onRetry={() => void reload()}
+            />
           }
         >
           <SourceView source={actions} t={props.t}>
@@ -611,96 +523,40 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const SEGMENTS = ["native", "partial", "blocked", "missing"] as const;
-
-function ProgressTab(props: { host: ControlUiHost; t: T; query: string }) {
-  const parity = createSource(props.host, () => props.host.request<ParityData>("nsvx.parity"));
-  void parity.refresh();
-  return (
-    <SourceView source={parity} t={props.t}>
-      {(data) => (
-        <>
-          <div class="nsvx-hero">
-            <strong class="nsvx-hero__value">
-              {Math.floor((data().verified / data().discovered) * 100)}%
-            </strong>
-            <span>
-              {props.t("verified")} · {data().verified} / {data().discovered}
-            </span>
-          </div>
-          <ul class="nsvx-legend">
-            <For each={SEGMENTS}>
-              {(segment) => (
-                <li>
-                  <span class={["nsvx-swatch", `nsvx-swatch--${segment}`]} aria-hidden="true" />
-                  {props.t(segment)} {data()[segment]}
-                </li>
-              )}
-            </For>
-          </ul>
-          <table class="nsvx-progress">
-            <thead class="nsvx-visually-hidden">
-              <tr>
-                <th>{props.t("features")}</th>
-                <th>{props.t("progress")}</th>
-                <th>{props.t("verified")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <For
-                each={data().families.filter((family) => matches(props.query, family.name))}
-                keyed={(family) => family.id}
-              >
-                {(family) => (
-                  <tr>
-                    <th scope="row">{family().name}</th>
-                    <td>
-                      <span class="nsvx-bar">
-                        <For each={SEGMENTS}>
-                          {(segment) => (
-                            <Show when={family()[segment] > 0}>
-                              <span
-                                class={["nsvx-swatch", `nsvx-swatch--${segment}`]}
-                                style={{ "flex-grow": String(family()[segment]) }}
-                                title={`${props.t(segment)}: ${family()[segment]}`}
-                              />
-                            </Show>
-                          )}
-                        </For>
-                      </span>
-                    </td>
-                    <td class="nsvx-progress__count">
-                      {family().verified}/{family().discovered}
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
-        </>
-      )}
-    </SourceView>
-  );
-}
-
-const TABS: Tab[] = ["team", "actions", "progress"];
+const TABS: Tab[] = ["today", "tasks", "work", "team", "actions", "progress"];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
   const [locale, setLocale] = createSignal(host.locale);
   const unsubscribe = host.subscribe(() => setLocale(host.locale));
   const t: T = (key) => translator(locale())(key);
-  const initial = (new URLSearchParams(location.search).get("tab") ?? "team") as Tab;
-  const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "team");
+  const search = new URLSearchParams(location.search);
+  const initial = (search.get("tab") ?? "today") as Tab;
+  const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
+  const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
-  const select = (next: Tab) => {
-    setTab(next);
-    setQuery("");
-    // Deep link, and browser back returns to this tab on reload.
+  // Deep links: reloading or sharing the address returns to the same tab and task. Takes the new values
+  // directly, because signal writes are not readable until the next flush.
+  const remember = (nextTab: Tab, open: string | undefined) => {
     const url = new URL(location.href);
-    url.searchParams.set("tab", next);
+    url.searchParams.set("tab", nextTab);
+    if (nextTab === "tasks" && open) {
+      url.searchParams.set("mission", open);
+    } else {
+      url.searchParams.delete("mission");
+    }
     history.replaceState(history.state, "", url);
+  };
+  const select = (next: Tab, open = mission()) => {
+    setTab(next);
+    setMission(open);
+    setQuery("");
+    remember(next, open);
+  };
+  const openMission = (id: string | undefined) => {
+    setMission(id);
+    remember(tab(), id);
   };
   const Page = () => (
     <section class="nsvx">
@@ -711,12 +567,14 @@ const mountNsvx: ControlUiView = (container, context) => {
               <button
                 type="button"
                 role="tab"
+                aria-label={t(id)}
+                title={t(id)}
                 aria-selected={tab() === id ? "true" : "false"}
                 class={["nsvx__tab", { "nsvx__tab--active": tab() === id }]}
                 onClick={() => select(id)}
               >
                 <Icon name={id} />
-                {t(id)}
+                <span class="nsvx__tab-label">{t(id)}</span>
               </button>
             )}
           </For>
@@ -747,6 +605,15 @@ const mountNsvx: ControlUiView = (container, context) => {
       <For each={[`${tab()}:${revision()}`]} keyed={(key) => key}>
         {() => (
           <>
+            <Show when={tab() === "today"}>
+              <TodayTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
+            </Show>
+            <Show when={tab() === "tasks"}>
+              <TasksTab host={host} t={t} query={query()} open={mission()} onOpen={openMission} />
+            </Show>
+            <Show when={tab() === "work"}>
+              <WorkTab host={host} t={t} query={query()} />
+            </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />
             </Show>

@@ -7,7 +7,7 @@ export function parseNsvxConfig(raw: unknown): { baseUrl: string } {
   const baseUrl = value.baseUrl ?? DEFAULT_NSVX_URL;
   let url: URL;
   try {
-    url = new URL(String(baseUrl));
+    url = new URL(typeof baseUrl === "string" ? baseUrl : "");
   } catch {
     throw new Error("nsvx baseUrl must be a valid address, such as https://nsvx.com.");
   }

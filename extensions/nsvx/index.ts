@@ -13,6 +13,7 @@ export default definePluginEntry({
     const client = createNsvxClient({
       baseUrl: parseNsvxConfig(api.pluginConfig).baseUrl,
       token: process.env.NSVX_AGENTOS_TOKEN,
+      ownerSession: process.env.NSVX_OWNER_SESSION,
     });
     registerNsvxGatewayMethods(api, client);
     for (const tool of createNsvxTools(client)) {
