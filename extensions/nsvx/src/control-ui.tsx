@@ -6,14 +6,16 @@ import {
   type ControlUiView,
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
-import { translator, type MessageKey } from "./i18n.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { FinanceTab } from "./finance-tab.js";
+import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
-import { QuickReplyTab } from "./quick-reply-tab.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
+import { peopleTranslator, type PT } from "./people-i18n.js";
+import { PeopleTab, type PeopleOpen } from "./people-tab.js";
 import { ProgressTab } from "./progress-tab.js";
+import { QuickReplyTab } from "./quick-reply-tab.js";
 import { TeamTab } from "./team-tab.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
 import {
@@ -29,7 +31,19 @@ import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
 
-type Tab = "today" | "find" | "tasks" | "work" | "activity" | "messages" | "reply" | "money" | "team" | "actions" | "progress";
+type Tab =
+  | "today"
+  | "find"
+  | "tasks"
+  | "work"
+  | "activity"
+  | "messages"
+  | "reply"
+  | "people"
+  | "money"
+  | "team"
+  | "actions"
+  | "progress";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -352,7 +366,20 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "messages", "reply", "money", "team", "actions", "progress"];
+const TABS: Tab[] = [
+  "today",
+  "find",
+  "tasks",
+  "work",
+  "activity",
+  "messages",
+  "reply",
+  "people",
+  "money",
+  "team",
+  "actions",
+  "progress",
+];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -360,20 +387,31 @@ const mountNsvx: ControlUiView = (container, context) => {
   const unsubscribe = host.subscribe(() => setLocale(host.locale));
   const t: T = (key) => translator(locale())(key);
   const mt: MT = (key) => messagesTranslator(locale())(key);
-  const label = (id: Tab) => (id === "messages" || id === "reply" ? mt(id) : t(id));
+  const pt: PT = (key) => peopleTranslator(locale())(key);
+  const label = (id: Tab) =>
+    id === "messages" || id === "reply" ? mt(id) : id === "people" ? pt(id) : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
   const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
   const [conversation, setConversation] = createSignal(search.get("conversation") ?? undefined);
   const [draft, setDraft] = createSignal(search.get("draft") ?? undefined);
+  const personParam = search.get("person");
+  const groupParam = search.get("group");
+  const [personOpen, setPersonOpen] = createSignal<PeopleOpen>(
+    personParam
+      ? { kind: "person", id: personParam }
+      : groupParam
+        ? { kind: "group", id: groupParam }
+        : undefined,
+  );
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
   // Values are passed in (signal writes are not readable until the next flush).
   const remember = (
     nextTab: Tab,
-    open: { mission?: string; conversation?: string; draft?: string } = {},
+    open: { mission?: string; conversation?: string; draft?: string; people?: PeopleOpen } = {},
   ) => {
     const url = new URL(location.href);
     url.searchParams.set("tab", nextTab);
@@ -395,6 +433,13 @@ const mountNsvx: ControlUiView = (container, context) => {
     } else {
       url.searchParams.delete("draft");
     }
+    for (const kind of ["person", "group"] as const) {
+      if (nextTab === "people" && open.people?.kind === kind) {
+        url.searchParams.set(kind, open.people.id);
+      } else {
+        url.searchParams.delete(kind);
+      }
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -404,6 +449,7 @@ const mountNsvx: ControlUiView = (container, context) => {
       mission: mission(),
       conversation: conversation(),
       draft: draft(),
+      people: personOpen(),
     });
   };
   const openMission = (id: string | undefined) => {
@@ -417,6 +463,15 @@ const mountNsvx: ControlUiView = (container, context) => {
   const openDraft = (id: string | undefined) => {
     setDraft(id);
     remember(tab(), { mission: mission(), conversation: conversation(), draft: id });
+  };
+  const openPeople = (open: PeopleOpen) => {
+    setPersonOpen(open);
+    remember(tab(), {
+      mission: mission(),
+      conversation: conversation(),
+      draft: draft(),
+      people: open,
+    });
   };
   const Page = () => (
     <section class="nsvx">
@@ -521,6 +576,29 @@ const mountNsvx: ControlUiView = (container, context) => {
                 query={query()}
                 open={draft()}
                 onOpen={openDraft}
+              />
+            </Show>
+            <Show when={tab() === "people"}>
+              <PeopleTab
+                host={host}
+                t={t}
+                pt={pt}
+                locale={locale()}
+                query={query()}
+                open={personOpen()}
+                onOpen={openPeople}
+                onConversation={(id) => {
+                  setConversation(id);
+                  setTab("messages");
+                  setQuery("");
+                  remember("messages", { mission: mission(), conversation: id, draft: draft() });
+                }}
+                onMission={(id) => {
+                  setMission(id);
+                  setTab("tasks");
+                  setQuery("");
+                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
+                }}
               />
             </Show>
             <Show when={tab() === "money"}>

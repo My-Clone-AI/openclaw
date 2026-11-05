@@ -2,6 +2,7 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
+import { createNsvxPeopleTool } from "./src/people-tool.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
   createNsvxFinanceTool,
@@ -35,6 +36,7 @@ export default definePluginEntry({
     api.registerTool((context) => createNsvxMessagesTool(client, context), {
       name: "nsvx_messages",
     });
+    api.registerTool((context) => createNsvxPeopleTool(client, context), { name: "nsvx_people" });
     api.registerTool((context) => createNsvxFinanceTool(client, context), {
       name: "nsvx_finance",
       optional: true,

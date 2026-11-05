@@ -1,8 +1,8 @@
 {
-  "discovered": 65,
+  "discovered": 68,
   "native": 9,
-  "partial": 21,
-  "missing": 34,
+  "partial": 26,
+  "missing": 32,
   "blocked": 1,
   "verified": 0,
   "sources": {
@@ -13,221 +13,221 @@
     {
       "id": "10",
       "name": "Group companies",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "11",
       "name": "Documents and Drive",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "12",
       "name": "Finance",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 4,
+      "native": 0,
+      "partial": 4,
+      "missing": 0,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "13",
       "name": "Real estate",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "14",
       "name": "Short-stay rentals",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "15",
       "name": "Aviation",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "16",
       "name": "TVDE and transport",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 2,
+      "native": 0,
+      "partial": 0,
+      "missing": 2,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "17",
       "name": "Legal",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "18",
       "name": "Research and web",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "19",
       "name": "Marketing and social",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "20",
       "name": "Business and personal",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 4,
+      "native": 0,
+      "partial": 0,
+      "missing": 4,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "21",
       "name": "Permissions and integrations",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 5,
+      "native": 0,
+      "partial": 1,
+      "missing": 4,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "22",
       "name": "Everything else",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "01",
       "name": "Today, search and commands",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 5,
+      "native": 0,
+      "partial": 5,
+      "missing": 0,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "02",
       "name": "Messages",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 2,
+      "native": 0,
+      "partial": 2,
+      "missing": 0,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "03",
       "name": "People",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 5,
+      "native": 0,
+      "partial": 5,
+      "missing": 0,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "04",
       "name": "Calls and voice",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 1,
+      "missing": 0,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "05",
       "name": "Tasks and automation",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 4,
+      "native": 0,
+      "partial": 3,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "06",
       "name": "Calendar and Google",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 1,
+      "native": 0,
+      "partial": 0,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "07",
       "name": "AI and inference",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 3,
+      "native": 0,
+      "partial": 2,
+      "missing": 1,
+      "blocked": 0,
       "verified": 0
     },
     {
       "id": "08",
       "name": "Agents",
-      "discovered": 65,
+      "discovered": 15,
       "native": 9,
-      "partial": 21,
-      "missing": 34,
+      "partial": 3,
+      "missing": 2,
       "blocked": 1,
       "verified": 0
     },
     {
       "id": "09",
       "name": "Grow and development",
-      "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
-      "blocked": 1,
+      "discovered": 3,
+      "native": 0,
+      "partial": 0,
+      "missing": 3,
+      "blocked": 0,
       "verified": 0
     }
   ],
@@ -245,7 +245,7 @@
       "title": "Unified search",
       "family": "01",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -257,121 +257,28 @@
       "verified": false
     },
     {
+      "id": "activities-hub",
+      "title": "Activities hub",
+      "family": "01",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "activities-filters",
+      "title": "Activity filters and export",
+      "family": "01",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
       "id": "messages",
       "title": "Messages and coverage",
       "family": "02",
       "priority": "P1",
       "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/mensagens"
-        ],
-        "backendPackages": [
-          "meta_messaging"
-        ],
-        "jobPackages": [],
-        "apiPrefixes": [
-          "/api/attachments",
-          "/api/controls",
-          "/api/conversations",
-          "/api/messages",
-          "/api/meta-messaging",
-          "/api/outbox",
-          "/api/recordings",
-          "/api/reply-coverage",
-          "/api/voice-notes"
-        ],
-        "sourceFiles": [
-          "backend/clone/api.py",
-          "backend/clone/meta_messaging/api.py",
-          "backend/clone/meta_messaging/instagram_api.py",
-          "backend/clone/meta_messaging/instagram_publish.py",
-          "backend/clone/social_api.py",
-          "web/src/screens/Messages.tsx"
-        ],
-        "permissions": [
-          "owner session + CSRF"
-        ],
-        "effect": "external",
-        "integrations": [
-          "WhatsApp",
-          "Instagram",
-          "Telegram",
-          "Gmail",
-          "Google Chat",
-          "SMS"
-        ],
-        "runtime": "not-checked"
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "plugin",
-          "channels",
-          "sessions"
-        ],
-        "gatewayMethods": [
-          "nsvx.view",
-          "nsvx.messages.reply",
-          "nsvx.messages.approve",
-          "nsvx.messages.reject",
-          "nsvx.messages.takeover",
-          "nsvx.messages.autoReply",
-          "nsvx.quickReply.start"
-        ],
-        "extensions": [
-          "nsvx",
-          "whatsapp"
-        ],
-        "chatTools": [
-          "nsvx_messages"
-        ]
-      },
-      "adapter": "Messages tab in the nsvx plugin page: conversation list (To answer, channel logos, search, paging), thread with delivery state, clone drafts to approve or discard, the owner's reply, Take over and Auto replies, and an AI draft through Quick Reply. Reads are fixed GET owner views (/api/conversations/page, /api/conversations/{id}); each change is one fixed NSVX route sent with the owner session and its CSRF token from /api/auth/state, so NSVX keeps its own checks, idempotency, and audit. nsvx_messages gives chat unanswered, find, read, draft, takeover, and autoReply on owner turns only; it never sends.",
-      "verification": {
-        "requires": [
-          "discovery",
-          "ui",
-          "actions",
-          "chat",
-          "data",
-          "permissions",
-          "feedback",
-          "desktop",
-          "mobile",
-          "evidence"
-        ],
-        "passed": [
-          "discovery",
-          "ui",
-          "actions",
-          "feedback",
-          "desktop",
-          "mobile"
-        ]
-      },
-      "evidence": {
-        "level": "runtime",
-        "source": [
-          "web/src/screens/Messages.tsx",
-          "backend/clone/api.py",
-          "backend/clone/social_api.py",
-          "extensions/nsvx/src/messages.ts",
-          "extensions/nsvx/src/messages-tab.tsx",
-          "extensions/nsvx/src/tools.ts"
-        ],
-        "runtime": [
-          "extensions/nsvx/src/messages.test.ts: CSRF and idempotency key on reply, uncertain on lost writes, owner-only chat tool, against a fake NSVX, 2026-11-05",
-          "ui/src/e2e/nsvx-messages.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway: list, filters, thread, AI draft, send, approve, take over; Chromium 1280 and 390 wide, 2026-11-05"
-        ]
-      },
-      "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
-        "Not built yet: attachments and voice notes in the composer, media previews, delete for everyone, Instagram comment hide, email trash, the coverage screen, context panel, conversation language, approval-prompt mode."
-      ],
-      "unknowns": [
-        "Chat never sends by design: a message read into the model could carry instructions, so only the owner's tap in Control sends.",
-        "Background refresh polls every 15 s (thread) and 30 s (list) while the page is visible, as NSVX does."
-      ]
+      "verified": false
     },
     {
       "id": "quick-reply",
@@ -379,99 +286,14 @@
       "family": "02",
       "priority": "P2",
       "status": "partial",
-      "nsvx": {
-        "webRoutes": [
-          "/quick-reply"
-        ],
-        "backendPackages": [
-          "quick_reply"
-        ],
-        "jobPackages": [
-          "quick_reply"
-        ],
-        "apiPrefixes": [
-          "/api/quick-reply"
-        ],
-        "sourceFiles": [
-          "backend/clone/quick_reply/api.py",
-          "web/src/screens/QuickReply.tsx"
-        ],
-        "permissions": [
-          "owner session + CSRF"
-        ],
-        "effect": "external",
-        "integrations": [
-          "WhatsApp",
-          "Instagram"
-        ],
-        "runtime": "not-checked"
-      },
-      "openclaw": {
-        "uiRoutes": [
-          "plugin"
-        ],
-        "gatewayMethods": [
-          "nsvx.view",
-          "nsvx.quickReply.start",
-          "nsvx.quickReply.regenerate",
-          "nsvx.quickReply.delete"
-        ],
-        "extensions": [
-          "nsvx"
-        ],
-        "chatTools": [
-          "nsvx_messages"
-        ]
-      },
-      "adapter": "Quick reply tab in the nsvx plugin page: paste a message (sender, subject, and style filled from the paste), optional guidance by voice or text, Write reply, Copy, Again with a change, Delete, and recent drafts. Also the AI draft button in Messages. Drafts and generations stay in NSVX (/api/quick-reply/drafts, /generate under the current rules revision); nsvx_messages draft does the same from chat on owner turns.",
-      "verification": {
-        "requires": [
-          "discovery",
-          "ui",
-          "actions",
-          "chat",
-          "data",
-          "permissions",
-          "feedback",
-          "desktop",
-          "mobile",
-          "evidence"
-        ],
-        "passed": [
-          "discovery",
-          "ui",
-          "actions",
-          "feedback",
-          "desktop",
-          "mobile"
-        ]
-      },
-      "evidence": {
-        "level": "runtime",
-        "source": [
-          "web/src/screens/QuickReply.tsx",
-          "backend/clone/quick_reply/api.py",
-          "backend/clone/quick_reply/contracts.py",
-          "extensions/nsvx/src/messages.ts",
-          "extensions/nsvx/src/quick-reply-tab.tsx"
-        ],
-        "runtime": [
-          "extensions/nsvx/src/messages.test.ts: draft from a message, generate with the rules revision, stop on a failed job, paste hints, 2026-11-05",
-          "ui/src/e2e/nsvx-messages.e2e.test.ts: paste, autofill, write, copy; Chromium 1280 and 390 wide, 2026-11-05"
-        ]
-      },
-      "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
-        "Not built yet: rules and signatures editor, source picker, suggested actions (task, reminder, workspace) with preflight and execute, the generation queue view."
-      ],
-      "unknowns": []
+      "verified": false
     },
     {
       "id": "people",
-      "title": "People and groups",
+      "title": "People, person page, memory, contacts, and accounts",
       "family": "03",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -479,7 +301,31 @@
       "title": "Social context",
       "family": "03",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "person-history",
+      "title": "Person history: places and dates the person shared",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "person-interests",
+      "title": "Person interests and conversation style",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "social-groups",
+      "title": "Private social groups",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
       "verified": false
     },
     {

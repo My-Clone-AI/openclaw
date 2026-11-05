@@ -1,5 +1,6 @@
 import { jsonResult } from "openclaw/plugin-sdk/core";
-import { activityRange, findRequest } from "./activity-requests.js";
+import type { AnyAgentTool, OpenClawPluginToolContext } from "openclaw/plugin-sdk/plugin-entry";
+import { Type } from "typebox";
 import {
   FIND_GROUPS,
   filterActivity,
@@ -7,8 +8,7 @@ import {
   type ActivitySummary,
   type FindResult,
 } from "./activity-data.js";
-import type { AnyAgentTool, OpenClawPluginToolContext } from "openclaw/plugin-sdk/plugin-entry";
-import { Type } from "typebox";
+import { activityRange, findRequest } from "./activity-requests.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
@@ -29,7 +29,7 @@ import {
 import parity from "./parity-data.json" with { type: "json" };
 import type { TeamService } from "./team.js";
 
-function outcome(run: () => Promise<unknown>) {
+export function outcome(run: () => Promise<unknown>) {
   return run().then(jsonResult, (cause: unknown) => {
     if (cause instanceof NsvxError) {
       return jsonResult({ ok: false, reason: cause.kind, message: cause.message });
@@ -276,7 +276,6 @@ export function createNsvxOwnerTools(
     },
   ] as AnyAgentTool[];
 }
-
 
 type MessagesToolParams = {
   action: "unanswered" | "find" | "read" | "draft" | "takeover" | "autoReply";
