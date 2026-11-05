@@ -1,6 +1,7 @@
 import { agendaTranslator } from "./agenda-i18n.js";
 import { deviceTranslator } from "./device-i18n.js";
 import { fleetTranslator } from "./fleet-i18n.js";
+import { groupTranslator } from "./group-i18n.js";
 import { translator } from "./i18n.js";
 import { messagesTranslator } from "./messages-i18n.js";
 import { peopleTranslator } from "./people-i18n.js";
@@ -17,8 +18,11 @@ export const TABS = [
   "agenda",
   "people",
   "money",
+  "group",
   "fleet",
   "team",
+  "setup",
+  "skills",
   "actions",
   "progress",
   "device",
@@ -37,6 +41,8 @@ export function tabLabel(locale: string, id: Tab): string {
       return agendaTranslator(locale)(id);
     case "fleet":
       return fleetTranslator(locale)(id);
+    case "group":
+      return groupTranslator(locale)("group");
     case "messages":
     case "reply":
       return messagesTranslator(locale)(id);
