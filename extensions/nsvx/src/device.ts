@@ -174,7 +174,7 @@ export async function promoteHeldTask(client: NsvxClient, params: Params) {
     "syncPromote",
     uuid(params.taskId, "taskId"),
     {},
-    uuid(params.idempotencyKey, "idempotencyKey"),
+    { idempotencyKey: uuid(params.idempotencyKey, "idempotencyKey") },
   );
 }
 
