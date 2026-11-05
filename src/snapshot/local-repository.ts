@@ -8,7 +8,6 @@ import {
   sameFileIdentity,
   type FileIdentityStat,
 } from "@openclaw/fs-safe/advanced";
-import { loadSqliteVecExtension } from "../infra/database-engine/sqlite-vec.js";
 import {
   ensureDurableDirectory,
   getPublishFileExclusiveFailureDetails,
@@ -27,16 +26,12 @@ import {
   isPathInside,
 } from "../infra/fs-safe.js";
 import { findGitRoot } from "../infra/git-root.js";
-import { openNodeSqliteDatabase } from "../infra/node-sqlite.js";
 import { applyPrivateModeSync } from "../infra/private-mode.js";
-import { SQLITE_SIDECAR_SUFFIXES } from "../infra/sqlite-files.js";
-import { assertSqliteIntegrity } from "../infra/sqlite-integrity.js";
 import {
   createPrivateSqliteDirectory,
   createPrivateSqliteTempDirectory,
 } from "../infra/sqlite-private-directory.js";
 import { publishVerifiedSqliteFile } from "../infra/sqlite-snapshot.js";
-import { readSqliteUserVersion } from "../infra/sqlite-user-version.js";
 import {
   capturePostgresBackup,
   readBackupEngine,
@@ -60,14 +55,13 @@ import {
   copySnapshotArtifact,
   hashSnapshotArtifact,
   readSnapshotManifest,
-  type SnapshotArtifactDigest,
   writeSnapshotManifest,
 } from "./manifest.js";
 import {
-  buildSnapshotValidator,
   createOpenClawSnapshotCopy,
   normalizeSnapshotIdentity,
 } from "./openclaw-snapshot-copy.js";
+import { assertArtifactMatchesManifest, assertAllowedDatabaseRole, verifySnapshotDatabaseFile } from "./local-repository-verification.js";
 import { assertFreshRestoreTarget, assertNoSqliteSidecarsSync } from "./restore-paths.js";
 import {
   SNAPSHOT_MANIFEST_FILENAME,
@@ -92,10 +86,6 @@ const SNAPSHOT_ARTIFACT_ENTRIES = new Set([
   SNAPSHOT_SQLITE_FILENAME,
 ]);
 const RESTORE_STAGING_ENTRIES = new Set([SNAPSHOT_SQLITE_FILENAME]);
-const VALIDATION_STAGING_ENTRIES = new Set([
-  SNAPSHOT_SQLITE_FILENAME,
-  ...SQLITE_SIDECAR_SUFFIXES.map((suffix) => `${SNAPSHOT_SQLITE_FILENAME}${suffix}`),
-]);
 type LocalSqliteSnapshotProviderOptions = {
   readonly allowedDatabaseRoles?: readonly SnapshotDatabaseIdentity["role"][];
   readonly repositoryPath: string;
@@ -389,6 +379,7 @@ class LocalSqliteSnapshotProvider {
       artifact.identity,
       manifest,
       this.#validationRootPath,
+      withPrivateSqliteStagingDirectory,
     );
     await assertSnapshotContents(snapshotDir);
     return { ok: true, manifest };
@@ -461,6 +452,7 @@ class LocalSqliteSnapshotProvider {
           stagedArtifact.identity,
           manifest,
           trustedRestoreParentPath,
+          withPrivateSqliteStagingDirectory,
         );
         await publishVerifiedSqliteFile({
           sourceIdentity: stagedArtifact.identity,
@@ -584,115 +576,6 @@ async function readVerifiedSnapshotManifest(snapshotDir: string): Promise<Snapsh
   return await readSnapshotManifest(snapshotDir);
 }
 
-function assertArtifactMatchesManifest(
-  artifactPath: string,
-  artifact: SnapshotArtifactDigest,
-  manifest: SnapshotManifest,
-): void {
-  if (artifact.sizeBytes !== manifest.artifact.sizeBytes) {
-    throw new Error(
-      `Snapshot artifact size mismatch for ${artifactPath}: expected ${manifest.artifact.sizeBytes}, got ${artifact.sizeBytes}`,
-    );
-  }
-  if (artifact.sha256 !== manifest.artifact.sha256) {
-    throw new Error(
-      `Snapshot artifact hash mismatch for ${artifactPath}: expected ${manifest.artifact.sha256}, got ${artifact.sha256}`,
-    );
-  }
-}
-
-function assertAllowedDatabaseRole(
-  manifest: SnapshotManifest,
-  allowedRoles: readonly SnapshotDatabaseIdentity["role"][] | undefined,
-): void {
-  if (!allowedRoles || allowedRoles.includes(manifest.database.role)) {
-    return;
-  }
-  throw new Error(
-    `SQLite snapshot database role ${manifest.database.role} is not allowed for this operation.`,
-  );
-}
-
-async function verifySnapshotDatabaseFile(
-  artifactPath: string,
-  expectedIdentity: FileIdentityStat,
-  manifest: SnapshotManifest,
-  validationRootPath: string,
-): Promise<void> {
-  const beforeOpen = await fs.lstat(artifactPath, { bigint: true });
-  if (
-    beforeOpen.isSymbolicLink() ||
-    !beforeOpen.isFile() ||
-    beforeOpen.nlink > 1n ||
-    !sameFileIdentity(expectedIdentity, beforeOpen)
-  ) {
-    throw new Error(`Snapshot artifact changed before SQLite verification: ${artifactPath}`);
-  }
-
-  const validationRootIdentity = await lstatIfExists(validationRootPath);
-  if (!validationRootIdentity) {
-    throw new Error(
-      `SQLite validation root does not exist: ${validationRootPath}. Create a private directory there or pass an existing directory with \`--scratch\`.`,
-    );
-  }
-  assertDirectory(validationRootIdentity, validationRootPath, "SQLite validation root");
-  const canonicalValidationRootPath = await fs.realpath(validationRootPath);
-  await withPrivateSqliteStagingDirectory({
-    rootReceipt: {
-      path: canonicalValidationRootPath,
-      realPath: canonicalValidationRootPath,
-      identity: validationRootIdentity,
-      exactIdentity: validationRootIdentity,
-    },
-    prefix: ".tmp-verify-",
-    allowedEntries: VALIDATION_STAGING_ENTRIES,
-    operation: async (validationDir) => {
-      const validationPath = path.join(validationDir, SNAPSHOT_SQLITE_FILENAME);
-      const validationArtifact = await copySnapshotArtifact(
-        path.dirname(artifactPath),
-        validationPath,
-      );
-      assertArtifactMatchesManifest(validationPath, validationArtifact, manifest);
-      const database = openNodeSqliteDatabase(validationPath, {
-        allowExtension: true,
-        readOnly: true,
-      });
-      try {
-        database.exec("PRAGMA busy_timeout = 30000; PRAGMA trusted_schema = OFF;");
-        await loadSqliteVecExtension({ db: database });
-        assertSqliteIntegrity(database, artifactPath);
-        buildSnapshotValidator(manifest.database)(database, artifactPath);
-        const userVersion = readSqliteUserVersion(database);
-        if (userVersion !== manifest.database.userVersion) {
-          throw new Error(
-            `Snapshot database user_version mismatch for ${artifactPath}: expected ${manifest.database.userVersion}, got ${userVersion}`,
-          );
-        }
-      } finally {
-        database.close();
-      }
-      const validatedArtifact = await hashSnapshotArtifact(validationDir);
-      if (!sameFileIdentity(validationArtifact.identity, validatedArtifact.identity)) {
-        throw new Error(`Snapshot validation copy changed: ${validationPath}`);
-      }
-      assertArtifactMatchesManifest(validationPath, validatedArtifact, manifest);
-    },
-  });
-  const afterOpen = await fs.lstat(artifactPath, { bigint: true });
-  if (
-    afterOpen.isSymbolicLink() ||
-    !afterOpen.isFile() ||
-    afterOpen.nlink > 1n ||
-    !sameFileIdentity(expectedIdentity, afterOpen)
-  ) {
-    throw new Error(`Snapshot artifact changed during SQLite verification: ${artifactPath}`);
-  }
-  const verifiedArtifact = await hashSnapshotArtifact(path.dirname(artifactPath));
-  if (!sameFileIdentity(expectedIdentity, verifiedArtifact.identity)) {
-    throw new Error(`Snapshot artifact changed after SQLite verification: ${artifactPath}`);
-  }
-  assertArtifactMatchesManifest(artifactPath, verifiedArtifact, manifest);
-}
 
 function buildDatabaseManifest(
   identity: SnapshotDatabaseIdentity,
@@ -939,6 +822,7 @@ async function commitPendingSnapshot(
     artifact.identity,
     manifest,
     params.validationRootPath,
+    withPrivateSqliteStagingDirectory,
   );
   if (!expected) {
     requireDirectorySync(await snapshotDirectory.sync(), scopeLabel);
