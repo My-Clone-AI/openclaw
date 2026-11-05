@@ -192,6 +192,12 @@ const OWNER_VIEWS = {
   socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
   socialGroup: { path: "/api/social-groups/{id}" },
   conversationContext: { path: "/api/conversations/{id}/context" },
+  // Agenda (`/agenda`): Google Calendar as NSVX stores it. `live=1` makes NSVX read Google once, as its screen does.
+  workspaceStatus: { path: "/api/workspace/status" },
+  calendars: { path: "/api/workspace/calendars" },
+  calendarEvents: { path: "/api/workspace/events", query: ["start", "end", "tz", "live"] },
+  calendarEvent: { path: "/api/workspace/events/{id}" },
+  workspaceIntent: { path: "/api/workspace/intents/{id}" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -260,6 +266,11 @@ const OWNER_WRITES = {
     query: ["group_id", "person_id"],
     idempotency: "Idempotency-Key",
   },
+  // Agenda. Event changes go through NSVX's preview-then-submit path (agenda.ts limits the operations).
+  calendarSelect: { method: "POST", path: "/api/workspace/calendars/{id}/select" },
+  calendarAction: { method: "POST", path: "/api/workspace/actions" },
+  meetingRefresh: { method: "POST", path: "/api/workspace/events/{id}/refresh-meeting" },
+  meetingDocument: { method: "POST", path: "/api/workspace/meeting-documents" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -272,6 +283,13 @@ export type OwnerWrite = keyof typeof OWNER_WRITES;
 const OWNER_READ_POSTS = {
   find: "/api/find",
   activitySummary: "/api/auto/activity/summary",
+  // Agenda reads: free times, the exact terms of a change before it runs, and clone's written help.
+  agendaSummary: "/api/workspace/agenda-summary",
+  freeSlots: "/api/workspace/suggestions",
+  calendarPreview: "/api/workspace/preview",
+  meetingPrep: "/api/workspace/events/{id}/preparation",
+  meetingAgenda: "/api/workspace/events/{id}/agenda-draft",
+  inviteReply: "/api/workspace/events/{id}/reply-draft",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -355,6 +373,16 @@ export function createNsvxClient(options: {
       throw errorFor(response.status, await problemFrom(response), false, path);
     }
     return response;
+  }
+
+  function withId(path: string, id: string | undefined): string {
+    if (!path.includes("{id}")) {
+      return path;
+    }
+    if (!id || id.length > 200) {
+      throw new NsvxError("invalid", "id is required.");
+    }
+    return path.replace("{id}", encodeURIComponent(id));
   }
 
   async function readOwner<T>(path: string): Promise<T> {
@@ -504,15 +532,16 @@ export function createNsvxClient(options: {
       }
       return { src: `data:${mime};base64,${Buffer.from(bytes).toString("base64")}` } as T;
     },
-    /** Owner reads sent as POST: `find` (unified search) and `activitySummary`. */
+    /** Owner reads sent as POST (unified search, activity summary, Agenda help); `id` fills a `{id}` path slot. */
     async readOwnerPost<T = unknown>(
       name: OwnerReadPost,
       body: Record<string, unknown>,
+      id?: string,
     ): Promise<T> {
       if (!Object.hasOwn(OWNER_READ_POSTS, name)) {
         throw new NsvxError("invalid", "Unknown NSVX view.");
       }
-      return postOwnerRead(OWNER_READ_POSTS[name], body);
+      return postOwnerRead(withId(OWNER_READ_POSTS[name], id), body);
     },
     /** The AUTO activity CSV for UTC days `start`..`end`, optionally only some entry ids, as NSVX builds it. */
     async exportActivity(range: { start: string; end: string; ids?: string }): Promise<string> {

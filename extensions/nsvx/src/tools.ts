@@ -9,6 +9,18 @@ import {
   type FindResult,
 } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
+import {
+  cancelPayload,
+  dayKey,
+  draftFrom,
+  eventPayload,
+  todayKey,
+  windowFor,
+  type CalendarEvent,
+  type EventDetail,
+  type EventsPage,
+} from "./agenda-data.js";
+import { agendaSummary, freeSlots, previewChange, submitChange } from "./agenda.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
@@ -28,7 +40,18 @@ import {
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
 import type { TeamService } from "./team.js";
-import { agendaSummary, freeSlots, previewChange, submitChange } from "./agenda.js";
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+function agendaDay(value: string | undefined, zone: string) {
+  if (value === undefined) {
+    return todayKey(zone);
+  }
+  if (!DAY.test(value)) {
+    throw new NsvxError("invalid", "from must be YYYY-MM-DD.");
+  }
+  return value;
+}
 
 export function outcome(run: () => Promise<unknown>) {
   return run().then(jsonResult, (cause: unknown) => {
