@@ -12,6 +12,8 @@ import { AgendaTab } from "./agenda-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
+import { businessTranslator } from "./business-i18n.js";
+import { BusinessTab } from "./business-tab.js";
 import { groupTranslator } from "./group-i18n.js";
 import { GroupTab } from "./group-tab.js";
 import { HealthTab } from "./health-tab.js";
@@ -53,6 +55,7 @@ type Tab =
   | "people"
   | "money"
   | "group"
+  | "business"
   | "team"
   | "setup"
   | "skills"
@@ -394,6 +397,7 @@ const TABS: Tab[] = [
   "people",
   "money",
   "group",
+  "business",
   "team",
   "setup",
   "skills",
@@ -420,6 +424,8 @@ const mountNsvx: ControlUiView = (container, context) => {
           ? pt(id)
           : id === "group"
             ? groupTranslator(locale())("group")
+            : id === "business"
+              ? businessTranslator(locale())("business")
           : id === "device" || id === "health"
             ? dt(id)
             : t(id);
@@ -719,6 +725,9 @@ const mountNsvx: ControlUiView = (container, context) => {
 
             <Show when={tab() === "group"}>
               <GroupTab host={host} t={t} query={query()} locale={locale()} />
+            </Show>
+            <Show when={tab() === "business"}>
+              <BusinessTab host={host} t={t} query={query()} locale={locale()} />
             </Show>
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />

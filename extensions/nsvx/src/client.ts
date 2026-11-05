@@ -266,6 +266,13 @@ type OwnerWriteSpec = {
   idempotency?: string;
 };
 
+/** A fixed NSVX owner route kept in its owning module's table (business.ts); GET reads, the rest change. */
+export type OwnerRoute = Omit<OwnerWriteSpec, "method"> & { method: OwnerWriteSpec["method"] | "GET" };
+/** A file NSVX sends (page image, export); it crosses the Gateway socket as base64. */
+export type OwnerFile = { mime: string; base64: string; fileName: string | null };
+/** Exports and photos above this stay in NSVX; the Gateway socket carries 25 MB. */
+const FILE_LIMIT = 15 * 1024 * 1024;
+
 const OWNER_WRITES = {
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
   takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
@@ -509,31 +516,49 @@ export function createNsvxClient(options: {
     return (await (await ownerFetch(path, { body, csrf: state.csrf })).json()) as T;
   }
 
+  async function fileFrom(response: Response): Promise<OwnerFile> {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > FILE_LIMIT) {
+      throw new NsvxError("invalid", "The file is too large to show here.");
+    }
+    const name = /filename="([^"]{1,200})"/.exec(response.headers.get("content-disposition") ?? "");
+    return {
+      mime: response.headers.get("content-type")?.split(";")[0] ?? "application/octet-stream",
+      base64: Buffer.from(bytes).toString("base64"),
+      fileName: name?.[1] ?? null,
+    };
+  }
+
   /**
    * Fetches the session's CSRF token from NSVX's own sign-in state route for each change, so a rotated or revoked
    * session fails here instead of being cached. Changes are rare owner taps; the extra read is cheap.
+   * `part` fills `{name}` path slots and `query` names from the caller's validated values.
    */
-  async function writeOwner<T>(
-    action: OwnerWrite,
-    id: string | undefined,
+  async function sendOwner<T>(
+    spec: OwnerRoute,
+    part: (name: string) => string | undefined,
     body: unknown,
-    more: { params?: Record<string, string>; idempotencyKey?: string } = {},
+    more: { idempotencyKey?: string; file?: boolean } = {},
   ): Promise<T> {
-    const spec: OwnerWriteSpec = OWNER_WRITES[action];
-    const value = (name: string) => (name === "id" ? id : more.params?.[name]);
     const path = spec.path.replace(/\{(\w+)\}/g, (_match, name: string) => {
-      const part = value(name);
-      if (!part || part.length > 200) {
+      const value = part(name);
+      if (!value || value.length > 200) {
         throw new NsvxError("invalid", `${name} is required.`);
       }
-      return encodeURIComponent(part);
+      return encodeURIComponent(value);
     });
     const query = new URLSearchParams();
     for (const name of spec.query ?? []) {
-      const part = value(name);
-      if (part) {
-        query.set(name, part);
+      const value = part(name);
+      if (value) {
+        query.set(name, value);
       }
+    }
+    const url = `${path}${query.size > 0 ? `?${query}` : ""}`;
+    const accept = more.file ? "*/*" : "application/json";
+    if (spec.method === "GET") {
+      const response = await ownerFetch(url, { accept });
+      return (more.file ? await fileFrom(response) : await response.json()) as T;
     }
     const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
       "/api/auth/state",
@@ -541,20 +566,22 @@ export function createNsvxClient(options: {
     if (!state.authenticated || !state.csrf) {
       throw new NsvxError("signed-out", "NSVX ended the owner session.");
     }
+    // Uploads go as multipart; fetch sets that content type with its boundary.
+    const form = body instanceof FormData;
     let response: Response;
     try {
-      response = await fetchImpl(`${options.baseUrl}${path}${query.size > 0 ? `?${query}` : ""}`, {
+      response = await fetchImpl(`${options.baseUrl}${url}`, {
         method: spec.method,
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+          Accept: accept,
+          ...(form ? {} : { "Content-Type": "application/json" }),
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
           ...(spec.idempotency && more.idempotencyKey
             ? { [spec.idempotency]: more.idempotencyKey }
             : {}),
         },
-        body: JSON.stringify(body ?? {}),
+        body: form ? body : JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
@@ -564,7 +591,10 @@ export function createNsvxClient(options: {
       throw errorFor(response.status, await problemFrom(response), true, path);
     }
     // Deletes answer 204 with no body.
-    return (response.status === 204 ? { ok: true } : await response.json()) as T;
+    if (response.status === 204) {
+      return { ok: true } as T;
+    }
+    return (more.file ? await fileFrom(response) : await response.json()) as T;
   }
 
   /**
@@ -717,9 +747,19 @@ export function createNsvxClient(options: {
       action: OwnerWrite,
       id: string | undefined,
       body: unknown,
-      more?: { params?: Record<string, string>; idempotencyKey?: string },
+      more: { params?: Record<string, string>; idempotencyKey?: string } = {},
     ): Promise<T> {
-      return writeOwner(action, id, body, more);
+      const part = (name: string) => (name === "id" ? id : more.params?.[name]);
+      return sendOwner(OWNER_WRITES[action], part, body, more);
+    },
+    /** One route from an owning module's fixed table; `params` must already be validated by that module. */
+    routeOwner<T = unknown>(
+      spec: OwnerRoute,
+      params: Record<string, string>,
+      body?: unknown,
+      more?: { idempotencyKey?: string; file?: boolean },
+    ): Promise<T> {
+      return sendOwner(spec, (name) => params[name], body, more);
     },
     /** A public health probe; the owner session, when set, only adds detail NSVX shows its owner. */
     async readPublic(name: PublicRead): Promise<{ status: number; body: Record<string, unknown> }> {

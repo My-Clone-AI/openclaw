@@ -19,6 +19,7 @@ const ICONS = {
   money: "M17 5.5A7 7 0 1 0 17 18.5M4 10h9m-9 4h9",
   group:
     "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16m0-10h2a2 2 0 0 1 2 2v8M8 7h4m-4 4h4m-4 4h4M2 21h20",
+  business: "M4 7h16v13H4zm5 0V4h6v3M4 12h16",
   progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
   // Setup and Skills tabs.
   setup: "M4 6h16M4 12h16M4 18h16M9 4v4m6 2v4m-8 2v4",

@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.extensions.json",
+  "compilerOptions": { "tsBuildInfoFile": "/tmp/nsvx-7ca269ee.tsbuildinfo", "noEmit": true },
+  "include": ["src/**/*.d.ts", "ui/src/**/*.d.ts", "extensions/nsvx/**/*"]
+}
