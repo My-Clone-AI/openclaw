@@ -33,6 +33,7 @@ import {
 import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import { changeAi } from "./ai.js";
 import { registerAviationMethods } from "./aviation.js";
+import { registerCallsMethods } from "./calls.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
@@ -248,6 +249,7 @@ export function registerNsvxGatewayMethods(
   registerDeviceMethods(method, client);
   registerGrowMethods(method, client);
   registerAviationMethods(method, client);
+  registerCallsMethods(method, client);
   registerLegalMethods(method, client);
   registerResearchMethods(method, client);
   registerMarketingMethods(method, client);

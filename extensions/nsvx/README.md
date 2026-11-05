@@ -1,6 +1,7 @@
 # NSVX plugin
 
-Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, People, Agenda, Money,
+Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, Calls (dial, live calls,
+history, transcripts, recordings, Who called, voice settings; also a sidebar entry under NSVX), People, Agenda, Money,
 AI (routes, accounts, flows, Clone AI, voice, log), Group, Homes (real estate, rent, loans, mortgage, short
 stays), Aviation (logbook, documents, auto check-in, roster), Fleet
 (TVDE drivers, cars, plan, money, km, ask, driver portal, Uber trips), Device (desktop jobs, bots, memory, skills,
