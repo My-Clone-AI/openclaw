@@ -8,6 +8,9 @@ import {
 import { createSignal, For, Show } from "solid-js";
 import { translator, type MessageKey } from "./i18n.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
+import { messagesTranslator, type MT } from "./messages-i18n.js";
+import { MessagesTab } from "./messages-tab.js";
+import { QuickReplyTab } from "./quick-reply-tab.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
 import { ProgressTab } from "./progress-tab.js";
 import { TeamTab } from "./team-tab.js";
@@ -22,8 +25,9 @@ import {
   type T,
 } from "./ui-kit.js";
 import "./control-ui.css";
+import "./messages.css";
 
-type Tab = "today" | "find" | "tasks" | "work" | "activity" | "team" | "actions" | "progress";
+type Tab = "today" | "find" | "tasks" | "work" | "activity" | "messages" | "reply" | "team" | "actions" | "progress";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -346,13 +350,15 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "team", "actions", "progress"];
+const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "messages", "reply", "team", "actions", "progress"];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
   const [locale, setLocale] = createSignal(host.locale);
   const unsubscribe = host.subscribe(() => setLocale(host.locale));
   const t: T = (key) => translator(locale())(key);
+  const mt: MT = (key) => messagesTranslator(locale())(key);
+  const label = (id: Tab) => (id === "messages" || id === "reply" ? mt(id) : t(id));
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
@@ -390,14 +396,14 @@ const mountNsvx: ControlUiView = (container, context) => {
               <button
                 type="button"
                 role="tab"
-                aria-label={t(id)}
-                title={t(id)}
+                aria-label={label(id)}
+                title={label(id)}
                 aria-selected={tab() === id ? "true" : "false"}
                 class={["nsvx__tab", { "nsvx__tab--active": tab() === id }]}
                 onClick={() => select(id)}
               >
                 <Icon name={id} />
-                <span class="nsvx__tab-label">{t(id)}</span>
+                <span class="nsvx__tab-label">{label(id)}</span>
               </button>
             )}
           </For>
@@ -443,6 +449,28 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "activity"}>
               <ActivityTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "messages"}>
+              <MessagesTab
+                host={host}
+                t={t}
+                mt={mt}
+                locale={locale()}
+                query={query()}
+                open={mission()}
+                onOpen={openMission}
+              />
+            </Show>
+            <Show when={tab() === "reply"}>
+              <QuickReplyTab
+                host={host}
+                t={t}
+                mt={mt}
+                locale={locale()}
+                query={query()}
+                open={mission()}
+                onOpen={openMission}
+              />
             </Show>
 
             <Show when={tab() === "team"}>

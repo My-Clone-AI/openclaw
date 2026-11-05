@@ -115,9 +115,33 @@ const OWNER_VIEWS = {
   activity: { path: "/api/auto/activity", query: ["limit", "before"] },
   activityWorkflows: { path: "/api/auto/activity/workflows" },
   activityCount: { path: "/api/auto/activity/export/count", query: ["start", "end", "ids"] },
+  conversations: {
+    path: "/api/conversations/page",
+    query: ["q", "state", "channel", "after", "limit"],
+  },
+  conversation: { path: "/api/conversations/{id}", query: ["message_limit", "message_before"] },
+  coverage: { path: "/api/reply-coverage/summary", query: ["channel"] },
+  channels: { path: "/api/social/status" },
+  quickReplyDrafts: { path: "/api/quick-reply/drafts", query: ["q", "before"] },
+  quickReplyDraft: { path: "/api/quick-reply/drafts/{id}" },
+  quickReplyRules: { path: "/api/quick-reply/rules" },
 } as const satisfies Record<string, { path: string; query?: readonly string[] }>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
+
+const OWNER_WRITES = {
+  reply: { method: "POST", path: "/api/conversations/{id}/reply" },
+  takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
+  autoReply: { method: "POST", path: "/api/conversations/{id}/pause" },
+  approve: { method: "POST", path: "/api/outbox/{id}/approve" },
+  reject: { method: "POST", path: "/api/outbox/{id}/reject" },
+  quickReplyCreate: { method: "POST", path: "/api/quick-reply/drafts" },
+  quickReplyGenerate: { method: "POST", path: "/api/quick-reply/drafts/{id}/generate" },
+  quickReplyDelete: { method: "DELETE", path: "/api/quick-reply/drafts/{id}" },
+} as const satisfies Record<string, { method: "POST" | "DELETE"; path: string }>;
+
+export type OwnerWrite = keyof typeof OWNER_WRITES;
+
 
 /**
  * NSVX reads that take their input in a POST body (so search text never reaches URLs or access logs). POST needs the
@@ -223,6 +247,51 @@ export function createNsvxClient(options: {
     return (await (await ownerFetch(path, { body, csrf: state.csrf })).json()) as T;
   }
 
+  /**
+   * Fetches the session's CSRF token from NSVX's own sign-in state route for each change, so a rotated or revoked
+   * session fails here instead of being cached. Changes are rare owner taps; the extra read is cheap.
+   */
+  async function writeOwner<T>(
+    action: OwnerWrite,
+    id: string | undefined,
+    body: unknown,
+  ): Promise<T> {
+    const spec = OWNER_WRITES[action];
+    let path: string = spec.path;
+    if (path.includes("{id}")) {
+      if (!id || id.length > 200) {
+        throw new NsvxError("invalid", "id is required.");
+      }
+      path = path.replace("{id}", encodeURIComponent(id));
+    }
+    const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
+      "/api/auth/state",
+    );
+    if (!state.authenticated || !state.csrf) {
+      throw new NsvxError("signed-out", "NSVX ended the owner session.");
+    }
+    let response: Response;
+    try {
+      response = await fetchImpl(`${options.baseUrl}${path}`, {
+        method: spec.method,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
+          "X-CSRF-Token": state.csrf,
+        },
+        body: JSON.stringify(body ?? {}),
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+    } catch {
+      throw new NsvxError("uncertain", "NSVX did not confirm the result. Check before repeating.");
+    }
+    if (!response.ok) {
+      throw errorFor(response.status, await problemFrom(response), true, path);
+    }
+    return (await response.json()) as T;
+  }
+
   async function call<T>(
     path: string,
     init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {},
@@ -309,6 +378,10 @@ export function createNsvxClient(options: {
         throw new NsvxError("invalid", "Too much activity for one file. Pick fewer days.");
       }
       return csv;
+    },
+    /** One owner change on a fixed NSVX route; `body` must already be validated by the caller. */
+    writeOwner<T = unknown>(action: OwnerWrite, id: string | undefined, body: unknown): Promise<T> {
+      return writeOwner(action, id, body);
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

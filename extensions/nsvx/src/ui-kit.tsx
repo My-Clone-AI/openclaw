@@ -27,7 +27,7 @@ const ICONS = {
   resume: "M7 4v16l13-8z",
   task: "M4 12 20 4l-4 16-4-7zm8 1 8-9",
   history: "M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5m4-1v5l3 2",
-  undo: "M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3",,
+  undo: "M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3",
   activity: "M3 12h4l3-8 4 16 3-8h4",
   find: "m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0",
   spark:
@@ -35,7 +35,10 @@ const ICONS = {
   close: "M18 6 6 18M6 6l12 12",
   download: "M12 3v12m0 0-5-5m5 5 5-5M4 21h16",
   flow: "M6 3v12m0 0a3 3 0 1 0 0 .01M18 9a3 3 0 1 0 0-.01M18 9c0 5-6 4-9 7",
-  doc: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zm0 0v5h5M9 13h6m-6 4h4"
+  doc: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zm0 0v5h5M9 13h6m-6 4h4",
+  messages: "M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12",
+  reply:
+    "M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4zM19 15l.8 1.9 1.9.8-1.9.8L19 20.5l-.8-1.9-1.9-.8 1.9-.8z",
 } as const;
 
 export type IconName = keyof typeof ICONS;
