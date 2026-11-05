@@ -5229,11 +5229,10 @@
     "uncoveredWebRoutes": [],
     "uncoveredBackendPackages": [],
     "uncoveredJobPackages": [],
-    "unassignedRoutes": 30,
+    "unassignedRoutes": 29,
     "unassignedRouteAreas": {
       "/agents": 1,
       "/api/api": 1,
-      "/api/jobs": 1,
       "/api/settings": 4,
       "/api/test": 1,
       "/assets/{name}": 1,
@@ -5254,7 +5253,8 @@
       "/report": 1,
       "/status": 1,
       "/sync": 1,
-      "/{path:path}": 1
+      "/{path:path}": 1,
+      "/api/jobs": 1
     },
     "byEntry": {
       "home-today": {
@@ -5300,16 +5300,34 @@
         "digest": "2b91e1d926c1c683a7b29cfbbe32d1679cd6035660027d3ff2da16bae6c145bf"
       },
       "people": {
-        "routes": 56,
-        "reads": 19,
-        "writes": 37,
-        "digest": "43d41bed75def5ae2ff9ff9893ef56af09a7552f97d186b96b76feb05354a64f"
+        "routes": 18,
+        "reads": 8,
+        "writes": 10,
+        "digest": "fe5d3a9b75a98518e971b92575f9a900539129116be01491426d8b40cf22e957"
       },
       "social-context": {
         "routes": 4,
         "reads": 3,
         "writes": 1,
         "digest": "5437f12c8579b5cb7b81a20d406dede543af2cc17eb12b7a3cd0d8f609016dc7"
+      },
+      "person-history": {
+        "routes": 23,
+        "reads": 6,
+        "writes": 17,
+        "digest": "74a28de3750708dc429ad6906f04285f539addc1f93234bea9905f53bf56ceeb"
+      },
+      "person-interests": {
+        "routes": 3,
+        "reads": 2,
+        "writes": 1,
+        "digest": "387144090fd00c60ad41581508cf9c115d39c9fa47f6cb9a4a573816e0eaff61"
+      },
+      "social-groups": {
+        "routes": 13,
+        "reads": 4,
+        "writes": 9,
+        "digest": "f6f2e92362c493082b1ebc01e56344d24bace79a002f7ca36f59f52eaaa33785"
       },
       "calls-voice": {
         "routes": 81,
@@ -5649,9 +5667,9 @@
       }
     },
     "parity": {
-      "discovered": 65,
-      "native": 10,
-      "partial": 23,
+      "discovered": 68,
+      "native": 9,
+      "partial": 27,
       "missing": 31,
       "blocked": 1,
       "verified": 0,
@@ -5780,9 +5798,9 @@
           "id": "22",
           "name": "Everything else",
           "discovered": 3,
-          "native": 1,
-          "partial": 2,
-          "missing": 0,
+          "native": 0,
+          "partial": 0,
+          "missing": 3,
           "blocked": 0,
           "verified": 0
         },
@@ -5809,10 +5827,10 @@
         {
           "id": "03",
           "name": "People",
-          "discovered": 2,
+          "discovered": 5,
           "native": 0,
-          "partial": 0,
-          "missing": 2,
+          "partial": 5,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
@@ -5841,8 +5859,8 @@
           "name": "Calendar and Google",
           "discovered": 1,
           "native": 0,
-          "partial": 0,
-          "missing": 1,
+          "partial": 1,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },
@@ -5873,6 +5891,36 @@
           "native": 0,
           "partial": 0,
           "missing": 3,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "22",
+          "name": "Everything else",
+          "discovered": 3,
+          "native": 1,
+          "partial": 2,
+          "missing": 0,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "03",
+          "name": "People",
+          "discovered": 2,
+          "native": 0,
+          "partial": 0,
+          "missing": 2,
+          "blocked": 0,
+          "verified": 0
+        },
+        {
+          "id": "06",
+          "name": "Calendar and Google",
+          "discovered": 1,
+          "native": 0,
+          "partial": 0,
+          "missing": 1,
           "blocked": 0,
           "verified": 0
         }

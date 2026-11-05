@@ -64,9 +64,14 @@ async function problemFrom(response: Response): Promise<Problem> {
 }
 
 function errorFor(status: number, problem: Problem, isWrite: boolean, path: string): NsvxError {
+  // Some NSVX routes nest the text: `{"detail": {"detail": "...", "existing_id": "..."}}`.
+  const nested = (problem.detail as { detail?: unknown } | null | undefined)?.detail;
   const message =
-    (typeof problem.detail === "string" ? problem.detail : problem.title) ??
-    `NSVX answered ${status}.`;
+    (typeof problem.detail === "string"
+      ? problem.detail
+      : typeof nested === "string"
+        ? nested
+        : problem.title) ?? `NSVX answered ${status}.`;
   const correlation = problem.correlation_id;
   if (status === 401) {
     return new NsvxError("signed-out", "NSVX rejected the sign-in token.", correlation);
@@ -112,105 +117,185 @@ type OwnerViewSpec = { path: string; query?: readonly string[]; image?: true };
 const IMAGE_LIMIT = 4 * 1024 * 1024;
 
 const OWNER_VIEWS = {
-  today: { path: "/api/today" },
-  missions: { path: "/api/missions" },
-  missionEvents: { path: "/api/missions/{id}/events", query: ["before"] },
-  workSummary: { path: "/api/tarefas-ao-vivo/summary" },
-  workTasks: { path: "/api/tarefas-ao-vivo/tasks", query: ["state", "q", "cursor"] },
-  activity: { path: "/api/auto/activity", query: ["limit", "before"] },
-  activityWorkflows: { path: "/api/auto/activity/workflows" },
-  activityCount: { path: "/api/auto/activity/export/count", query: ["start", "end", "ids"] },
-  conversations: {
+today: { path: "/api/today" },
+missions: { path: "/api/missions" },
+missionEvents: { path: "/api/missions/{id}/events", query: ["before"] },
+workSummary: { path: "/api/tarefas-ao-vivo/summary" },
+workTasks: { path: "/api/tarefas-ao-vivo/tasks", query: ["state", "q", "cursor"] },
+activity: { path: "/api/auto/activity", query: ["limit", "before"] },
+activityWorkflows: { path: "/api/auto/activity/workflows" },
+activityCount: { path: "/api/auto/activity/export/count", query: ["start", "end", "ids"] },
+conversations: {
     path: "/api/conversations/page",
     query: ["q", "state", "channel", "after", "limit"],
   },
-  conversation: { path: "/api/conversations/{id}", query: ["message_limit", "message_before"] },
-  coverage: { path: "/api/reply-coverage/summary", query: ["channel"] },
-  channels: { path: "/api/social/status" },
-  quickReplyDrafts: { path: "/api/quick-reply/drafts", query: ["q", "before"] },
-  quickReplyDraft: { path: "/api/quick-reply/drafts/{id}" },
-  quickReplyRules: { path: "/api/quick-reply/rules" },
-  // Finance (`/financas`): the same reads the NSVX Finanças, Documentos, and Contabilidade screens make.
+conversation: { path: "/api/conversations/{id}", query: ["message_limit", "message_before"] },
+coverage: { path: "/api/reply-coverage/summary", query: ["channel"] },
+channels: { path: "/api/social/status" },
+quickReplyDrafts: { path: "/api/quick-reply/drafts", query: ["q", "before"] },
+quickReplyDraft: { path: "/api/quick-reply/drafts/{id}" },
+quickReplyRules: { path: "/api/quick-reply/rules" },
+// Finance (`/financas`): the same reads the NSVX Finanças, Documentos, and Contabilidade screens make.
   financeToday: { path: "/api/finance/today" },
-  financeDashboard: { path: "/api/finance/dashboard", query: ["entity", "scope", "year"] },
-  financeAccounts: { path: "/api/finance/accounts", query: ["entity", "scope"] },
-  financeConnections: { path: "/api/finance/connections" },
-  financeCards: { path: "/api/finance/cards" },
-  financeObligations: {
+financeDashboard: { path: "/api/finance/dashboard", query: ["entity", "scope", "year"] },
+financeAccounts: { path: "/api/finance/accounts", query: ["entity", "scope"] },
+financeConnections: { path: "/api/finance/connections" },
+financeCards: { path: "/api/finance/cards" },
+financeObligations: {
     path: "/api/finance/obligations",
     query: ["entity", "scope", "include_done"],
   },
-  financeAlerts: { path: "/api/finance/alerts" },
-  financeInvoices: {
+financeAlerts: { path: "/api/finance/alerts" },
+financeInvoices: {
     path: "/api/finance/invoices",
     query: ["entity", "scope", "role", "year", "unassigned", "q", "before", "limit"],
   },
-  bankTransactions: {
+bankTransactions: {
     path: "/api/finance/banking/transactions",
     query: ["entity", "scope", "connection", "counterparty", "status", "cursor", "limit"],
   },
-  bankCapabilities: { path: "/api/finance/banking/capabilities", query: ["entity"] },
-  bankTasks: { path: "/api/finance/banking/tasks", query: ["entity", "scope"] },
-  docsOverview: { path: "/api/finance/docs/overview", query: ["entity", "scope", "year"] },
-  docsBrowse: {
+bankCapabilities: { path: "/api/finance/banking/capabilities", query: ["entity"] },
+bankTasks: { path: "/api/finance/banking/tasks", query: ["entity", "scope"] },
+docsOverview: { path: "/api/finance/docs/overview", query: ["entity", "scope", "year"] },
+docsBrowse: {
     path: "/api/finance/docs/browse",
     query: ["entity", "scope", "path", "month", "kind", "state", "source", "q", "offset", "limit"],
   },
-  docsSearch: { path: "/api/finance/docs/search", query: ["q", "entity", "scope"] },
-  docPreview: { path: "/api/finance/docs/{id}/preview" },
-  docPage: { path: "/api/finance/docs/{id}/page/{page}", query: ["w"], image: true },
-  docImage: { path: "/api/finance/docs/{id}/content", image: true },
-  ledgerBooks: { path: "/api/ledger/books" },
-  ledgerOverview: { path: "/api/ledger/overview", query: ["book", "year"] },
-  ledgerReport: { path: "/api/ledger/reports/{kind}", query: ["book", "year"] },
-  ledgerJournal: {
+docsSearch: { path: "/api/finance/docs/search", query: ["q", "entity", "scope"] },
+docPreview: { path: "/api/finance/docs/{id}/preview" },
+docPage: { path: "/api/finance/docs/{id}/page/{page}", query: ["w"], image: true },
+docImage: { path: "/api/finance/docs/{id}/content", image: true },
+ledgerBooks: { path: "/api/ledger/books" },
+ledgerOverview: { path: "/api/ledger/overview", query: ["book", "year"] },
+ledgerReport: { path: "/api/ledger/reports/{kind}", query: ["book", "year"] },
+ledgerJournal: {
     path: "/api/ledger/journal",
     query: ["book", "year", "account", "q", "limit", "offset"],
   },
-  ledgerReview: {
+ledgerReview: {
     path: "/api/ledger/transactions",
     query: ["book", "year", "status", "limit", "offset"],
   },
-  ledgerTax: { path: "/api/ledger/tax", query: ["book", "year"] },
-  // Desktop (`/api/desktop/*`): the routes the clone desktop app uses, with the owner session.
+ledgerTax: { path: "/api/ledger/tax", query: ["book", "year"] },
+// Agenda (`/agenda`): Google Calendar as NSVX stores it. `live=1` makes NSVX read Google once, as its screen does.
+  workspaceStatus: { path: "/api/workspace/status" },
+calendars: { path: "/api/workspace/calendars" },
+calendarEvents: { path: "/api/workspace/events", query: ["start", "end", "tz", "live"] },
+calendarEvent: { path: "/api/workspace/events/{id}" },
+workspaceIntent: { path: "/api/workspace/intents/{id}" },
+// People (`/pessoas`): the reads the NSVX People, person, and group screens make.
+  people: { path: "/api/people" },
+person: { path: "/api/people/{id}" },
+personAvatar: { path: "/api/people/{id}/avatar", image: true },
+personContacts: { path: "/api/people/{id}/contact-details" },
+personInterests: { path: "/api/people/{id}/interests" },
+personInterestHistory: {
+    path: "/api/people/{id}/interests/history",
+    query: ["kind", "topic_id", "before"],
+  },
+personPlaces: { path: "/api/people/{id}/history" },
+personPhoto: { path: "/api/people/{id}/photos/{photo}", image: true },
+unlinkedIdentities: { path: "/api/identities/unlinked" },
+socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
+socialGroup: { path: "/api/social-groups/{id}" },
+conversationContext: { path: "/api/conversations/{id}/context" },
+// Desktop (`/api/desktop/*`): the routes the clone desktop app uses, with the owner session.
   desktopBots: { path: "/api/desktop/bots" },
-  desktopTasks: { path: "/api/desktop/tasks", query: ["state", "limit"] },
-  memoryProfile: { path: "/api/desktop/memory/{bot}/profile", query: ["limit"] },
-  memoryJournal: { path: "/api/desktop/memory/{bot}/journal", query: ["limit"] },
-  memoryFacts: { path: "/api/desktop/memory/{bot}/facts", query: ["person_id", "limit"] },
-  memoryRecall: { path: "/api/desktop/memory/{bot}/recall", query: ["q", "person_id", "limit"] },
-  memoryRevocations: { path: "/api/desktop/memory/{bot}/revocations" },
-  skills: { path: "/api/desktop/skills" },
-  skillVersions: { path: "/api/desktop/skills/{slug}/versions" },
-  skill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
-  // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
+desktopTasks: { path: "/api/desktop/tasks", query: ["state", "limit"] },
+memoryProfile: { path: "/api/desktop/memory/{bot}/profile", query: ["limit"] },
+memoryJournal: { path: "/api/desktop/memory/{bot}/journal", query: ["limit"] },
+memoryFacts: { path: "/api/desktop/memory/{bot}/facts", query: ["person_id", "limit"] },
+memoryRecall: { path: "/api/desktop/memory/{bot}/recall", query: ["q", "person_id", "limit"] },
+memoryRevocations: { path: "/api/desktop/memory/{bot}/revocations" },
+skills: { path: "/api/desktop/skills" },
+skillVersions: { path: "/api/desktop/skills/{slug}/versions" },
+skill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
+// Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
   syncChanges: { path: "/api/sync/changes" },
-  runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
+runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
 
 export const OWNER_VIEW_NAMES = Object.keys(OWNER_VIEWS) as OwnerView[];
 
+/**
+ * Fixed NSVX owner routes. `{name}` path parts and `query` names come from the caller's validated values;
+ * `idempotency` names the header NSVX reads the caller's key from.
+ */
+type OwnerWriteSpec = {
+  method: "POST" | "PATCH" | "PUT" | "DELETE";
+  path: string;
+  query?: readonly string[];
+  idempotency?: string;
+};
+
 const OWNER_WRITES = {
-  reply: { method: "POST", path: "/api/conversations/{id}/reply" },
-  takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
-  autoReply: { method: "POST", path: "/api/conversations/{id}/pause" },
-  approve: { method: "POST", path: "/api/outbox/{id}/approve" },
-  reject: { method: "POST", path: "/api/outbox/{id}/reject" },
-  quickReplyCreate: { method: "POST", path: "/api/quick-reply/drafts" },
-  quickReplyGenerate: { method: "POST", path: "/api/quick-reply/drafts/{id}/generate" },
-  quickReplyDelete: { method: "DELETE", path: "/api/quick-reply/drafts/{id}" },
-  desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
-  desktopTaskStop: { method: "POST", path: "/api/desktop/tasks/{id}/stop" },
-  desktopTasksStopAll: { method: "POST", path: "/api/desktop/tasks/stop-all" },
-  memoryCorrect: { method: "POST", path: "/api/desktop/memory/{id}/correct" },
-  memoryForget: { method: "POST", path: "/api/desktop/memory/{id}/forget" },
-  syncSave: { method: "POST", path: "/api/sync/mutations" },
-  syncPromote: { method: "POST", path: "/api/sync/tasks/{id}/promote" },
-  syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
-  syncConfirm: { method: "POST", path: "/api/sync/drafts/{id}/confirm" },
-} as const satisfies Record<string, { method: "POST" | "PUT" | "DELETE"; path: string }>;
+reply: { method: "POST", path: "/api/conversations/{id}/reply" },
+takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
+autoReply: { method: "POST", path: "/api/conversations/{id}/pause" },
+approve: { method: "POST", path: "/api/outbox/{id}/approve" },
+reject: { method: "POST", path: "/api/outbox/{id}/reject" },
+quickReplyCreate: { method: "POST", path: "/api/quick-reply/drafts" },
+quickReplyGenerate: { method: "POST", path: "/api/quick-reply/drafts/{id}/generate" },
+quickReplyDelete: { method: "DELETE", path: "/api/quick-reply/drafts/{id}" },
+// Agenda. Event changes go through NSVX's preview-then-submit path (agenda.ts limits the operations).
+  calendarSelect: { method: "POST", path: "/api/workspace/calendars/{id}/select" },
+calendarAction: { method: "POST", path: "/api/workspace/actions" },
+meetingRefresh: { method: "POST", path: "/api/workspace/events/{id}/refresh-meeting" },
+meetingDocument: { method: "POST", path: "/api/workspace/meeting-documents" },
+// People and groups: the changes the NSVX People screens make, nothing that sends a message.
+  personCreate: { method: "POST", path: "/api/people" },
+personUpdate: { method: "PATCH", path: "/api/people/{id}" },
+personFollowUp: { method: "POST", path: "/api/people/{id}/follow-up-draft" },
+personLink: { method: "POST", path: "/api/people/{id}/link" },
+personResume: { method: "DELETE", path: "/api/people/{id}/automation-stop", query: ["confirm"] },
+personAlias: { method: "POST", path: "/api/people/{id}/aliases" },
+personMerge: { method: "POST", path: "/api/people/{id}/merge" },
+personContacts: { method: "PUT", path: "/api/people/{id}/contact-details" },
+fact: { method: "POST", path: "/api/facts/{id}" },
+interests: { method: "POST", path: "/api/people/{id}/interests/control" },
+placesCategory: { method: "POST", path: "/api/people/{id}/categories" },
+placesPropose: {
+    method: "POST",
+    path: "/api/people/{id}/visits",
+    idempotency: "Idempotency-Key",
+  },
+placesHide: { method: "POST", path: "/api/people/{id}/visits/{visit}/hide" },
+placesErase: { method: "POST", path: "/api/people/{id}/profile/erase" },
+mentionConfirm: { method: "POST", path: "/api/mentions/{id}/confirm" },
+groupCreate: { method: "POST", path: "/api/social-groups" },
+groupUpdate: { method: "PATCH", path: "/api/social-groups/{id}", query: ["revision"] },
+groupDelete: { method: "DELETE", path: "/api/social-groups/{id}", query: ["revision"] },
+groupMember: {
+    method: "PUT",
+    path: "/api/social-groups/{id}/members/{person}",
+    query: ["revision"],
+  },
+groupMemberClear: {
+    method: "DELETE",
+    path: "/api/social-groups/{id}/members/{person}",
+    query: ["revision"],
+  },
+groupMerge: { method: "POST", path: "/api/social-groups/{id}/merge", query: ["revision"] },
+groupSplit: { method: "POST", path: "/api/social-groups/{id}/split", query: ["revision"] },
+groupUndo: { method: "POST", path: "/api/social-groups/{id}/undo", query: ["revision"] },
+groupSuggest: {
+    method: "POST",
+    path: "/api/social-groups/recompute",
+    query: ["group_id", "person_id"],
+    idempotency: "Idempotency-Key",
+  },
+desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
+desktopTaskStop: { method: "POST", path: "/api/desktop/tasks/{id}/stop" },
+desktopTasksStopAll: { method: "POST", path: "/api/desktop/tasks/stop-all" },
+memoryCorrect: { method: "POST", path: "/api/desktop/memory/{id}/correct" },
+memoryForget: { method: "POST", path: "/api/desktop/memory/{id}/forget" },
+syncSave: { method: "POST", path: "/api/sync/mutations" },
+syncPromote: { method: "POST", path: "/api/sync/tasks/{id}/promote" },
+syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
+syncConfirm: { method: "POST", path: "/api/sync/drafts/{id}/confirm" },
+} as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
 
@@ -222,6 +307,13 @@ export type OwnerWrite = keyof typeof OWNER_WRITES;
 const OWNER_READ_POSTS = {
   find: "/api/find",
   activitySummary: "/api/auto/activity/summary",
+  // Agenda reads: free times, the exact terms of a change before it runs, and clone's written help.
+  agendaSummary: "/api/workspace/agenda-summary",
+  freeSlots: "/api/workspace/suggestions",
+  calendarPreview: "/api/workspace/preview",
+  meetingPrep: "/api/workspace/events/{id}/preparation",
+  meetingAgenda: "/api/workspace/events/{id}/agenda-draft",
+  inviteReply: "/api/workspace/events/{id}/reply-draft",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -321,6 +413,16 @@ export function createNsvxClient(options: {
     return response;
   }
 
+  function withId(path: string, id: string | undefined): string {
+    if (!path.includes("{id}")) {
+      return path;
+    }
+    if (!id || id.length > 200) {
+      throw new NsvxError("invalid", "id is required.");
+    }
+    return path.replace("{id}", encodeURIComponent(id));
+  }
+
   async function readOwner<T>(path: string): Promise<T> {
     return (await (await ownerFetch(path)).json()) as T;
   }
@@ -343,15 +445,23 @@ export function createNsvxClient(options: {
     action: OwnerWrite,
     id: string | undefined,
     body: unknown,
-    idempotencyKey?: string,
+    more: { params?: Record<string, string>; idempotencyKey?: string } = {},
   ): Promise<T> {
-    const spec = OWNER_WRITES[action];
-    let path: string = spec.path;
-    if (path.includes("{id}")) {
-      if (!id || id.length > 200) {
-        throw new NsvxError("invalid", "id is required.");
+    const spec: OwnerWriteSpec = OWNER_WRITES[action];
+    const value = (name: string) => (name === "id" ? id : more.params?.[name]);
+    const path = spec.path.replace(/\{(\w+)\}/g, (_match, name: string) => {
+      const part = value(name);
+      if (!part || part.length > 200) {
+        throw new NsvxError("invalid", `${name} is required.`);
       }
-      path = path.replace("{id}", encodeURIComponent(id));
+      return encodeURIComponent(part);
+    });
+    const query = new URLSearchParams();
+    for (const name of spec.query ?? []) {
+      const part = value(name);
+      if (part) {
+        query.set(name, part);
+      }
     }
     const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
       "/api/auth/state",
@@ -361,14 +471,16 @@ export function createNsvxClient(options: {
     }
     let response: Response;
     try {
-      response = await fetchImpl(`${options.baseUrl}${path}`, {
+      response = await fetchImpl(`${options.baseUrl}${path}${query.size > 0 ? `?${query}` : ""}`, {
         method: spec.method,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
-          ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+          ...(spec.idempotency && more.idempotencyKey
+            ? { [spec.idempotency]: more.idempotencyKey }
+            : {}),
         },
         body: JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -379,7 +491,8 @@ export function createNsvxClient(options: {
     if (!response.ok) {
       throw errorFor(response.status, await problemFrom(response), true, path);
     }
-    return (await response.json()) as T;
+    // Deletes answer 204 with no body.
+    return (response.status === 204 ? { ok: true } : await response.json()) as T;
   }
 
   async function publicFetch(path: string, accept: string, alsoOk?: number): Promise<Response> {
@@ -477,15 +590,16 @@ export function createNsvxClient(options: {
       }
       return { src: `data:${mime};base64,${Buffer.from(bytes).toString("base64")}` } as T;
     },
-    /** Owner reads sent as POST: `find` (unified search) and `activitySummary`. */
+    /** Owner reads sent as POST (unified search, activity summary, Agenda help); `id` fills a `{id}` path slot. */
     async readOwnerPost<T = unknown>(
       name: OwnerReadPost,
       body: Record<string, unknown>,
+      id?: string,
     ): Promise<T> {
       if (!Object.hasOwn(OWNER_READ_POSTS, name)) {
         throw new NsvxError("invalid", "Unknown NSVX view.");
       }
-      return postOwnerRead(OWNER_READ_POSTS[name], body);
+      return postOwnerRead(withId(OWNER_READ_POSTS[name], id), body);
     },
     /** The AUTO activity CSV for UTC days `start`..`end`, optionally only some entry ids, as NSVX builds it. */
     async exportActivity(range: { start: string; end: string; ids?: string }): Promise<string> {
@@ -506,29 +620,9 @@ export function createNsvxClient(options: {
       action: OwnerWrite,
       id: string | undefined,
       body: unknown,
-      idempotencyKey?: string,
+      more?: { params?: Record<string, string>; idempotencyKey?: string },
     ): Promise<T> {
-      return writeOwner(action, id, body, idempotencyKey);
-    },
-    /** A public health probe; the owner session, when set, only adds detail NSVX shows its owner. */
-    async readPublic(name: PublicRead): Promise<{ status: number; body: Record<string, unknown> }> {
-      const spec: { path: string; alsoOk?: number } = PUBLIC_READS[name];
-      const response = await publicFetch(spec.path, "application/json", spec.alsoOk);
-      return {
-        status: response.status,
-        body: (await response.json()) as Record<string, unknown>,
-      };
-    },
-    /** One public legal page as NSVX renders it (HTML). */
-    async readLegalPage(page: string, lang: string): Promise<string> {
-      if (!LEGAL_PAGES.includes(page as never) || !LEGAL_LANGS.includes(lang as never)) {
-        throw new NsvxError("invalid", "Unknown legal page.");
-      }
-      const html = await (await publicFetch(`/${page}?lang=${lang}`, "text/html")).text();
-      if (html.length > LEGAL_LIMIT) {
-        throw new NsvxError("invalid", "NSVX sent too large a page.");
-      }
-      return html;
+      return writeOwner(action, id, body, more);
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

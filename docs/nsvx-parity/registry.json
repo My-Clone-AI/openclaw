@@ -692,10 +692,10 @@
     },
     {
       "id": "people",
-      "title": "People and groups",
+      "title": "People, person page, memory, contacts, and accounts",
       "family": "03",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/pessoas"
@@ -705,16 +705,12 @@
         "apiPrefixes": [
           "/api/facts",
           "/api/identities",
-          "/api/people",
-          "/api/social-groups",
-          "/api/subject"
+          "/api/people"
         ],
         "sourceFiles": [
           "backend/clone/api.py",
           "backend/clone/contact_details_api.py",
-          "backend/clone/history_api.py",
-          "backend/clone/interest_controls.py",
-          "backend/clone/social_api.py",
+          "web/src/components/PersonContactDetails.tsx",
           "web/src/screens/People.tsx",
           "web/src/screens/PersonDetail.tsx"
         ],
@@ -726,12 +722,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.people.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_people"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/people, /api/social-groups; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin People tab reads NSVX /api/people, /api/people/{id}, contact details, and unlinked identities through nsvx.view, and changes them through nsvx.people.change, one fixed owner route each (OWNER_WRITES) with the owner session and its CSRF token. nsvx_people gives chat find, read, and mode on the owner's turns; it never sends.",
       "verification": {
         "requires": [
           "discovery",
@@ -746,21 +751,40 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "web/src/screens/People.tsx"
+          "web/src/screens/People.tsx",
+          "web/src/screens/PersonDetail.tsx",
+          "backend/clone/api.py",
+          "extensions/nsvx/src/people-tab.tsx",
+          "extensions/nsvx/src/people-person.tsx",
+          "extensions/nsvx/src/people-memory.tsx",
+          "extensions/nsvx/src/people.ts",
+          "extensions/nsvx/src/people-tool.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-people.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-people/): people list with Frequent, channel logos and modes; person page deep link (?person=); mode Review at once and Pause after a confirm; memory Hide sends fact remove; contacts and linked email shown.",
+          "extensions/nsvx/src/people.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, revision query, Idempotency-Key, CSRF, 204, 409 as conflict); invalid values never reach NSVX; nsvx_people answers only the owner and changes only on the current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_people was unit tested, not run by a live agent turn.",
+        "Person calls, Google Workspace, and Drive sections of the NSVX person page belong to families 04, 06, and 11 and are not in this tab."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Source files are unchanged between the pin and clone develop 4bb077870476f9289a95108e9d3a90d13311158c."
       ]
     },
     {
@@ -768,7 +792,7 @@
       "title": "Social context",
       "family": "03",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/pessoas"
@@ -800,12 +824,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.people.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_people"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "People tab Context section: aliases (/api/people/{id}/aliases), mentions with the conversation's context (/api/conversations/{id}/context) and owner confirm or reject (/api/mentions/{id}/confirm), and owner-confirmed merge of duplicates (/api/people/{id}/merge), through nsvx.view and nsvx.people.change.",
       "verification": {
         "requires": [
           "discovery",
@@ -820,21 +853,294 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/api.py",
           "backend/clone/social_api.py",
-          "web/src/screens/People.tsx",
-          "web/src/screens/PersonDetail.tsx"
+          "web/src/screens/PersonDetail.tsx",
+          "extensions/nsvx/src/people-context.tsx",
+          "extensions/nsvx/src/people.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-people.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-people/): Context section renders aliases and the mention list on the person page.",
+          "extensions/nsvx/src/people.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, revision query, Idempotency-Key, CSRF, 204, 409 as conflict); invalid values never reach NSVX; nsvx_people answers only the owner and changes only on the current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Reply coverage (/api/reply-coverage, /api/coverage) stays with the Messages entries; the per-snapshot explanation (/api/context/{id}) has no native view yet."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "person-history",
+      "title": "Person history: places and dates the person shared",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/people/{pid}/categories",
+          "/api/people/{pid}/history",
+          "/api/people/{pid}/invite",
+          "/api/people/{pid}/photos",
+          "/api/people/{pid}/profile",
+          "/api/people/{pid}/visits",
+          "/api/subject"
+        ],
+        "sourceFiles": [
+          "backend/clone/history_api.py",
+          "web/src/screens/PersonHistory.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.people.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_people"
+        ]
+      },
+      "adapter": "People tab Places section: last visit, schematic map, timeline by year, hide, propose a place (Idempotency-Key), what to keep switches, and erase, through nsvx.view personPlaces/personPhoto and nsvx.people.change.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/history_api.py",
+          "web/src/screens/PersonHistory.tsx",
+          "extensions/nsvx/src/people-tab.tsx",
+          "extensions/nsvx/src/people-places.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-people.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-people/): Places section draws the schematic map and the two visits with the proposed one marked.",
+          "extensions/nsvx/src/people.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, revision query, Idempotency-Key, CSRF, 204, 409 as conflict); invalid values never reach NSVX; nsvx_people answers only the owner and changes only on the current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "The participant's own page (/api/subject) uses the person's session, not the owner's, so it stays in NSVX by design.",
+        "The invite draft (/api/people/{id}/invite) creates an outbox message to a real person and is not offered here."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "person-interests",
+      "title": "Person interests and conversation style",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/people/{pid}/interests"
+        ],
+        "sourceFiles": [
+          "backend/clone/interest_controls.py",
+          "web/src/screens/PersonInterests.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.people.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_people"
+        ]
+      },
+      "adapter": "People tab Interests section: learning mode, writing style, topics with interest bar and OK/Later/Avoid, forget, reset, retry sync, sources, and reply corrections, through nsvx.view personInterests/personInterestHistory and nsvx.people.change (interest control with expected revision). nsvx_people topic sets OK/Avoid/Later from chat.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/interest_controls.py",
+          "web/src/screens/PersonInterests.tsx",
+          "extensions/nsvx/src/people-tab.tsx",
+          "extensions/nsvx/src/people-memory.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-people.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-people/): Avoid on a topic sends the interest control with the revision NSVX gave.",
+          "extensions/nsvx/src/people.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, revision query, Idempotency-Key, CSRF, 204, 409 as conflict); invalid values never reach NSVX; nsvx_people answers only the owner and changes only on the current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_people was unit tested, not run by a live agent turn."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "social-groups",
+      "title": "Private social groups",
+      "family": "03",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/jobs",
+          "/api/people/{pid}/groups",
+          "/api/social-groups"
+        ],
+        "sourceFiles": [
+          "backend/clone/social_api.py",
+          "backend/clone/social_contracts.py",
+          "web/src/screens/SocialGroups.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.groups.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_people"
+        ]
+      },
+      "adapter": "People tab Groups view: active, archived, and suggested groups; create; group page with members, suggestions to confirm or remove, lock, only I add, rename, merge, split, archive, undo, delete, history, and Suggest (queued recompute), through nsvx.view socialGroups/socialGroup and nsvx.groups.change with the group revision. nsvx_people lists groups and adds or removes members from chat.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/social_api.py",
+          "backend/clone/social_contracts.py",
+          "web/src/screens/SocialGroups.tsx",
+          "extensions/nsvx/src/people-tab.tsx",
+          "extensions/nsvx/src/people.ts",
+          "extensions/nsvx/src/people-groups.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-people.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-people/): group deep link (?group=), confirming a suggested member sends member active with revision 4.",
+          "extensions/nsvx/src/people.test.ts, 2026-11-05: changes reach the fixed NSVX routes through the real client against a fake NSVX (method, path, revision query, Idempotency-Key, CSRF, 204, 409 as conflict); invalid values never reach NSVX; nsvx_people answers only the owner and changes only on the current turn."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_people was unit tested, not run by a live agent turn."
       ],
       "unknowns": []
     },
@@ -1253,7 +1559,7 @@
       "title": "Agenda",
       "family": "06",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/agenda"
@@ -1283,12 +1589,27 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.agenda.summary",
+          "nsvx.agenda.slots",
+          "nsvx.agenda.preview",
+          "nsvx.agenda.help",
+          "nsvx.agenda.submit",
+          "nsvx.agenda.select",
+          "nsvx.agenda.meeting"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agenda"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/workspace; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Agenda tab and the nsvx_agenda tool use NSVX /api/workspace with the owner session: reads through nsvx.view (status, calendars, events with live=1 on open, one event, an intent); free times, day summary, meeting prep, agenda and reply drafts, and the exact terms preview as CSRF POST reads; create, change, and cancel only through NSVX preview then /api/workspace/actions with the preview terms hash and one client key per intent, so NSVX keeps its own approval, idempotency, and audit. Chat never runs a change Google would announce to guests: it returns needsOwner with the terms.",
       "verification": {
         "requires": [
           "discovery",
@@ -1303,22 +1624,34 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
           "web/src/screens/Agenda.tsx",
-          "backend/clone/google_workspace/"
+          "backend/clone/google_workspace/api.py",
+          "backend/clone/google_workspace/ops.py",
+          "extensions/nsvx/src/agenda-tab.tsx",
+          "extensions/nsvx/src/agenda.ts",
+          "extensions/nsvx/src/client.ts",
+          "extensions/nsvx/src/tools.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-agenda.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/workspace payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-agenda/): week view with clash and Meet marks, one live read on open, day summary, month grid with day list, event guests and replies, agenda draft, booking from a free time through preview, Book, and the tracked NSVX intent (submitted once with the preview hash); not-connected state in pt-PT. extensions/nsvx/src/agenda.test.ts: operation allowlist, terms hash, client key, owner-only chat tool that never invites."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX or Google account.",
+        "Not native yet: follow-up Gmail send/draft from an event, Google Tasks and Contacts panels, ICS feed download, and owner reminders."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Sources were read at clone develop 02fb14f6f5efbc51b24e664249aff6288953b98d (this runner lacks the pinned commit); Agenda.tsx and google_workspace/api.py exist there."
       ]
     },
     {
@@ -3174,7 +3507,7 @@
         "effect": "external",
         "integrations": [
           "Banks",
-          "Portal das Finan\u00e7as",
+          "Portal das Finanças",
           "e-Fatura"
         ],
         "runtime": "not-checked"
@@ -3230,7 +3563,7 @@
       "blockers": [
         "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
         "Writes (sync, connect, mark paid, classify, decide, rebuild) need NSVX CSRF with the owner session or an AgentOS contract; none exists yet, so Control is read-only here.",
-        "Portal das Finan\u00e7as, subscriptions, fiscal execution, and settings tabs are not native yet."
+        "Portal das Finanças, subscriptions, fiscal execution, and settings tabs are not native yet."
       ],
       "unknowns": [
         "Source files are unchanged between the pin and clone develop 68978f9f91620832707fe0a0a5d6db1deb7868ed."
@@ -3692,7 +4025,7 @@
         ],
         "effect": "external",
         "integrations": [
-          "Portal das Finan\u00e7as"
+          "Portal das Finanças"
         ],
         "runtime": "not-checked"
       },

@@ -19,6 +19,8 @@
       "nsvx_activity",
       "nsvx_messages",
       "nsvx_finance",
+      "nsvx_agenda",
+      "nsvx_people",
       "nsvx_device"
     ]
   },

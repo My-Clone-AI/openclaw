@@ -13,11 +13,16 @@
   margin-bottom: var(--space-4);
 }
 
+/* Wraps on desktop so every tab stays visible; phones show one icon row. */
 .nsvx__tabs {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
   max-width: 100%;
+}
+
+.nsvx__tab {
+  white-space: nowrap;
 }
 
 .nsvx__tab,
