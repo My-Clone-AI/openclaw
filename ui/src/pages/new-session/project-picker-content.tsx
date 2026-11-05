@@ -319,6 +319,9 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                   : t("newSession.githubSelectRepositories")}
               </div>
             ) : undefined}
+            {!props.nativeTerminal && view().projectSearchAvailable && !view().cloneInput && view().query.trim().length < 2 ? (
+              <div class="new-session-page__menu-note">{t("newSession.githubSearchInstruction")}</div>
+            ) : undefined}
             {view().cloneInput && view().projectAddAvailable ? (
               <SessionMenuItem
                 item={{

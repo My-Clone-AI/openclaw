@@ -195,6 +195,7 @@ const enNewSessionSetup = {
     githubProjects: "GitHub repositories",
     githubOrganization: "GitHub organization",
     githubSelectRepositories: "Select repositories",
+    githubSearchInstruction: "Enter at least two characters to search repositories.",
     githubRepositoriesSelected: "{count} selected",
     githubSearchEmpty: "No repositories match your search.",
     githubSearchFailed: "Couldn’t search repositories. Try again. {error}",
