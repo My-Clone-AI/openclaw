@@ -15,7 +15,6 @@ import type { ConfigFileSnapshot, OpenClawConfig } from "../config/config.js";
 import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { copyConfigResolutionFacts } from "../config/resolution-facts.js";
 import type { GatewayAuthConfig } from "../config/types.gateway.js";
-import type { SecurityAuditSuppression } from "../config/types.openclaw.js";
 import {
   canMaterializeGatewayAuthSecretRefsWithoutExec,
   materializeGatewayAuthSecretRefs,
@@ -37,6 +36,7 @@ import { collectAgentRosterFindings } from "./audit-agent-roster.js";
 import { collectDeepCodeSafetyFindings } from "./audit-deep-code-safety.js";
 import { collectDeepProbeFindings } from "./audit-deep-probe-findings.js";
 import { createPermissionAuditor } from "./audit-fs.js";
+import { applySecurityAuditSuppressions } from "./audit-suppressions.js";
 import { collectGatewayConfigFindings } from "./audit-gateway-config.js";
 import {
   readBoundedMcporterRegistry,
@@ -49,7 +49,6 @@ import type {
   SecurityAuditFinding,
   SecurityAuditReport,
   SecurityAuditSummary,
-  SecurityAuditSuppressedFinding,
 } from "./audit.types.js";
 import { collectEnabledInsecureOrDangerousFlags } from "./dangerous-config-flags.js";
 import { collectExecFilesystemPolicyDriftHits } from "./exec-filesystem-policy.js";
@@ -181,10 +180,6 @@ function emitSecurityAuditReportEvent(params: {
   });
 }
 
-function normalizeSuppressionText(value: string | undefined): string {
-  return (value ?? "").trim().toLowerCase();
-}
-
 async function materializeAuditGatewayAuthRefs(params: {
   cfg: OpenClawConfig;
   env: NodeJS.ProcessEnv;
@@ -212,25 +207,6 @@ function shouldMaterializeHooksGatewayAuthRefs(cfg: OpenClawConfig): boolean {
   return cfg.hooks?.enabled === true && Boolean(normalizeOptionalString(cfg.hooks.token));
 }
 
-function findingMatchesSuppression(
-  finding: SecurityAuditFinding,
-  suppression: SecurityAuditSuppression,
-): boolean {
-  const checkId = suppression.checkId.trim();
-  if (!checkId || finding.checkId !== checkId) {
-    return false;
-  }
-  const titleNeedle = normalizeSuppressionText(suppression.titleIncludes);
-  if (titleNeedle && !finding.title.toLowerCase().includes(titleNeedle)) {
-    return false;
-  }
-  const detailNeedle = normalizeSuppressionText(suppression.detailIncludes);
-  if (detailNeedle && !finding.detail.toLowerCase().includes(detailNeedle)) {
-    return false;
-  }
-  return true;
-}
-
 function buildSecurityAuditSuppressionsActiveFinding(params: {
   configuredCount: number;
   suppressedCount: number;
@@ -245,32 +221,6 @@ function buildSecurityAuditSuppressionsActiveFinding(params: {
     remediation:
       "Review suppressedFindings and remove suppressions when the accepted risk no longer applies.",
   };
-}
-
-function applySecurityAuditSuppressions(
-  findings: SecurityAuditFinding[],
-  suppressions: SecurityAuditSuppression[] | undefined,
-): { findings: SecurityAuditFinding[]; suppressedFindings: SecurityAuditSuppressedFinding[] } {
-  if (!Array.isArray(suppressions) || suppressions.length === 0) {
-    return { findings, suppressedFindings: [] };
-  }
-  const active: SecurityAuditFinding[] = [];
-  const suppressedFindings: SecurityAuditSuppressedFinding[] = [];
-  for (const finding of findings) {
-    const suppression = suppressions.find((candidate) =>
-      findingMatchesSuppression(finding, candidate),
-    );
-    if (!suppression) {
-      active.push(finding);
-      continue;
-    }
-    const reason = suppression.reason?.trim();
-    suppressedFindings.push({
-      ...finding,
-      suppression: reason ? { reason } : {},
-    });
-  }
-  return { findings: active, suppressedFindings };
 }
 
 async function collectFilesystemFindings(params: {
