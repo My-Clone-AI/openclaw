@@ -177,6 +177,105 @@ describe("nsvx owner views", () => {
   });
 });
 
+describe("nsvx owner views on the bearer token", () => {
+  const executed = (output: Record<string, unknown>) =>
+    vi.fn(async (_url: string, _init: RequestInit) =>
+      json(200, { status: "completed", correlation_id: "c", output }),
+    );
+
+  it("serves a tab read from its action with the token, route names, and nothing to replay", async () => {
+    const fetchImpl = executed({ jobs: [] });
+    await expect(
+      clientWith(fetchImpl).readOwnerView("research", { completed: "true", x: "y", id: "z" }),
+    ).resolves.toEqual({ jobs: [] });
+    const [url, init] = fetchImpl.mock.calls[0]!;
+    expect(url).toBe("https://nsvx.test/api/agentos/v1/actions/clone.research.list/execute");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toEqual({
+      Accept: "application/json",
+      Authorization: "Bearer secret",
+      "Content-Type": "application/json",
+    });
+    expect(JSON.parse(init.body as string)).toEqual({ input: { completed: "true" } });
+  });
+
+  it("names path values as the plugin does and relays images and files", async () => {
+    const fetchImpl = executed({
+      mime: "image/jpeg",
+      data_base64: "AQID",
+      size: 3,
+      file_name: "report.pdf",
+    });
+    const client = clientWith(fetchImpl);
+    await expect(
+      client.readOwnerView("caseProofPage", { id: "e1", page: "2", w: "900" }),
+    ).resolves.toEqual({ src: "data:image/jpeg;base64,AQID" });
+    expect(JSON.parse(fetchImpl.mock.calls[0]![1].body as string)).toEqual({
+      input: { id: "e1", page: "2", w: "900" },
+    });
+    await expect(client.readOwnerFile("researchPdf", { id: "r1" })).resolves.toEqual({
+      fileName: "report.pdf",
+      mime: "image/jpeg",
+      data: "AQID",
+    });
+    await client.readOwnerView("appLogin", { aid: "a1", refresh: "true" });
+    expect(fetchImpl.mock.calls.at(-1)![0]).toContain("/actions/clone.access.login/execute");
+    expect(JSON.parse(fetchImpl.mock.calls.at(-1)![1].body as string)).toEqual({
+      input: { aid: "a1" },
+    });
+    const html = clientWith(executed({ mime: "text/html", data_base64: "AQID", size: 3 }));
+    expect(await kindOf(html.readOwnerView("caseProofPage", { id: "e1", page: "2" }))).toBe(
+      "invalid",
+    );
+  });
+
+  it("keeps a read token-pending until NSVX serves its action, and a gone record not-found", async () => {
+    const answer = (detail: string) =>
+      clientWith(async () => json(404, { code: "not_found", detail }));
+    expect(await kindOf(answer("No such action.").readOwnerView("apps"))).toBe("token-pending");
+    expect(await kindOf(answer("No such action.").readOwnerFile("researchPdf", { id: "r1" }))).toBe(
+      "token-pending",
+    );
+    expect(await kindOf(answer("not found").readOwnerView("apps"))).toBe("token-pending");
+    expect(await kindOf(answer("Nothing with this id exists.").readOwnerView("apps"))).toBe(
+      "not-found",
+    );
+  });
+
+  it("reports a lost or failed read as a read, never an uncertain write", async () => {
+    const lost = clientWith(async () => {
+      throw new Error("socket closed");
+    });
+    expect(await kindOf(lost.readOwnerView("apps"))).toBe("offline");
+    const broken = clientWith(async () => json(503, { detail: "later" }));
+    expect(await kindOf(broken.readOwnerView("apps"))).toBe("failed");
+    const queued = clientWith(async () => json(202, { status: "accepted", correlation_id: "c" }));
+    expect(await kindOf(queued.readOwnerView("apps"))).toBe("failed");
+  });
+
+  it("uses no action for other tabs or owner writes, and the owner session while one is set", async () => {
+    const fetchImpl = executed({});
+    const client = clientWith(fetchImpl);
+    expect(await kindOf(client.readOwnerView("today"))).toBe("token-pending");
+    expect(await kindOf(client.readOwnerFile("caseProofFile", { id: "e1" }))).toBe("token-pending");
+    expect(await kindOf(client.writeOwner("marketingPublish", undefined, {}))).toBe(
+      "token-pending",
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+
+    const session = createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: "secret",
+      ownerSession: "c",
+      fetchImpl,
+    });
+    await session.readOwnerView("apps");
+    const [url, init] = fetchImpl.mock.calls[0]!;
+    expect(url).toBe("https://nsvx.test/api/apps");
+    expect(init.headers).not.toHaveProperty("Authorization");
+  });
+});
+
 describe("nsvx owner read posts", () => {
   const owner = (fetchImpl: (url: string, init: RequestInit) => Promise<Response>) =>
     createNsvxClient({

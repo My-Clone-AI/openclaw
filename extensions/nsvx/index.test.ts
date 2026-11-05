@@ -15,14 +15,20 @@ describe("nsvx plugin entry", () => {
   let dir: string;
   let server: Server;
   const seen: { url: string; headers: IncomingHttpHeaders }[] = [];
+  const methods = new Map<string, Handler>();
+  let answer: (url: string) => { status: number; body: unknown };
 
   beforeEach(async () => {
     dir = mkdtempSync(path.join(tmpdir(), "nsvx-entry-"));
     seen.length = 0;
+    answer = () => ({ status: 200, body: { actions: [{ id: "clone.missions.list" }] } });
     server = createServer((request, response) => {
-      seen.push({ url: request.url ?? "", headers: request.headers });
+      const url = request.url ?? "";
+      seen.push({ url, headers: request.headers });
+      const { status, body } = answer(url);
+      response.statusCode = status;
       response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify({ actions: [{ id: "clone.missions.list" }] }));
+      response.end(JSON.stringify(body));
     });
     await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
     vi.stubEnv("NSVX_AGENTOS_TOKEN", "");
@@ -37,7 +43,7 @@ describe("nsvx plugin entry", () => {
   });
 
   function register() {
-    const methods = new Map<string, Handler>();
+    methods.clear();
     const warn = vi.fn();
     plugin.register(
       createTestPluginApi({
@@ -78,5 +84,43 @@ describe("nsvx plugin entry", () => {
     expect(warn).toHaveBeenCalledOnce();
     expect(warn.mock.calls[0]?.[0]).toContain("NSVX_OWNER_SESSION is deprecated");
     expect(warn.mock.calls[0]?.[0]).not.toContain("cookie-value");
+  });
+
+  it("opens the Access, Legal, Research, and Marketing reads with the token file alone", async () => {
+    const file = path.join(dir, "token");
+    writeFileSync(file, "file-token\n", { mode: 0o600 });
+    vi.stubEnv("NSVX_AGENTOS_TOKEN_FILE", file);
+    register();
+    const missing = "/api/agentos/v1/actions/clone.marketing.gate/execute";
+    answer = (url) =>
+      url === missing
+        ? { status: 404, body: { code: "not_found", detail: "No such action." } }
+        : { status: 200, body: { status: "completed", correlation_id: "c", output: { url } } };
+    const call = async (name: string, params: Record<string, unknown>) => {
+      const respond = vi.fn();
+      await methods.get(name)?.({ params, respond } as never);
+      return respond.mock.calls[0] as [boolean, unknown, { code: string } | undefined];
+    };
+
+    for (const view of ["apps", "casesDashboard", "research", "marketingOverview"]) {
+      const [ok, body] = await call("nsvx.view", { view });
+      expect(ok).toBe(true);
+      expect(body).toEqual({ url: expect.stringContaining("/api/agentos/v1/actions/clone.") });
+    }
+    const [ok, , error] = await call("nsvx.view", { view: "marketingGate" });
+    expect(ok).toBe(false);
+    expect(error?.code).toBe("token-pending");
+
+    const before = seen.length;
+    const [writeOk, , writeError] = await call("nsvx.marketing.change", {
+      action: "publish",
+      contentId: "c1",
+    });
+    expect(writeOk).toBe(false);
+    expect(writeError?.code).toBe("token-pending");
+    expect(seen.length).toBe(before);
+    expect(seen.every(({ url }) => url.startsWith("/api/agentos/v1/"))).toBe(true);
+    expect(seen.every(({ headers }) => headers.authorization === "Bearer file-token")).toBe(true);
+    expect(seen.every(({ headers }) => headers.cookie === undefined)).toBe(true);
   });
 });

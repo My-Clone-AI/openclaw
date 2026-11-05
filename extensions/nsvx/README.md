@@ -19,18 +19,26 @@ Each AgentOS call sends the file's contents as `Authorization: Bearer`, read fre
 token without a restart. `NSVX_AGENTOS_TOKEN` holds the token inline for local development and is used only when
 `NSVX_AGENTOS_TOKEN_FILE` is unset. Never use a browser cookie as a Gateway credential.
 
-| Tab                    | Sign-in           | Without it                                  |
-| ---------------------- | ----------------- | ------------------------------------------- |
-| Actions and chat tools | AgentOS token     | Not connected                               |
-| Team                   | None              | Works: it reads this Gateway's own agents   |
-| Health and legal pages | None              | Works: public NSVX pages, except Job lookup |
-| Every other owner tab  | Not available yet | Not connected, or Coming soon with a token  |
+| Tab                                      | Sign-in           | Without it                                                      |
+| ---------------------------------------- | ----------------- | --------------------------------------------------------------- |
+| Actions and chat tools                   | AgentOS token     | Not connected                                                   |
+| Team                                     | None              | Works: it reads this Gateway's own agents                       |
+| Health and legal pages                   | None              | Works: public NSVX pages, except Job lookup                     |
+| Access, Legal, Research, Marketing reads | AgentOS token     | Not connected; Coming soon for any read NSVX does not serve yet |
+| Every other owner tab                    | Not available yet | Not connected, or Coming soon with a token                      |
+
+### Access, Legal, Research, and Marketing
+
+With a token and no owner session, these tabs read through AgentOS read actions (`src/owner-actions.ts`). The token needs
+`clone:access:read`, `clone:screens:read` (live browser screens), `clone:legal:read`, `clone:procedures:read`,
+`clone:research:read`, and `clone:marketing:read` on its NSVX grant; without one, NSVX refuses that read. Changes to these tabs still use the
+owner routes below, so they answer Coming soon on a token.
 
 ### Parked: owner tabs
 
-Owner tabs and owner chat tools move to AgentOS read actions once NSVX ships them. NSVX must first accept bearer tokens
-on `/api/agentos/v1` and add actions for Today, Find, Work, Activity, Messages, Quick reply, and Money. Until then they
-do not read data with a token: calling NSVX's human `/api` routes with a bearer token is not supported.
+The other owner tabs and owner chat tools move to AgentOS read actions next. Today, Find, Work, Activity, Messages, Quick
+reply, and Money do not read data with a token yet: calling NSVX's human `/api` routes with a bearer token is not
+supported.
 
 `NSVX_OWNER_SESSION` is deprecated and logs a warning at startup. Do not set it on a new Gateway. It stays readable only
 so an existing Gateway keeps its owner tabs until this cutover, which removes it.

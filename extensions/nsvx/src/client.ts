@@ -6,6 +6,12 @@ import {
   marketingWrites,
 } from "./device-data.js";
 import { AGENTOS_PATH, TIMEOUT_MS, NsvxError } from "./nsvx-client-core.js";
+import {
+  OWNER_FILE_ACTIONS,
+  OWNER_VIEW_ACTIONS,
+  actionBytes,
+  actionInput,
+} from "./owner-actions.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
 export { AGENTOS_PATH, NsvxError, type NsvxErrorKind } from "./nsvx-client-core.js";
 
@@ -371,6 +377,8 @@ type OwnerView = keyof typeof OWNER_VIEWS;
 
 export const OWNER_VIEW_NAMES = Object.keys(OWNER_VIEWS) as OwnerView[];
 
+const VIEW_ACTIONS: Partial<Record<OwnerView, string>> = OWNER_VIEW_ACTIONS;
+
 /**
  * Fixed NSVX owner routes. `{name}` path parts and `query` names come from the caller's validated values;
  * `idempotency` names the header NSVX reads the caller's key from.
@@ -651,6 +659,8 @@ const OWNER_FILES = {
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;
+
+const FILE_ACTIONS: Partial<Record<OwnerFile, string>> = OWNER_FILE_ACTIONS;
 /**
  * Files cross the Gateway socket as base64; a logbook or licence scan is far below this. A case dossier ZIP with
  * originals can pass it: the owner then gets a clear refusal and can export without originals.
@@ -794,6 +804,9 @@ export function createNsvxClient(options: {
     body: unknown,
     more: { params?: Record<string, string>; idempotencyKey?: string } = {},
   ): Promise<T> {
+    if (!options.ownerSession && readToken()) {
+      throw new NsvxError("token-pending", "NSVX does not accept this change from a token yet.");
+    }
     const spec: OwnerWriteSpec = OWNER_WRITES[action];
     const value = (name: string) => (name === "id" ? id : more.params?.[name]);
     const path = spec.path.replace(/\{(\w+)\}/g, (_match, name: string) => {
@@ -875,7 +888,7 @@ export function createNsvxClient(options: {
 
   async function call<T>(
     path: string,
-    init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {},
+    init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string; read?: true } = {},
     _principal: "agent" | "owner" = "agent",
   ): Promise<T> {
     // AgentOS is Bearer-only (NSVX_AGENTOS_TOKEN_FILE). Never lift clone_session here.
@@ -883,7 +896,8 @@ export function createNsvxClient(options: {
     if (!token) {
       throw new NsvxError("unconfigured", "NSVX sign-in is not set up on this Gateway.");
     }
-    const isWrite = init.method === "POST";
+    const isPost = init.method === "POST";
+    const isWrite = isPost && !init.read;
     const auth: Record<string, string> = { Authorization: `Bearer ${token}` };
     let response: Response;
     try {
@@ -892,10 +906,10 @@ export function createNsvxClient(options: {
         headers: {
           Accept: "application/json",
           ...auth,
-          ...(isWrite ? { "Content-Type": "application/json" } : {}),
+          ...(isPost ? { "Content-Type": "application/json" } : {}),
           ...(init.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
         },
-        ...(isWrite ? { body: JSON.stringify(init.body ?? {}) } : {}),
+        ...(isPost ? { body: JSON.stringify(init.body ?? {}) } : {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
@@ -908,6 +922,27 @@ export function createNsvxClient(options: {
       throw errorFor(response.status, await problemFrom(response), isWrite, path);
     }
     return (await response.json()) as T;
+  }
+
+  /**
+   * One read action on the bearer token. No Idempotency-Key, so NSVX never stores this private output for replay. NSVX
+   * answers `No such action.` when the id is not served and a bare `not found` when AgentOS is off (`rest_api.py`);
+   * other 404s mean the record is gone.
+   */
+  async function readAction(action: string, input: Record<string, unknown>): Promise<unknown> {
+    const run = await call<NsvxRunResult>(`/actions/${encodeURIComponent(action)}/execute`, {
+      method: "POST",
+      read: true,
+      body: { input },
+    }).catch((cause: unknown) => {
+      throw cause instanceof NsvxError && /^(no such action\.|not found)$/i.test(cause.message)
+        ? new NsvxError("token-pending", "NSVX does not offer this screen to a token yet.")
+        : cause;
+    });
+    if (run.status !== "completed" || !run.output) {
+      throw new NsvxError("failed", "NSVX did not finish this read.", run.correlation_id);
+    }
+    return run.output;
   }
 
   const agentOs = (principal: "agent" | "owner") => ({
@@ -958,6 +993,18 @@ export function createNsvxClient(options: {
     ): Promise<T> {
       const spec = ownerViewSpec(view);
       const path = ownerViewPath(spec, params);
+      const action = options.ownerSession ? undefined : VIEW_ACTIONS[view as OwnerView];
+      if (action) {
+        const output = await readAction(action, actionInput(spec, params));
+        if (!spec.image) {
+          return output as T;
+        }
+        const { mime, data } = actionBytes(output, IMAGE_LIMIT);
+        if (!mime.startsWith("image/")) {
+          throw new NsvxError("invalid", "NSVX did not send a page image.");
+        }
+        return { src: `data:${mime};base64,${data}` } as T;
+      }
       if (!spec.image) {
         return readOwner(path);
       }
@@ -986,7 +1033,13 @@ export function createNsvxClient(options: {
       name: OwnerFile,
       params: Record<string, unknown> = {},
     ): Promise<{ fileName: string; mime: string; data: string }> {
-      const response = await ownerFetch(ownerViewPath(OWNER_FILES[name], params), {
+      const path = ownerViewPath(OWNER_FILES[name], params);
+      const action = options.ownerSession ? undefined : FILE_ACTIONS[name];
+      if (action) {
+        const output = await readAction(action, actionInput(OWNER_FILES[name], params));
+        return actionBytes(output, FILE_LIMIT);
+      }
+      const response = await ownerFetch(path, {
         accept: "*/*",
       });
       const bytes = new Uint8Array(await response.arrayBuffer());

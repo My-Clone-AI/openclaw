@@ -15,6 +15,8 @@ export const isUncertain = (cause: unknown) =>
   (cause as { gatewayCode?: string }).gatewayCode === "uncertain";
 export const isConflict = (cause: unknown) =>
   (cause as { gatewayCode?: string }).gatewayCode === "conflict";
+export const isTokenPending = (cause: unknown) =>
+  (cause as { gatewayCode?: string }).gatewayCode === "token-pending";
 
 export function Chip(props: { a: AT; tone: Tone; label?: string }) {
   return (

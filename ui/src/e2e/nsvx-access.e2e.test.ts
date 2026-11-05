@@ -395,6 +395,47 @@ suite.define(() => {
     );
   });
 
+  it("opens on a token alone, and says so when a change needs more than a token", async () => {
+    await suite.withPage(
+      { viewport: phone, locale: "en-US", serviceWorkers: "block" },
+      async ({ page }) => {
+        const gateway = await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          methodResponses: {
+            "plugins.list": { plugins: [], diagnostics: [], mutationAllowed: true },
+            "nsvx.view": {
+              cases: [
+                { match: { view: "apps" }, response: apps },
+                { match: { view: "appLogin" }, response: { state: "disconnected" } },
+              ],
+            },
+            "nsvx.access.login": {
+              __mockError: {
+                code: "token-pending",
+                message: "NSVX does not accept this change from a token yet.",
+              },
+            },
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx&tab=access`);
+        const surface = page.locator(".nsvx");
+        const telegram = surface.locator(`[data-account="${TG}"]`);
+        await telegram.getByText("Sign in again").waitFor();
+        expect(await surface.locator(".nsvx-connect").count()).toBe(0);
+
+        await telegram.getByRole("button", { name: "Connect" }).click();
+        await gateway.waitForRequest("nsvx.access.login");
+        const refused = telegram.getByRole("alert");
+        await refused
+          .getByText("NSVX can't open this with a token yet.", { exact: true })
+          .waitFor();
+        expect(gateway.findRequests("nsvx.view", { view: "appLogin" })).toEqual([]);
+        await capture(page, surface, "token-only", [refused]);
+      },
+    );
+  });
+
   it("shows the access tab in Portuguese and asks for the NSVX sign-in when the Gateway has none", async () => {
     await suite.withPage(
       { viewport: phone, locale: "pt-PT", serviceWorkers: "block" },

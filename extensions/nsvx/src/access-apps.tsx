@@ -12,7 +12,17 @@ import {
   type LoginState,
   type Screen,
 } from "./access-data.js";
-import { Action, Chip, Empty, RemoteScreen, since, Tiles, view, type Ctx } from "./access-ui.js";
+import {
+  Action,
+  Chip,
+  Empty,
+  isTokenPending,
+  RemoteScreen,
+  since,
+  Tiles,
+  view,
+  type Ctx,
+} from "./access-ui.js";
 import { BrandLogo } from "./messages-ui.js";
 import { createSource, errorMessage, Icon, matches, SourceView, type IconName } from "./ui-kit.js";
 
@@ -88,6 +98,8 @@ function SignIn(props: { ctx: Ctx; account: Account; onClose: () => void }) {
   );
   const [values, setValues] = createSignal<Record<string, string>>({});
   const [fillError, setFillError] = createSignal<string>();
+  // A sign-in changes NSVX, which a token cannot do yet; reading the state would then wait forever.
+  const [refused, setRefused] = createSignal(false);
   const stage = createMemo(() => stageOf(login.state().data));
   const loadPage = () => {
     void screen.refresh();
@@ -104,12 +116,20 @@ function SignIn(props: { ctx: Ctx; account: Account; onClose: () => void }) {
   void (
     isConnected(props.account)
       ? Promise.resolve()
-      : host.request("nsvx.access.login", { accountId: aid }).catch(() => undefined)
-  ).then(poll);
+      : host
+          .request("nsvx.access.login", { accountId: aid })
+          .catch((cause) => setRefused(isTokenPending(cause)))
+  ).then(() => (refused() ? undefined : poll()));
   let polls = 0;
   const timer = setInterval(() => {
     const now = stageOf(login.state().data);
-    if (now === "connected" || now === "failed" || ++polls > POLLS || login.state().loading) {
+    if (
+      refused() ||
+      now === "connected" ||
+      now === "failed" ||
+      ++polls > POLLS ||
+      login.state().loading
+    ) {
       return;
     }
     void poll();
@@ -148,6 +168,11 @@ function SignIn(props: { ctx: Ctx; account: Account; onClose: () => void }) {
           )}
         </For>
       </ol>
+      <Show when={refused()}>
+        <p class="nsvx__error" role="alert">
+          <span>{props.ctx.t("tokenPendingHelp")}</span>
+        </p>
+      </Show>
       <SourceView source={login} t={props.ctx.t}>
         {(state) => (
           <>
