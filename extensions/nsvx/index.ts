@@ -3,6 +3,7 @@ import { createNsvxAccessTool } from "./src/access-tool.js";
 import { createAgentSettings } from "./src/agent-settings.js";
 import { createNsvxAiTool } from "./src/ai-tool.js";
 import { createNsvxAviationTool } from "./src/aviation-tool.js";
+import { createNsvxCallsTool } from "./src/calls.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig, readNsvxToken } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
@@ -75,6 +76,7 @@ export default definePluginEntry({
       name: "nsvx_access",
       optional: true,
     });
+    api.registerTool((context) => createNsvxCallsTool(client, context), { name: "nsvx_calls" });
     api.registerTool((context) => createNsvxLegalTool(client, context), { name: "nsvx_legal" });
     api.registerTool((context) => createNsvxResearchTool(client, context), {
       name: "nsvx_research",

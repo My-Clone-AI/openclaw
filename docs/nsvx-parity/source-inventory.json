@@ -5329,10 +5329,22 @@
         "digest": "f6f2e92362c493082b1ebc01e56344d24bace79a002f7ca36f59f52eaaa33785"
       },
       "calls-voice": {
-        "routes": 74,
-        "reads": 24,
-        "writes": 50,
-        "digest": "40c47f30d463d87bb04684d4454310ce3cc5dc2da50d36ee7307057b748f2f86"
+        "routes": 68,
+        "reads": 22,
+        "writes": 46,
+        "digest": "9f91c453735e317b99ad1840b6bf11fddb9e0928cd6f898b1ca2e0bbcb39df96"
+      },
+      "who-called": {
+        "routes": 6,
+        "reads": 2,
+        "writes": 4,
+        "digest": "e330441d811cf1a26362d72dbb50d61ae734dd8fd73a174c02840896d52ea483"
+      },
+      "calls-shortcut": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "automations": {
         "routes": 17,
@@ -5768,12 +5780,12 @@
       }
     },
     "parity": {
-      "discovered": 85,
-      "native": 13,
-      "partial": 61,
+      "discovered": 87,
+      "native": 14,
+      "partial": 62,
       "missing": 11,
       "blocked": 0,
-      "verified": 0,
+      "verified": 1,
       "families": [
         {
           "id": "10",
@@ -5938,12 +5950,12 @@
         {
           "id": "04",
           "name": "Calls and voice",
-          "discovered": 1,
-          "native": 0,
-          "partial": 1,
+          "discovered": 3,
+          "native": 1,
+          "partial": 2,
           "missing": 0,
           "blocked": 0,
-          "verified": 0
+          "verified": 1
         },
         {
           "id": "05",

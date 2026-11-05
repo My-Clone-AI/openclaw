@@ -1,0 +1,419 @@
+/* Calls tab: phone hero, live calls, history by day, one call, Who called, settings. Builds on office.css. */
+.nsvx-calls {
+  max-width: 920px;
+}
+
+.nsvx-calls h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 14px;
+}
+
+.nsvx-calls .nsvx__icon {
+  flex: none;
+}
+
+.nsvx-calls__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, var(--radius-md));
+  background: var(--card);
+}
+
+.nsvx-calls__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--text-strong);
+  font-size: 18px;
+}
+
+.nsvx-calls__line strong {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__call {
+  grid-row: 1 / span 3;
+  grid-column: 2;
+  min-width: 112px;
+  min-height: 56px;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 16px;
+}
+
+.nsvx-calls__meter {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.nsvx-calls__meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.nsvx-calls__mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+}
+
+.nsvx-calls__mark .nsvx__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.nsvx-calls__dial {
+  padding: var(--space-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-calls__brief {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__brief-text {
+  margin: 0;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+}
+
+.nsvx-calls__live {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--info);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-calls__pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: nsvx-calls-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes nsvx-calls-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.nsvx-calls__live-row,
+.nsvx-calls__route,
+.nsvx-calls__account,
+.nsvx-calls__rec,
+.nsvx-calls__result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-calls__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nsvx-calls__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.nsvx-calls__filters .nsvx-of__pick {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+}
+
+.nsvx-calls__filters .nsvx-calls__mark {
+  width: 18px;
+  height: 18px;
+  background: none;
+}
+
+.nsvx-calls__day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.nsvx-calls__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nsvx-calls__out {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+  vertical-align: -2px;
+}
+
+.nsvx-calls__who {
+  align-self: flex-start;
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.nsvx-calls__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 13px;
+  list-style: none;
+}
+
+.nsvx-calls__facts li,
+.nsvx-calls__purpose,
+.nsvx-calls__message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__purpose,
+.nsvx-calls__message {
+  color: var(--text-strong);
+}
+
+.nsvx-calls__summary {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__summary p {
+  margin: 0;
+}
+
+.nsvx-calls__turns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 60vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.nsvx-calls__turn {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__turn--clone {
+  align-self: flex-end;
+  border: 1px solid var(--accent);
+}
+
+.nsvx-calls__turn--you {
+  border: 1px solid var(--ok);
+}
+
+.nsvx-calls__turn--partial {
+  opacity: 0.7;
+}
+
+.nsvx-calls__speaker {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.nsvx-calls__sources ul,
+.nsvx-calls__matches {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-calls__sources li,
+.nsvx-calls__matches li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__matches small {
+  flex-basis: 100%;
+}
+
+.nsvx-calls__rec audio {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 44px;
+}
+
+.nsvx-calls__who-page,
+.nsvx-calls__settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-calls__lookup {
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-calls__lookup input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-calls__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  overflow-wrap: anywhere;
+}
+
+.nsvx-calls__card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-calls__avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--accent);
+}
+
+.nsvx-calls__card-name {
+  color: var(--text-strong);
+  font-size: 18px;
+}
+
+.nsvx-calls__e164 {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-calls__subhead {
+  margin-top: var(--space-2);
+}
+
+.nsvx-calls__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4, 16px);
+}
+
+.nsvx-calls__policy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.nsvx-calls__policy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-strong);
+}
+
+.nsvx-calls__policy-row > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 560px) {
+  .nsvx-calls__hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nsvx-calls__call {
+    grid-row: auto;
+    grid-column: 1;
+    width: 100%;
+  }
+
+  .nsvx-calls__turn {
+    max-width: 100%;
+  }
+}

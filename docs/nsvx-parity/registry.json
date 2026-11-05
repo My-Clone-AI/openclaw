@@ -1155,8 +1155,7 @@
           "/apps"
         ],
         "backendPackages": [
-          "calls",
-          "phone_lookup"
+          "calls"
         ],
         "jobPackages": [
           "calls"
@@ -1165,14 +1164,12 @@
           "/api/call-requests",
           "/api/calls",
           "/api/memory",
-          "/api/phone-lookup",
           "/api/voice"
         ],
         "sourceFiles": [
           "backend/clone/calls/requests_api.py",
           "backend/clone/gemini_tts_api.py",
           "backend/clone/gpt_voice_api.py",
-          "backend/clone/phone_lookup/api.py",
           "backend/clone/voice_api.py",
           "web/src/screens/Apps.tsx",
           "web/src/screens/Calls.tsx"
@@ -1189,13 +1186,26 @@
       },
       "openclaw": {
         "uiRoutes": [
+          "plugin",
           "talk"
         ],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.calls.change",
+          "nsvx.calls.dial",
+          "nsvx.calls.pin",
+          "nsvx.calls.briefing",
+          "nsvx.calls.summary",
+          "nsvx.calls.recording"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_calls"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/calls, /api/voice; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Calls tab (Calls, Settings) reads NSVX /api/calls/status, /api/calls, /api/voice/live/{id} (revision cursor), /api/calls/{id}/context-access, /api/calls/{id}/recordings, and /api/calls/social through nsvx.view; dial (with NSVX's pre-call briefing and the owner's idempotency key), hang up, mute, take over, share context, forget, delete recording, switches, budget, and app-call policy go through nsvx.calls.change / nsvx.calls.dial on fixed OWNER_WRITES routes with the owner session and CSRF token; the voice PIN needs operator.admin (nsvx.calls.pin); summaries and briefings are NSVX POST reads; recordings play from nsvx.calls.recording. nsvx_calls gives chat status, list, read (transcript marked untrusted), summary, whoCalled, numbers, and hangup; dial and settings return needsOwner.",
       "verification": {
         "requires": [
           "discovery",
@@ -1210,24 +1220,194 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Calls.tsx",
-          "backend/clone/calls/",
-          "backend/clone/phone_lookup/"
+          "backend/clone/voice_api.py",
+          "extensions/nsvx/src/calls-tab.tsx",
+          "extensions/nsvx/src/calls-call.tsx",
+          "extensions/nsvx/src/calls-settings.tsx",
+          "extensions/nsvx/src/calls.ts",
+          "extensions/nsvx/src/calls-routes.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-calls.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway with synthetic payloads (screenshots in ui/e2e-shots/nsvx-calls/): history by day with live-call controls, app filter, hang up, dial with briefing and one key, one call with transcript, summary, recording playback and forget, settings switches and app-call policy; no element passes the 390 viewport.",
+          "extensions/nsvx/src/calls.test.ts, 2026-11-05: calls and phone-lookup changes reach fixed NSVX routes with the owner cookie and CSRF token; a dial carries the owner's key; paid lookups need an explicit true; nsvx_calls refuses other senders and returns needsOwner for dial."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session): NSVX serves no AgentOS calls or phone-lookup actions to a bearer token yet; not yet run against a live NSVX.",
+        "Talk in the browser (LiveVoice WebRTC to Gemini Live, /api/voice/gemini) and provider setup that takes secrets (Telnyx, Gemini Live key, Twilio number purchase, call flow editor) are not in Control yet; Control shows line readiness only.",
+        "nsvx_calls was unit tested, not run by a live agent turn."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
+    },
+    {
+      "id": "who-called",
+      "title": "Who called",
+      "family": "04",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/pessoas/quem-ligou"
+        ],
+        "backendPackages": [
+          "phone_lookup"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/phone-lookup"
+        ],
+        "sourceFiles": [
+          "backend/clone/phone_lookup/api.py",
+          "web/src/components/WhoCalled.tsx",
+          "web/src/screens/WhoCalled.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [
+          "Telnyx"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.phone.lookup",
+          "nsvx.phone.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_calls"
+        ]
+      },
+      "adapter": "nsvx plugin Calls tab, Who called section: a number (or an unknown caller's row, with its call id) goes to NSVX /api/phone-lookup through nsvx.phone.lookup; recent cards read /api/phone-lookup through nsvx.view; correct, add or link contact, and delete go through nsvx.phone.change on fixed OWNER_WRITES routes. The paid carrier lookup shows NSVX's price and runs only on a confirmed tap with paid true. nsvx_calls whoCalled and numbers give the same from chat, never paid.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/phone_lookup/api.py",
+          "web/src/components/WhoCalled.tsx",
+          "web/src/screens/WhoCalled.tsx",
+          "extensions/nsvx/src/calls-who.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-calls.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway with synthetic payloads (screenshots in ui/e2e-shots/nsvx-calls/): an unknown caller in the history opens Who called and looks the number up at once with its call id; the card shows kind, certainty, place, sources and history; correct saves name and kind; the phone layout fits.",
+          "extensions/nsvx/src/calls.test.ts, 2026-11-05: calls and phone-lookup changes reach fixed NSVX routes with the owner cookie and CSRF token; a dial carries the owner's key; paid lookups need an explicit true; nsvx_calls refuses other senders and returns needsOwner for dial."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session): NSVX serves no AgentOS calls or phone-lookup actions to a bearer token yet; not yet run against a live NSVX.",
+        "nsvx_calls whoCalled was unit tested, not run by a live agent turn."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "calls-shortcut",
+      "title": "Calls shortcut",
+      "family": "04",
+      "priority": "P2",
+      "status": "native",
+      "nsvx": {
+        "webRoutes": [
+          "/apps"
+        ],
+        "backendPackages": [],
+        "jobPackages": [],
+        "apiPrefixes": [],
+        "sourceFiles": [
+          "web/src/logic/navigation.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": []
+      },
+      "adapter": "NSVX's sidebar entry \"Chamadas e voz\" (/apps/voz) is a Control sidebar entry \"Calls\" nested under NSVX (host.ui.registerNavigation, parent nsvx, page params tab=calls); the NSVX page's update() switches an open page to the Calls tab. ?tab=calls deep-links the same tab.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/logic/navigation.ts",
+          "extensions/nsvx/src/control-ui.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-calls.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway with synthetic payloads (screenshots in ui/e2e-shots/nsvx-calls/): from the open NSVX page on Today, the sidebar Calls entry selects the Calls tab and sets tab=calls in the address."
+        ]
+      },
+      "blockers": [],
+      "unknowns": []
     },
     {
       "id": "automations",

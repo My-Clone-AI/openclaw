@@ -1,3 +1,4 @@
+import { callFiles, callReadPosts, callViews, callWrites } from "./calls-routes.js";
 import {
   LEGAL_LANGS,
   LEGAL_PAGES,
@@ -330,6 +331,7 @@ const OWNER_VIEWS = {
   fleetAnnouncements: { path: "/api/tvde/announcements" },
   fleetAccess: { path: "/api/tvde/access" },
   ...accessRoutes,
+  ...callViews,
   fleetLocations: { path: "/api/tvde/locations" },
   fleetFinance: { path: "/api/tvde/finance/summary", query: ["start", "end"] },
   fleetInvoices: {
@@ -436,6 +438,7 @@ const SLOW_TIMEOUT_MS = 320_000;
 
 const OWNER_WRITES = {
   ...accessWrites,
+  ...callWrites,
   ...marketingWrites,
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
   takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
@@ -715,6 +718,7 @@ const OWNER_READ_POSTS = {
   // Homes reads that NSVX answers from stored data: a question about the homes and loan rate scenarios.
   homesAsk: "/api/properties/ask",
   loanRates: "/api/realestate/simulate/rates",
+  ...callReadPosts,
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -730,6 +734,7 @@ const OWNER_FILES = {
   caseExportFile: { path: "/api/cases/{id}/exports/{file}" },
   researchPdf: { path: "/api/research/{id}/pdf" },
   marketingInventory: { path: "/api/marketing/social-accounts-inventory", query: ["format"] },
+  ...callFiles,
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;

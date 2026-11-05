@@ -2,6 +2,7 @@ import { accessTranslator } from "./access-i18n.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { aiTranslator } from "./ai-i18n.js";
 import { aviationTranslator } from "./aviation-i18n.js";
+import { callsTranslator } from "./calls-i18n.js";
 import { deviceTranslator } from "./device-i18n.js";
 import { fleetTranslator } from "./fleet-i18n.js";
 import { groupTranslator } from "./group-i18n.js";
@@ -24,6 +25,7 @@ export const TABS = [
   "activity",
   "messages",
   "reply",
+  "calls",
   "agenda",
   "people",
   "money",
@@ -61,6 +63,8 @@ export function tabLabel(locale: string, id: Tab): string {
       return agendaTranslator(locale)(id);
     case "aviation":
       return aviationTranslator(locale)(id);
+    case "calls":
+      return callsTranslator(locale)(id);
     case "fleet":
       return fleetTranslator(locale)(id);
     case "homes":

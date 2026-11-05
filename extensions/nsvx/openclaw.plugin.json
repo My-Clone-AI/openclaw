@@ -33,7 +33,8 @@
       "nsvx_marketing",
       "nsvx_access",
       "nsvx_ai",
-      "nsvx_homes"
+      "nsvx_homes",
+      "nsvx_calls"
     ]
   },
   "uiCapabilities": [

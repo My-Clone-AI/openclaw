@@ -9,6 +9,8 @@ import { AgendaTab } from "./agenda-tab.js";
 import { aiTranslator, type AT } from "./ai-i18n.js";
 import { AI_VIEWS, AiTab, type AiView } from "./ai-tab.js";
 import { AviationTab } from "./aviation-tab.js";
+import { callsTranslator } from "./calls-i18n.js";
+import { CallsTab } from "./calls-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
@@ -307,6 +309,17 @@ const mountNsvx: ControlUiView = (container, context) => {
                 onOpen={openDraft}
               />
             </Show>
+            <Show when={tab() === "calls"}>
+              <CallsTab
+                host={host}
+                t={t}
+                dt={dt}
+                ct={callsTranslator(locale())}
+                locale={locale()}
+                query={query()}
+                onMission={showMission}
+              />
+            </Show>
             <Show when={tab() === "agenda"}>
               <AgendaTab
                 host={host}
@@ -430,6 +443,13 @@ const mountNsvx: ControlUiView = (container, context) => {
   );
   const disposeRoot = render(() => <Page />, container);
   return {
+    // The Calls shortcut (and any page link with `tab`) reaches a page that is already open.
+    update(next) {
+      const wanted = next.props.tab;
+      if (wanted && isTab(wanted) && wanted !== tab()) {
+        select(wanted);
+      }
+    },
     dispose() {
       unsubscribe();
       disposeRoot();
@@ -448,7 +468,17 @@ export default defineControlUiPlugin({
       icon: "layers",
       order: 20,
     });
+    // NSVX's own sidebar shortcut to calls (`navigation.ts` "Chamadas e voz"), nested under NSVX.
+    const disposeCalls = host.ui.registerNavigation({
+      id: "nsvx-calls",
+      parent: "nsvx",
+      label: callsTranslator(host.locale)("calls"),
+      page: { id: "nsvx", params: { tab: "calls" } },
+      icon: "smartphone",
+      order: 21,
+    });
     return () => {
+      disposeCalls();
       disposeNavigation();
       disposePage();
     };
