@@ -365,29 +365,58 @@ const mountNsvx: ControlUiView = (container, context) => {
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
   const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
+  const [conversation, setConversation] = createSignal(search.get("conversation") ?? undefined);
+  const [draft, setDraft] = createSignal(search.get("draft") ?? undefined);
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
-  // Deep links: reloading or sharing the address returns to the same tab and task. Takes the new values
-  // directly, because signal writes are not readable until the next flush.
-  const remember = (nextTab: Tab, open: string | undefined) => {
+  // Deep links: reloading or sharing the address returns to the same tab and open item.
+  // Values are passed in (signal writes are not readable until the next flush).
+  const remember = (
+    nextTab: Tab,
+    open: { mission?: string; conversation?: string; draft?: string } = {},
+  ) => {
     const url = new URL(location.href);
     url.searchParams.set("tab", nextTab);
-    if (nextTab === "tasks" && open) {
-      url.searchParams.set("mission", open);
+    const missionId = open.mission;
+    const conversationId = open.conversation;
+    const draftId = open.draft;
+    if (nextTab === "tasks" && missionId) {
+      url.searchParams.set("mission", missionId);
     } else {
       url.searchParams.delete("mission");
     }
+    if (nextTab === "messages" && conversationId) {
+      url.searchParams.set("conversation", conversationId);
+    } else {
+      url.searchParams.delete("conversation");
+    }
+    if (nextTab === "reply" && draftId) {
+      url.searchParams.set("draft", draftId);
+    } else {
+      url.searchParams.delete("draft");
+    }
     history.replaceState(history.state, "", url);
   };
-  const select = (next: Tab, open = mission()) => {
+  const select = (next: Tab) => {
     setTab(next);
-    setMission(open);
     setQuery("");
-    remember(next, open);
+    remember(next, {
+      mission: mission(),
+      conversation: conversation(),
+      draft: draft(),
+    });
   };
   const openMission = (id: string | undefined) => {
     setMission(id);
-    remember(tab(), id);
+    remember(tab(), { mission: id, conversation: conversation(), draft: draft() });
+  };
+  const openConversation = (id: string | undefined) => {
+    setConversation(id);
+    remember(tab(), { mission: mission(), conversation: id, draft: draft() });
+  };
+  const openDraft = (id: string | undefined) => {
+    setDraft(id);
+    remember(tab(), { mission: mission(), conversation: conversation(), draft: id });
   };
   const Page = () => (
     <section class="nsvx">
@@ -437,10 +466,30 @@ const mountNsvx: ControlUiView = (container, context) => {
         {() => (
           <>
             <Show when={tab() === "today"}>
-              <TodayTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
+              <TodayTab
+                host={host}
+                t={t}
+                query={query()}
+                onMission={(id) => {
+                  setMission(id);
+                  setTab("tasks");
+                  setQuery("");
+                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
+                }}
+              />
             </Show>
             <Show when={tab() === "find"}>
-              <FindTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
+              <FindTab
+                host={host}
+                t={t}
+                query={query()}
+                onMission={(id) => {
+                  setMission(id);
+                  setTab("tasks");
+                  setQuery("");
+                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
+                }}
+              />
             </Show>
 
             <Show when={tab() === "tasks"}>
@@ -459,8 +508,8 @@ const mountNsvx: ControlUiView = (container, context) => {
                 mt={mt}
                 locale={locale()}
                 query={query()}
-                open={mission()}
-                onOpen={openMission}
+                open={conversation()}
+                onOpen={openConversation}
               />
             </Show>
             <Show when={tab() === "reply"}>
@@ -470,8 +519,8 @@ const mountNsvx: ControlUiView = (container, context) => {
                 mt={mt}
                 locale={locale()}
                 query={query()}
-                open={mission()}
-                onOpen={openMission}
+                open={draft()}
+                onOpen={openDraft}
               />
             </Show>
             <Show when={tab() === "money"}>
