@@ -113,7 +113,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -202,7 +202,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Live data needs the deprecated NSVX_OWNER_SESSION in the Gateway environment; not yet run against a live NSVX."
       ],
       "unknowns": [
         "People, chat and document hits show inline; their detail pages belong to families 02, 03 and 11."
@@ -299,7 +299,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Live data needs the deprecated NSVX_OWNER_SESSION in the Gateway environment; not yet run against a live NSVX."
       ],
       "unknowns": [
         "The NSVX log and native logs hold different records; they stay separate views.",
@@ -388,7 +388,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Live data needs the deprecated NSVX_OWNER_SESSION in the Gateway environment; not yet run against a live NSVX."
       ],
       "unknowns": [
         "Workflow share links (GET /api/auto/activity/workflows/{id}/share) mint public tokens and are left out on purpose."
@@ -474,7 +474,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Live data needs the deprecated NSVX_OWNER_SESSION in the Gateway environment; not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX's visible-rows TXT download is replaced by the CSV of the same rows."
@@ -1381,7 +1381,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -1469,7 +1469,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -3513,7 +3513,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Grupo DoIt (/api/doit), Grupo Pay (/api/pay), cross-app (/api/cross-app) and business action grants (/api/group-companies/business-action-grants) have no native screen yet.",
@@ -3605,7 +3605,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX's owner card set also joins /api/group-companies company KPIs; the overview cards here use the overview feed only, and KPIs show on the app page.",
@@ -3693,7 +3693,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Attachment download and upload are not ported: the Gateway relays JSON only, and NSVX streams attachments as files.",
@@ -3780,7 +3780,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Custom date ranges and the per-day table are not ported; the presets cover NSVX's buttons."
@@ -3866,7 +3866,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Rows do not link to each app's own error view; NSVX links out to the app."
@@ -3952,7 +3952,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX server actions have no idempotency key: an uncertain answer says to check the server before repeating.",
@@ -6860,7 +6860,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
         "NSVX's linked-device credential (mac_node Hub) is not used: Control acts as the owner, not as a desktop device."
       ],
       "unknowns": [
@@ -7048,7 +7048,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment. Not yet run against a live NSVX.",
+        "Owner screens need the deprecated NSVX_OWNER_SESSION in the Gateway environment. Not yet run against a live NSVX.",
         "Captures (Do it photos) are not offered: NSVX admits them only on its development runtime, as base64 uploads up to 5 MB."
       ],
       "unknowns": [

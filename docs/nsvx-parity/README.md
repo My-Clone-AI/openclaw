@@ -223,24 +223,22 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply, Money, and
-  Group read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
-  `NSVX_OWNER_SESSION`; Messages, Quick reply, and Group also make the fixed `OWNER_WRITES` changes. Until it is set, those
-  Device read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
-  `NSVX_OWNER_SESSION`; Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those
-  tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live
-  NSVX.
-- **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
-  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
-  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`,
-  `nsvx_people`, and optional `nsvx_finance` and `nsvx_group` tools (`nsvx_messages` and `nsvx_people` never send;
-  finance is read-only; group reads and runs dev-only actions).
-  The Actions tab therefore uses the owner session for the owner's own taps (cookie, plus CSRF on POST); the
-  `nsvx_actions` and `nsvx_run` chat tools use only the bearer token and stay blocked until it exists. The owner
-  session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`, `nsvx_people`,
-  `nsvx_skills`, `nsvx_agents` (suggest), and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never
-  send; finance is read-only).
+- **Owner screens still use the deprecated owner session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply,
+  Money, and the other owner tabs read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in
+  `extensions/nsvx/src/client.ts`) and make the fixed `OWNER_WRITES` changes with `NSVX_OWNER_SESSION`. Do not set it on
+  new Gateways; without it those tabs show Not connected. They were proven against a mock Gateway with synthetic NSVX
+  payloads, not against a live NSVX.
+- **The move to `NSVX_AGENTOS_TOKEN` waits on NSVX.** The Actions tab and the `nsvx_actions` and `nsvx_run` chat tools
+  already send only the bearer token. Owner tabs and owner chat tools move too once NSVX `origin/develop` has:
+  - **Bearer sign-in on AgentOS.** `/api/agentos/v1` still resolves callers through `rest_api.get_principal`, which
+    rejects every `Authorization` header, so today the bearer token gets `signed-out`.
+  - **A token a Gateway can keep.** NSVX issues only the browser OAuth flow's access tokens, which last 10 minutes and
+    are refused on a second use. No route issues a token this Gateway can hold in its environment.
+  - **Owner read actions.** Today, Find, Work, Activity, Messages, Quick reply, and Money have no action. Tasks has only
+    the mission list, without each task's history.
+  - **Owner change actions.** Messages and Quick reply also change data; no action covers those changes.
+
+  Calling human `/api/*` routes with a bearer token is not an option: NSVX refuses it by design.
 - **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
   Everything else needs a contract in NSVX.
 - **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.

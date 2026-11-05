@@ -16,17 +16,18 @@ jobs, bots, memory, skills, sync), Health (status and legal pages), Grow (coding
 brain, timers), the agent team chart (move, assign, task, stop,
 pause), NSVX action contracts, approvals, and parity progress.
 
-Enable it with `openclaw plugins enable nsvx`. Set the NSVX address in the plugin config (`baseUrl`). Two sign-ins
-live in the Gateway's environment and never reach the browser:
+Enable it with `openclaw plugins enable nsvx`. Set the NSVX address in the plugin config (`baseUrl`). The sign-in
+lives in the Gateway's environment and never reaches the browser:
 
-| Variable             | Used by                         | Access                                      |
-| -------------------- | ------------------------------- | ------------------------------------------- |
-| `NSVX_OWNER_SESSION` | Owner tabs and owner chat tools | Fixed owner screens and fixed owner changes |
-| `NSVX_AGENTOS_TOKEN` | Actions tab and chat tools      | AgentOS actions, with NSVX policy and audit |
+| Variable             | Used by                    | Access                                      |
+| -------------------- | -------------------------- | ------------------------------------------- |
+| `NSVX_AGENTOS_TOKEN` | Actions tab and chat tools | AgentOS actions, with NSVX policy and audit |
 
-`NSVX_OWNER_SESSION` is the owner's own `clone_session` cookie value. It reads fixed owner screens with `GET` (and a
-few search reads as `POST` so query text stays out of URLs). The only changes it makes are the fixed routes in
-`OWNER_WRITES` (`src/client.ts`):
+`NSVX_OWNER_SESSION` is deprecated: never copy a browser cookie into a Gateway. Owner tabs and owner chat tools read it
+only until they move to `NSVX_AGENTOS_TOKEN` and AgentOS actions, which waits on NSVX
+([blockers](../../docs/nsvx-parity/README.md#blockers)). Without it those tabs show Not connected; Team and Actions do
+not use it. Until the move, its reads are fixed `GET` routes (and a few search reads as `POST` so query text stays out
+of URLs), and its only changes are the fixed routes in `OWNER_WRITES` (`src/client.ts`):
 
 - Messages: reply, approve or discard a clone draft, take over, auto replies, Quick Reply drafts.
 - People: person mode, memory, interests, places, contacts, account links, mentions, merges, and private groups.

@@ -626,7 +626,7 @@ export type NsvxClient = ReturnType<typeof createNsvxClient>;
 export function createNsvxClient(options: {
   baseUrl: string;
   token: string | undefined;
-  /** The owner's own NSVX session, for owner screens only; never reaches chat tools. */
+  /** @deprecated Until owner screens move to AgentOS (docs/nsvx-parity/README.md, Blockers). */
   ownerSession?: string | undefined;
   fetchImpl?: Fetch;
 }) {
