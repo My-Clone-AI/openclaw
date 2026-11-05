@@ -51,9 +51,19 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     undo: async () => ({}),
   };
   const ctx = { senderIsOwner: true };
+  const settings = {
+    get: async () => ({}),
+    defaults: async () => ({}),
+    setInstructions: async () => ({}),
+    setTools: async () => ({}),
+    setDefaults: async () => ({}),
+    add: async () => ({}),
+  };
   const names = [
     ...createNsvxTools({} as NsvxClient).map((tool) => tool.name),
     createNsvxTeamTool(team as never, ctx as never).name,
+    createNsvxAgentsTool(settings as never, {} as NsvxClient, ctx as never).name,
+    createNsvxSkillsTool({} as NsvxClient, ctx as never).name,
     ...createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name),
     createNsvxMessagesTool({} as NsvxClient, ctx as never).name,
     createNsvxFinanceTool({} as NsvxClient, ctx as never).name,
