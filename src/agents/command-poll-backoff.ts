@@ -14,9 +14,11 @@ export function recordCommandPoll(
   const counts = (state.commandPollCounts ??= new Map());
   const existing = counts.get(commandId);
   const now = Date.now();
-  const count = hasNewOutput ? 0 : (existing?.count ?? -1) + 1;
+  const count = hasNewOutput
+    ? 0
+    : Math.min((existing?.count ?? -1) + 1, BACKOFF_SCHEDULE_MS.length - 1);
   counts.set(commandId, { count, lastPollAt: now });
-  return BACKOFF_SCHEDULE_MS[Math.min(count, BACKOFF_SCHEDULE_MS.length - 1)] ?? 60000;
+  return BACKOFF_SCHEDULE_MS[count] ?? 60000;
 }
 
 export function resetCommandPollCount(state: SessionState, commandId: string): void {

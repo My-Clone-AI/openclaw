@@ -24,14 +24,13 @@ export function createTranscriptSearch(host: {
     run: async () => {
       const query = state.transcriptSearchQuery.trim();
       if (!query) {
-        reset("");
+        reset();
         return;
       }
       const scope = host.captureScope();
       if (!scope) {
         return;
       }
-      state.transcriptSearchQuery = query;
       // Replacing or clearing the receipt retires its results without cancelling the transport.
       const isCurrent = () => state.transcriptSearch === result && host.isCurrent(scope);
       const result: Promise<TranscriptSearchResult | null> = searchVisibleSessionTranscripts({

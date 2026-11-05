@@ -9,6 +9,21 @@ import {
 
 describe("command-poll-backoff", () => {
   describe("recordCommandPoll", () => {
+    it("caps quiet polls and normalizes previously oversized counters", () => {
+      const state: SessionState = {
+        lastActivity: Date.now(),
+        state: "processing",
+        queueDepth: 0,
+        commandPollCounts: new Map([["old", { count: 99, lastPollAt: Date.now() }]]),
+      };
+      expect(recordCommandPoll(state, "old", false)).toBe(60000);
+      expect(state.commandPollCounts?.get("old")?.count).toBe(3);
+      expect(Array.from({ length: 6 }, () => recordCommandPoll(state, "new", false))).toEqual([
+        5000, 10000, 30000, 60000, 60000, 60000,
+      ]);
+      expect(state.commandPollCounts?.get("new")?.count).toBe(3);
+    });
+
     it("resets count when poll returns new output", () => {
       const state: SessionState = {
         lastActivity: Date.now(),

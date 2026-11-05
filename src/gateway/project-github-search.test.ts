@@ -348,6 +348,26 @@ describe("project GitHub search", () => {
     },
   );
 
+  it("ranks exact repositories only within the selected organization", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      const url = requestUrl(input);
+      if (url.includes("/branches/")) {
+        return json({}, 404);
+      }
+      if (url.includes("/repos/")) {
+        return json(repository("My-Clone-AI/exact"));
+      }
+      return page(repository("Other/exact"), repository("My-Clone-AI/related"), repository("My-Clone-AI/exact"));
+    });
+    const options = { org: "My-Clone-AI", token: "test-token", fetchImpl };
+    expect(projectNames(await searchRemoteProjects("My-Clone-AI/exact", options))).toEqual([
+      "My-Clone-AI/exact", "My-Clone-AI/related",
+    ]);
+    expect(projectNames(await searchRemoteProjects("Other/exact", options))).toEqual([
+      "My-Clone-AI/related", "My-Clone-AI/exact",
+    ]);
+  });
+
   it("degrades optional lanes to global results when their requests reject in transport", async () => {
     const fetchImpl = vi.fn<typeof fetch>(async (input) => {
       const url = requestUrl(input);

@@ -319,6 +319,9 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                   : t("newSession.githubSelectRepositories")}
               </div>
             ) : undefined}
+            {!props.nativeTerminal && view().projectSearchAvailable && !view().cloneInput && view().query.trim().length < 2 ? (
+              <div class="new-session-page__menu-note">{t("newSession.githubSearchInstruction")}</div>
+            ) : undefined}
             {view().cloneInput && view().projectAddAvailable ? (
               <SessionMenuItem
                 item={{
@@ -362,7 +365,11 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                     ) : undefined}
                     {
                       <For
-                        each={projectSearchResult()?.projects ?? []}
+                        each={(projectSearchResult()?.projects ?? []).filter(
+                          (project) =>
+                            project.fullName.split("/")[0]?.toLowerCase() ===
+                            props.params.place.browser.projectOrg.toLowerCase(),
+                        )}
                         keyed={(project) => project.cloneUrl}
                       >
                         {(project) => {
@@ -401,8 +408,8 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                 </Errored>
               </>
             ) : undefined}
-            <details open={props.nativeTerminal || props.params.place.isAdmin()}>
-              <summary hidden={props.nativeTerminal || props.params.place.isAdmin()}>
+            <details open={props.nativeTerminal}>
+              <summary hidden={props.nativeTerminal}>
                 {t("newSession.projectAdvanced")}
               </summary>
               {props.params.place.remotePlacement && !view().query ? (
