@@ -26,7 +26,16 @@ it("validates closed project method inputs", () => {
   );
   check(S.validateProjectsRegisterParams, [{ path: "/repo", name: "OpenClaw" }], [{ path: "" }]);
   check(S.validateProjectsAddParams, [{ gitUrl }], [{ gitUrl: "" }, { gitUrl, unexpected: true }]);
-  check(S.validateProjectsSearchRemoteParams, [{ query: "openclaw" }], [{ query: "" }]);
+  check(
+    S.validateProjectsSearchRemoteParams,
+    [{ query: "openclaw" }, { query: "openclaw", org: "My-Clone-AI" }],
+    [
+      { query: "" },
+      { query: "openclaw", org: "" },
+      { query: "openclaw", org: "x".repeat(101) },
+      { query: "openclaw", extra: true },
+    ],
+  );
   check(
     S.validateProjectsRemoveParams,
     [{ id: "openclaw-2", deleteCheckout: true }],
