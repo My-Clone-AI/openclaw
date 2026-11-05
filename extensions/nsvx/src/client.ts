@@ -106,6 +106,10 @@ export type NsvxRunRequest = {
  * Owner screens NSVX serves only to its signed-in owner. Read-only GETs on fixed paths, so the held session can never
  * change NSVX data (unsafe methods also need the session's CSRF token, which this Gateway never has).
  */
+type OwnerViewSpec = { path: string; query?: readonly string[]; image?: true };
+/** Largest page image relayed to the browser (a 1000px JPEG page is far below this). */
+const IMAGE_LIMIT = 4 * 1024 * 1024;
+
 const OWNER_VIEWS = {
   today: { path: "/api/today" },
   missions: { path: "/api/missions" },
@@ -125,9 +129,53 @@ const OWNER_VIEWS = {
   quickReplyDrafts: { path: "/api/quick-reply/drafts", query: ["q", "before"] },
   quickReplyDraft: { path: "/api/quick-reply/drafts/{id}" },
   quickReplyRules: { path: "/api/quick-reply/rules" },
-} as const satisfies Record<string, { path: string; query?: readonly string[] }>;
+  // Finance (`/financas`): the same reads the NSVX Finanças, Documentos, and Contabilidade screens make.
+  financeToday: { path: "/api/finance/today" },
+  financeDashboard: { path: "/api/finance/dashboard", query: ["entity", "scope", "year"] },
+  financeAccounts: { path: "/api/finance/accounts", query: ["entity", "scope"] },
+  financeConnections: { path: "/api/finance/connections" },
+  financeCards: { path: "/api/finance/cards" },
+  financeObligations: {
+    path: "/api/finance/obligations",
+    query: ["entity", "scope", "include_done"],
+  },
+  financeAlerts: { path: "/api/finance/alerts" },
+  financeInvoices: {
+    path: "/api/finance/invoices",
+    query: ["entity", "scope", "role", "year", "unassigned", "q", "before", "limit"],
+  },
+  bankTransactions: {
+    path: "/api/finance/banking/transactions",
+    query: ["entity", "scope", "connection", "counterparty", "status", "cursor", "limit"],
+  },
+  bankCapabilities: { path: "/api/finance/banking/capabilities", query: ["entity"] },
+  bankTasks: { path: "/api/finance/banking/tasks", query: ["entity", "scope"] },
+  docsOverview: { path: "/api/finance/docs/overview", query: ["entity", "scope", "year"] },
+  docsBrowse: {
+    path: "/api/finance/docs/browse",
+    query: ["entity", "scope", "path", "month", "kind", "state", "source", "q", "offset", "limit"],
+  },
+  docsSearch: { path: "/api/finance/docs/search", query: ["q", "entity", "scope"] },
+  docPreview: { path: "/api/finance/docs/{id}/preview" },
+  docPage: { path: "/api/finance/docs/{id}/page/{page}", query: ["w"], image: true },
+  docImage: { path: "/api/finance/docs/{id}/content", image: true },
+  ledgerBooks: { path: "/api/ledger/books" },
+  ledgerOverview: { path: "/api/ledger/overview", query: ["book", "year"] },
+  ledgerReport: { path: "/api/ledger/reports/{kind}", query: ["book", "year"] },
+  ledgerJournal: {
+    path: "/api/ledger/journal",
+    query: ["book", "year", "account", "q", "limit", "offset"],
+  },
+  ledgerReview: {
+    path: "/api/ledger/transactions",
+    query: ["book", "year", "status", "limit", "offset"],
+  },
+  ledgerTax: { path: "/api/ledger/tax", query: ["book", "year"] },
+} as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
+
+export const OWNER_VIEW_NAMES = Object.keys(OWNER_VIEWS) as OwnerView[];
 
 const OWNER_WRITES = {
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
@@ -160,11 +208,15 @@ const EXPORT_MAX_CHARS = 5_000_000;
 
 const OWNER_COOKIE = "clone_session";
 
-function ownerViewPath(view: string, params: Record<string, unknown>): string {
+function ownerViewSpec(view: string): OwnerViewSpec {
   if (!Object.hasOwn(OWNER_VIEWS, view)) {
     throw new NsvxError("invalid", "Unknown NSVX view.");
   }
-  const spec: { path: string; query?: readonly string[] } = OWNER_VIEWS[view as OwnerView];
+  return OWNER_VIEWS[view as OwnerView];
+}
+
+function ownerViewPath(view: string, params: Record<string, unknown>): string {
+  const spec = ownerViewSpec(view);
   const text = (name: string) => {
     const value = params[name];
     if (value === undefined || value === "") {
@@ -175,14 +227,13 @@ function ownerViewPath(view: string, params: Record<string, unknown>): string {
     }
     return value;
   };
-  let path = spec.path;
-  if (path.includes("{id}")) {
-    const id = text("id");
-    if (!id) {
-      throw new NsvxError("invalid", "id is required.");
+  const path = spec.path.replace(/\{(\w+)\}/g, (_match, name: string) => {
+    const value = text(name);
+    if (!value) {
+      throw new NsvxError("invalid", `${name} is required.`);
     }
-    path = path.replace("{id}", encodeURIComponent(id));
-  }
+    return encodeURIComponent(value);
+  });
   const query = new URLSearchParams();
   for (const name of spec.query ?? []) {
     const value = text(name);
@@ -353,7 +404,19 @@ export function createNsvxClient(options: {
       view: string,
       params: Record<string, unknown> = {},
     ): Promise<T> {
-      return readOwner(ownerViewPath(view, params));
+      const spec = ownerViewSpec(view);
+      const path = ownerViewPath(view, params);
+      if (!spec.image) {
+        return readOwner(path);
+      }
+      // Page images cross the Gateway socket as data URLs, so the browser never needs the NSVX session.
+      const response = await ownerFetch(path, { accept: "image/*" });
+      const mime = response.headers.get("content-type")?.split(";")[0] ?? "";
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if (!mime.startsWith("image/") || bytes.byteLength > IMAGE_LIMIT) {
+        throw new NsvxError("invalid", "NSVX did not send a page image.");
+      }
+      return { src: `data:${mime};base64,${Buffer.from(bytes).toString("base64")}` } as T;
     },
     /** Owner reads sent as POST: `find` (unified search) and `activitySummary`. */
     async readOwnerPost<T = unknown>(
