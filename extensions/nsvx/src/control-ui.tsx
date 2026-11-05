@@ -7,6 +7,8 @@ import {
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
+import { agendaTranslator } from "./agenda-i18n.js";
+import { AgendaTab } from "./agenda-tab.js";
 import { FinanceTab } from "./finance-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
@@ -39,6 +41,7 @@ type Tab =
   | "activity"
   | "messages"
   | "reply"
+  | "agenda"
   | "people"
   | "money"
   | "team"
@@ -374,6 +377,7 @@ const TABS: Tab[] = [
   "activity",
   "messages",
   "reply",
+  "agenda",
   "people",
   "money",
   "team",
@@ -389,13 +393,20 @@ const mountNsvx: ControlUiView = (container, context) => {
   const mt: MT = (key) => messagesTranslator(locale())(key);
   const pt: PT = (key) => peopleTranslator(locale())(key);
   const label = (id: Tab) =>
-    id === "messages" || id === "reply" ? mt(id) : id === "people" ? pt(id) : t(id);
+    id === "agenda"
+      ? agendaTranslator(locale())("agenda")
+      : id === "messages" || id === "reply"
+        ? mt(id)
+        : id === "people"
+          ? pt(id)
+          : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
   const [mission, setMission] = createSignal(search.get("mission") ?? undefined);
   const [conversation, setConversation] = createSignal(search.get("conversation") ?? undefined);
   const [draft, setDraft] = createSignal(search.get("draft") ?? undefined);
+  const [eventId, setEventId] = createSignal(search.get("event") ?? undefined);
   const personParam = search.get("person");
   const groupParam = search.get("group");
   const [personOpen, setPersonOpen] = createSignal<PeopleOpen>(
@@ -411,7 +422,13 @@ const mountNsvx: ControlUiView = (container, context) => {
   // Values are passed in (signal writes are not readable until the next flush).
   const remember = (
     nextTab: Tab,
-    open: { mission?: string; conversation?: string; draft?: string; people?: PeopleOpen } = {},
+    open: {
+      mission?: string;
+      conversation?: string;
+      draft?: string;
+      event?: string;
+      people?: PeopleOpen;
+    } = {},
   ) => {
     const url = new URL(location.href);
     url.searchParams.set("tab", nextTab);
@@ -433,6 +450,11 @@ const mountNsvx: ControlUiView = (container, context) => {
     } else {
       url.searchParams.delete("draft");
     }
+    if (nextTab === "agenda" && open.event) {
+      url.searchParams.set("event", open.event);
+    } else {
+      url.searchParams.delete("event");
+    }
     for (const kind of ["person", "group"] as const) {
       if (nextTab === "people" && open.people?.kind === kind) {
         url.searchParams.set(kind, open.people.id);
@@ -449,20 +471,40 @@ const mountNsvx: ControlUiView = (container, context) => {
       mission: mission(),
       conversation: conversation(),
       draft: draft(),
+      event: eventId(),
       people: personOpen(),
     });
   };
   const openMission = (id: string | undefined) => {
     setMission(id);
-    remember(tab(), { mission: id, conversation: conversation(), draft: draft() });
+    remember(tab(), {
+      mission: id,
+      conversation: conversation(),
+      draft: draft(),
+      event: eventId(),
+    });
   };
   const openConversation = (id: string | undefined) => {
     setConversation(id);
-    remember(tab(), { mission: mission(), conversation: id, draft: draft() });
+    remember(tab(), { mission: mission(), conversation: id, draft: draft(), event: eventId() });
   };
   const openDraft = (id: string | undefined) => {
     setDraft(id);
-    remember(tab(), { mission: mission(), conversation: conversation(), draft: id });
+    remember(tab(), {
+      mission: mission(),
+      conversation: conversation(),
+      draft: id,
+      event: eventId(),
+    });
+  };
+  const openEvent = (id: string | undefined) => {
+    setEventId(id);
+    remember(tab(), {
+      mission: mission(),
+      conversation: conversation(),
+      draft: draft(),
+      event: id,
+    });
   };
   const openPeople = (open: PeopleOpen) => {
     setPersonOpen(open);
@@ -576,6 +618,22 @@ const mountNsvx: ControlUiView = (container, context) => {
                 query={query()}
                 open={draft()}
                 onOpen={openDraft}
+              />
+            </Show>
+            <Show when={tab() === "agenda"}>
+              <AgendaTab
+                host={host}
+                t={t}
+                locale={locale()}
+                query={query()}
+                open={eventId()}
+                onOpen={openEvent}
+                onMission={(id) => {
+                  setMission(id);
+                  setTab("tasks");
+                  setQuery("");
+                  remember("tasks", { mission: id, conversation: conversation(), draft: draft() });
+                }}
               />
             </Show>
             <Show when={tab() === "people"}>

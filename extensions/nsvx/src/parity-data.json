@@ -1,8 +1,8 @@
 {
   "discovered": 68,
   "native": 9,
-  "partial": 26,
-  "missing": 32,
+  "partial": 27,
+  "missing": 31,
   "blocked": 1,
   "verified": 0,
   "sources": {
@@ -195,8 +195,8 @@
       "name": "Calendar and Google",
       "discovered": 1,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 1,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -373,7 +373,7 @@
       "title": "Agenda",
       "family": "06",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {

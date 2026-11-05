@@ -93,6 +93,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Messages    | Inbox by channel, thread, approve drafts, reply, take over   | NSVX owner screens and changes   |
 | Quick reply | Paste, write with AI, change, copy, history                  | NSVX Quick Reply drafts          |
 | People      | People, person page, interests, places, memory, groups       | NSVX owner screens and changes   |
+| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help     | NSVX Google Calendar (workspace) |
 | Tasks       | Task list with filters and each task's history               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
@@ -121,6 +122,14 @@ reloads; proposing a place carries an idempotency key. Nothing there sends a mes
 the participant's own page stay in NSVX. Chat gets `nsvx_people` on the owner's own turns: find, read, places,
 groups, mode, topic, and group members. `ui/src/e2e/nsvx-people.e2e.test.ts` covers the list, person page, mode,
 interests, memory, and group confirm at 1280 and 390 wide.
+
+Agenda reads NSVX `/api/workspace` (status, calendars, events, one event, an intent) through `nsvx.view`, with one
+live Google read on open as the NSVX screen does. Booking, moving, and cancelling go through `nsvx.agenda.preview`,
+then `nsvx.agenda.submit` with the preview's terms hash and one client key per intent, so NSVX refuses changed terms
+and an uncertain result is followed, never resubmitted. Chat gets `nsvx_agenda` on the owner's own turns: events,
+event, free, summary, book, move, and cancel; a change Google would announce to guests returns `needsOwner` with the
+terms instead of running. `ui/src/e2e/nsvx-agenda.e2e.test.ts` covers week, month, event, booking, and review at
+1280 and 390 wide.
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
