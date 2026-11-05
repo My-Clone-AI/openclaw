@@ -345,6 +345,31 @@ const OWNER_VIEWS = {
   fleetMileage: { path: "/api/tvde/vehicles/{id}/mileage" },
   uberPersonal: { path: "/api/transports/uber" },
   uberBusiness: { path: "/api/business/uber" },
+  // Documents (`/documentos`): the reads the NSVX Documentos screen makes, plus the Drive index it files from.
+  documents: {
+    path: "/api/documents",
+    query: ["q", "category", "review", "source", "date_from", "date_to", "sort", "limit", "offset"],
+  },
+  documentsOverview: { path: "/api/documents/overview" },
+  document: { path: "/api/documents/{id}" },
+  documentTaxonomy: { path: "/api/documents/taxonomy" },
+  documentPage: { path: "/api/documents/{id}/page/{page}", query: ["width"], image: true },
+  documentSettings: { path: "/api/documents/settings/current" },
+  documentRules: { path: "/api/documents/rules/all" },
+  driveStatus: { path: "/api/documents/drive/status" },
+  driveFiles: { path: "/api/drive/files", query: ["q"] },
+  // Signatures (`/documentos/assinaturas`). Each page read is the owner's review: NSVX records it on that GET.
+  signatures: {
+    path: "/api/signatures",
+    query: ["q", "state", "mode", "company_id", "date_from", "date_to", "offset"],
+  },
+  signature: { path: "/api/signatures/documents/{id}" },
+  signaturePage: { path: "/api/signatures/documents/{id}/pages/{page}", query: ["width"], image: true },
+  signatureConfig: { path: "/api/signatures/configuration" },
+  signatureCompanies: { path: "/api/signatures/companies" },
+  signatureProfile: { path: "/api/signatures/desktop/profile" },
+  signatureDesktop: { path: "/api/signatures/requests/{id}/desktop" },
+  signatureSource: { path: "/api/signatures/sources/{id}" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -526,6 +551,25 @@ const OWNER_WRITES = {
   uberPersonalCollect: { method: "POST", path: "/api/transports/uber/quarter" },
   uberBusinessCheck: { method: "POST", path: "/api/business/uber/connect" },
   uberBusinessCollect: { method: "POST", path: "/api/business/uber/quarter" },
+  // Documents: the owner's own records. Forget removes clone's copy only; a Drive original is never touched.
+  documentUpdate: { method: "PATCH", path: "/api/documents/{id}" },
+  documentApprove: { method: "POST", path: "/api/documents/{id}/approve" },
+  documentRename: { method: "POST", path: "/api/documents/{id}/rename" },
+  documentReprocess: { method: "POST", path: "/api/documents/{id}/reprocess" },
+  documentForget: { method: "DELETE", path: "/api/documents/{id}", query: ["confirm"] },
+  documentNotices: { method: "POST", path: "/api/documents/notices/read" },
+  documentSettings: { method: "PUT", path: "/api/documents/settings/current" },
+  documentCategoryAdd: { method: "POST", path: "/api/documents/categories" },
+  documentCategoryEdit: { method: "PATCH", path: "/api/documents/categories/{id}" },
+  documentRuleOff: { method: "DELETE", path: "/api/documents/rules/{id}" },
+  driveResync: { method: "POST", path: "/api/documents/drive/resync" },
+  // Signatures: NSVX keys a request by the body's idempotency_key and the reviewed PDF's hash.
+  signatureFromDocument: { method: "POST", path: "/api/signatures/documents/from-catalogue/{id}" },
+  signatureRequest: { method: "POST", path: "/api/signatures/documents/{id}/requests" },
+  signatureCancel: { method: "POST", path: "/api/signatures/requests/{id}/cancel" },
+  signatureCompany: { method: "POST", path: "/api/signatures/companies" },
+  signatureDesktop: { method: "POST", path: "/api/signatures/requests/{id}/desktop" },
+  signatureOtp: { method: "POST", path: "/api/signatures/requests/{id}/desktop/otp" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -551,6 +595,11 @@ const OWNER_READ_POSTS = {
   aviationExpiry: "/api/aviation/docs/{id}/expiry-suggest",
   // The TVDE assistant answers from fleet records (or says it cannot); NSVX only logs that a question was asked.
   fleetAsk: "/api/tvde/assistant",
+  // Documents: NSVX's own inference explains or proposes; nothing is saved until the owner accepts.
+  documentExplain: "/api/documents/{id}/explanation",
+  documentTriage: "/api/documents/{id}/triage-suggestion",
+  documentWhy: "/api/documents/{id}/classification-explanation",
+  documentCompare: "/api/documents/proposal-comparison",
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -561,9 +610,24 @@ const OWNER_FILES = {
   aviationXlsx: { path: "/api/aviation/logbook/export.xlsx" },
   aviationPrint: { path: "/api/aviation/logbook/print", query: ["start", "end"] },
   aviationDocFile: { path: "/api/aviation/docs/{id}/content", query: ["download"] },
+  documentFile: { path: "/api/documents/{id}/content", query: ["download"] },
+  documentsExport: { path: "/api/documents/export/metadata" },
+  signatureOriginal: { path: "/api/signatures/documents/{id}/original" },
+  signatureReviewed: { path: "/api/signatures/documents/{id}/reviewed" },
+  signatureSigned: { path: "/api/signatures/requests/{id}/signed" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;
+
+/** Owner uploads, sent as multipart the way the NSVX web app sends them; `field` is NSVX's form field name. */
+const OWNER_UPLOADS = {
+  documentsUpload: { path: "/api/documents/upload", field: "files" },
+  signatureUpload: { path: "/api/signatures/documents", field: "file" },
+  signatureImport: { path: "/api/signatures/requests/{id}/signed", field: "file" },
+} as const;
+
+export type OwnerUpload = keyof typeof OWNER_UPLOADS;
+export type UploadFile = { name: string; mime: string; bytes: Uint8Array };
 /** Files cross the Gateway socket as base64; a pilot's logbook or licence scan is far below this. */
 const FILE_LIMIT = 12 * 1024 * 1024;
 
@@ -621,6 +685,19 @@ function ownerViewPath(spec: OwnerViewSpec, params: Record<string, unknown>): st
     }
   }
   return query.size > 0 ? `${path}?${query}` : path;
+}
+
+/** `filename="x"`, or RFC 5987 `filename*=UTF-8''x` as the NSVX document routes send it. */
+function fileNameOf(disposition: string): string {
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+  if (encoded) {
+    try {
+      return decodeURIComponent(encoded);
+    } catch {
+      // Malformed escapes fall through to the plain name.
+    }
+  }
+  return /filename="([^"]+)"/.exec(disposition)?.[1] ?? "";
 }
 
 export type NsvxClient = ReturnType<typeof createNsvxClient>;
@@ -897,7 +974,7 @@ export function createNsvxClient(options: {
       }
       const disposition = response.headers.get("content-disposition") ?? "";
       return {
-        fileName: /filename="([^"]+)"/.exec(disposition)?.[1] ?? "",
+        fileName: fileNameOf(disposition),
         mime: response.headers.get("content-type")?.split(";")[0] ?? "application/octet-stream",
         data: Buffer.from(bytes).toString("base64"),
       };
@@ -925,6 +1002,52 @@ export function createNsvxClient(options: {
         throw new NsvxError("failed", "NSVX did not send a calendar file.");
       }
       return ics;
+    },
+    /**
+     * Files the owner picked, as one multipart POST on a fixed NSVX route. NSVX dedupes document uploads by content;
+     * a lost answer is still uncertain, so the caller says to check before sending again.
+     */
+    async uploadOwner<T = unknown>(
+      name: OwnerUpload,
+      id: string | undefined,
+      files: UploadFile[],
+      fields: Record<string, string> = {},
+    ): Promise<T> {
+      const spec = OWNER_UPLOADS[name];
+      const path = withId(spec.path, id);
+      const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
+        "/api/auth/state",
+      );
+      if (!state.authenticated || !state.csrf) {
+        throw new NsvxError("signed-out", "NSVX ended the owner session.");
+      }
+      const form = new FormData();
+      for (const file of files) {
+        form.append(spec.field, new Blob([file.bytes], { type: file.mime }), file.name);
+      }
+      for (const [key, value] of Object.entries(fields)) {
+        form.set(key, value);
+      }
+      let response: Response;
+      try {
+        // No Content-Type: fetch writes the multipart boundary itself.
+        response = await fetchImpl(`${options.baseUrl}${path}`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
+            "X-CSRF-Token": state.csrf,
+          },
+          body: form,
+          signal: AbortSignal.timeout(TIMEOUT_MS * 4),
+        });
+      } catch {
+        throw new NsvxError("uncertain", "NSVX did not confirm the result. Check before repeating.");
+      }
+      if (!response.ok) {
+        throw errorFor(response.status, await problemFrom(response), true, path);
+      }
+      return (await response.json()) as T;
     },
     /** One owner change on a fixed NSVX route; `body` must already be validated by the caller. */
     writeOwner<T = unknown>(
