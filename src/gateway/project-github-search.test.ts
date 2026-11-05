@@ -249,6 +249,34 @@ describe("project GitHub search", () => {
     expect(requestUrl(fetchImpl.mock.calls[0]?.[0])).not.toContain("sort=");
   });
 
+  it("restricts organization search to the selected organization", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      const url = new URL(requestUrl(input));
+      if (url.pathname.includes("/branches/")) {
+        return json({}, 404);
+      }
+      expect(url.pathname).toBe("/search/repositories");
+      expect(url.searchParams.get("q")).toBe("widget in:name,description org:My-Clone-AI");
+      return page(repository("my-clone-ai/widget"), repository("other/widget"));
+    });
+    const result = await searchRemoteProjects("Widget", {
+      org: "my-clone-ai",
+      token: "synthetic-org-search-token",
+      fetchImpl,
+    });
+    expect(result.credential).toBe("configured");
+    expect(projectNames(result)).toEqual(["my-clone-ai/widget"]);
+  });
+
+  it("rejects unauthorized organizations and missing credentials before making requests", async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    await expect(searchRemoteProjects("widget", { org: "unapproved", token: "synthetic-token", fetchImpl }))
+      .rejects.toThrow("GitHub organization is not allowed");
+    await expect(searchRemoteProjects("widget", { org: "My-Clone-AI", env: {}, fetchImpl }))
+      .rejects.toThrow("GitHub token is required for organization search");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it.each([false, true])(
     "ranks and deduplicates affiliations with native credentials=%s",
     async (native) => {
