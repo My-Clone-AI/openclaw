@@ -229,6 +229,41 @@ describe("nsvx owner views on the bearer token", () => {
     );
   });
 
+  it.each([
+    ["callsStatus", "clone.calls.status", {}, {}],
+    [
+      "calls",
+      "clone.calls.list",
+      { channel: "calls", q: "ana", limit: "30", id: "z" },
+      { channel: "calls", q: "ana", limit: "30" },
+    ],
+    ["call", "clone.calls.get", { id: "c1", rev: "0", x: "y" }, { id: "c1", rev: "0" }],
+    ["callContext", "clone.calls.context", { id: "c1" }, { id: "c1" }],
+    ["callRecordings", "clone.calls.recordings", { id: "c1" }, { id: "c1" }],
+    ["callsSocial", "clone.calls.social", {}, {}],
+    ["phoneCards", "clone.phone.cards", { limit: "20" }, { limit: "20" }],
+  ])("reads the Calls view %s from %s on the token", async (view, action, params, input) => {
+    const fetchImpl = executed({ ok: true });
+    await expect(clientWith(fetchImpl).readOwnerView(view, params)).resolves.toEqual({ ok: true });
+    const [url, init] = fetchImpl.mock.calls[0]!;
+    expect(url).toBe(`https://nsvx.test/api/agentos/v1/actions/${action}/execute`);
+    expect(init.headers).toEqual({
+      Accept: "application/json",
+      Authorization: "Bearer secret",
+      "Content-Type": "application/json",
+    });
+    expect(JSON.parse(init.body as string)).toEqual({ input });
+  });
+
+  it("keeps Calls taps, summaries, and recording audio token-pending on the token", async () => {
+    const fetchImpl = executed({});
+    const client = clientWith(fetchImpl);
+    expect(await kindOf(client.writeOwner("callOut", undefined, {}))).toBe("token-pending");
+    expect(await kindOf(client.readOwnerPost("callSummary", {}, "c1"))).toBe("token-pending");
+    expect(await kindOf(client.readOwnerFile("callRecording", { id: "r1" }))).toBe("token-pending");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("keeps a read token-pending until NSVX serves its action, and a gone record not-found", async () => {
     const answer = (detail: string) =>
       clientWith(async () => json(404, { code: "not_found", detail }));
