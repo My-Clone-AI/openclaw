@@ -113,7 +113,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -202,7 +202,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "People, chat and document hits show inline; their detail pages belong to families 02, 03 and 11."
@@ -299,7 +299,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "The NSVX log and native logs hold different records; they stay separate views.",
@@ -388,7 +388,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Workflow share links (GET /api/auto/activity/workflows/{id}/share) mint public tokens and are left out on purpose."
@@ -474,7 +474,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX's visible-rows TXT download is replaced by the CSV of the same rows."
@@ -589,7 +589,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; nothing was run against a live NSVX.",
         "Not built yet: attachments and voice notes in the composer, media previews, delete for everyone, Instagram comment hide, email trash, the coverage screen, context panel, conversation language, approval-prompt mode."
       ],
       "unknowns": [
@@ -685,7 +685,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; nothing was run against a live NSVX.",
         "Not built yet: rules and signatures editor, source picker, suggested actions (task, reminder, workspace) with preflight and execute, the generation queue view."
       ],
       "unknowns": []
@@ -779,7 +779,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_people was unit tested, not run by a live agent turn.",
         "Person calls, Google Workspace, and Drive sections of the NSVX person page belong to families 04, 06, and 11 and are not in this tab."
       ],
@@ -875,7 +875,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "Reply coverage (/api/reply-coverage, /api/coverage) stays with the Messages entries; the per-snapshot explanation (/api/context/{id}) has no native view yet."
       ],
       "unknowns": []
@@ -965,7 +965,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "The participant's own page (/api/subject) uses the person's session, not the owner's, so it stays in NSVX by design.",
         "The invite draft (/api/people/{id}/invite) creates an outbox message to a real person and is not offered here."
       ],
@@ -1050,7 +1050,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_people was unit tested, not run by a live agent turn."
       ],
       "unknowns": []
@@ -1139,7 +1139,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_people was unit tested, not run by a live agent turn."
       ],
       "unknowns": []
@@ -1381,7 +1381,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -1469,7 +1469,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX.",
         "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
       ],
       "unknowns": [
@@ -1652,7 +1652,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX or Google account.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX or Google account.",
         "Not native in the Agenda tab: the ICS subscription address (NSVX's feed needs the owner's browser session, so a calendar app cannot subscribe through Control) and the aviation check-in reminders NSVX also lists on its Agenda (owned by the aviation entry). NSVX's /api/workspace tasks, contacts, and chat routes have no NSVX web screen at clone 02fb14f (backend only) and are outside this entry."
       ],
       "unknowns": [
@@ -1970,7 +1970,7 @@
       },
       "blockers": [
         "Chat needs AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py).",
-        "Control needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session) and the agentos.gateway flag on; neither checked live."
+        "Control needs NSVX_AGENTOS_TOKEN_FILE on the Gateway, NSVX bearer support, and the agentos.gateway flag on; neither checked live."
       ],
       "unknowns": []
     },
@@ -3042,7 +3042,7 @@
         ]
       },
       "blockers": [
-        "Suggestions need NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX."
+        "Suggestions need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX."
       ],
       "unknowns": []
     },
@@ -3128,7 +3128,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "Source binding, run summaries, outcome CSV, and memory listing are not built yet.",
         "The Grow skills API (/api/grow-skills) is a bearer service API for the Grow engine, not an owner screen."
       ],
@@ -3226,7 +3226,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_grow was unit tested, not run by a live agent turn."
       ],
       "unknowns": [
@@ -3322,7 +3322,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_grow was unit tested, not run by a live agent turn.",
         "Images can be shown but not attached to a new idea from Control: NSVX takes images only as multipart uploads, which the owner client does not send."
       ],
@@ -3413,7 +3413,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_grow was unit tested, not run by a live agent turn.",
         "NSVX takes no idempotency key for a brain task, so an uncertain answer is reported and never repeated."
       ],
@@ -3513,7 +3513,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Grupo DoIt (/api/doit), Grupo Pay (/api/pay), cross-app (/api/cross-app) and business action grants (/api/group-companies/business-action-grants) have no native screen yet.",
@@ -3605,7 +3605,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX's owner card set also joins /api/group-companies company KPIs; the overview cards here use the overview feed only, and KPIs show on the app page.",
@@ -3693,7 +3693,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Attachment download and upload are not ported: the Gateway relays JSON only, and NSVX streams attachments as files.",
@@ -3780,7 +3780,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Custom date ranges and the per-day table are not ported; the presets cover NSVX's buttons."
@@ -3866,7 +3866,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Rows do not link to each app's own error view; NSVX links out to the app."
@@ -3952,7 +3952,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "NSVX server actions have no idempotency key: an uncertain answer says to check the server before repeating.",
@@ -4200,7 +4200,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "Writes (sync, connect, mark paid, classify, decide, rebuild) need NSVX CSRF with the owner session or an AgentOS contract; none exists yet, so Control is read-only here.",
         "Portal das Finanças, subscriptions, fiscal execution, and settings tabs are not native yet."
       ],
@@ -4297,7 +4297,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "No transfers, connects, or syncs from Control: NSVX keeps bank authorisation with the owner, and no AgentOS bank contract exists.",
         "The isolated broker service (credentials/bank_service.py) is internal and is never called from OpenClaw."
       ],
@@ -4386,7 +4386,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "Rebuild, decisions, assets, openings, audit freeze, and exports need NSVX CSRF or an AgentOS contract; balance sheet, trial balance, VAT, and tax views are not native yet."
       ],
       "unknowns": [
@@ -4476,7 +4476,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "Placing, renaming, uploading, and Drive sync need NSVX CSRF or an AgentOS contract."
       ],
       "unknowns": [
@@ -4890,7 +4890,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_aviation was unit tested, not run by a live agent turn.",
         "HiFly credential and login management (/api/work/connections/{service}/login, cancel, pause) and personal plans (/api/work/plans) stay in NSVX Ligações; only read state and read requests are here.",
         "The Drive grant is read-only in NSVX, so the master LOGBOOK_EASA.xlsx cannot be replaced from either app; Excel export is the owner's step."
@@ -4996,7 +4996,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_aviation was unit tested, not run by a live agent turn.",
         "The printable EASA layout is saved as an HTML file to print, not opened in a new tab, so NSVX's HTML never runs on the Control origin."
       ],
@@ -5094,7 +5094,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_aviation was unit tested, not run by a live agent turn.",
         "Folder browsing (/api/aviation/docs/browse) is read by the client but has no Control screen yet; the category and filter chips cover the library.",
         "PDF signing (SignPdfButton) belongs to family 11 and is not in this tab."
@@ -5195,7 +5195,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_aviation was unit tested, not run by a live agent turn.",
         "Check-in reminders (OwnerReminder ReminderEditor) and the compare view of the NSVX screen are not in this tab.",
         "No airline was contacted: live check-in compatibility is unverified in NSVX itself (docs/AVIATION.md)."
@@ -5298,7 +5298,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Not native: the Uber sign-in (credentials) form and the live Uber view stay in NSVX on purpose, so passwords never pass through the Gateway."
       ],
@@ -5402,7 +5402,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Not native yet: creating, editing and archiving drivers and cars, document upload and review, assignments, CSV import and exports, company and settings, alert digest settings, and platform API keys."
       ],
@@ -5498,7 +5498,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Not native yet: creating shifts, services, incidents, handovers, workflows and cards; workflow templates and cancel."
       ],
@@ -5593,7 +5593,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Read only by design: invoice payments, settlements, earnings import and matching stay in NSVX until the owner approves money actions from OpenClaw."
       ],
@@ -5690,7 +5690,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Not native yet: CSV report downloads and alert cause grouping."
       ],
@@ -5786,7 +5786,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "Not native yet: uploading a dashboard photo, the mileage source setting and voice readings."
       ],
@@ -5884,7 +5884,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway; not yet run against a live NSVX.",
         "nsvx_fleet was unit tested, not run by a live agent turn.",
         "The driver's own pages (/motorista, /tvde-consulta) are for drivers and guests with their link session, not the owner; they stay in NSVX by design."
       ],
@@ -6860,7 +6860,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX.",
         "NSVX's linked-device credential (mac_node Hub) is not used: Control acts as the owner, not as a desktop device."
       ],
       "unknowns": [
@@ -6961,7 +6961,7 @@
         ]
       },
       "blockers": [
-        "Job attempts (/api/runtime/execution) and the failing-check detail of /readyz need NSVX_OWNER_SESSION; without it Control shows ready or not ready only."
+        "Job attempts (/api/runtime/execution) and the failing-check detail of /readyz need NSVX AgentOS actions; without them Control shows ready or not ready only."
       ],
       "unknowns": []
     },
@@ -7048,7 +7048,7 @@
         ]
       },
       "blockers": [
-        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment. Not yet run against a live NSVX.",
+        "Owner screens need NSVX AgentOS actions and bearer support, then NSVX_AGENTOS_TOKEN_FILE on the Gateway. Not yet run against a live NSVX.",
         "Captures (Do it photos) are not offered: NSVX admits them only on its development runtime, as base64 uploads up to 5 MB."
       ],
       "unknowns": [

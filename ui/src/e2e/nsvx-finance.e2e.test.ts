@@ -472,7 +472,7 @@ suite.define(() => {
             "nsvx.view": {
               __mockError: {
                 code: "unconfigured",
-                message: "NSVX owner sign-in is not set up on this Gateway.",
+                message: "NSVX sign-in is not set up on this Gateway.",
               },
             },
           },

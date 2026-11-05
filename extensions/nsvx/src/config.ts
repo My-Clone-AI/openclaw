@@ -1,3 +1,5 @@
+import { tryReadSecretFileSync } from "openclaw/plugin-sdk/secret-file-runtime";
+
 export const DEFAULT_NSVX_URL = "https://nsvx.com";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
@@ -19,4 +21,20 @@ export function parseNsvxConfig(raw: unknown): { baseUrl: string } {
     );
   }
   return { baseUrl: url.origin };
+}
+
+/**
+ * The AgentOS token, trimmed. `NSVX_AGENTOS_TOKEN_FILE` is the sanctioned source; a missing, empty, or refused file means
+ * no token (Control shows Not connected), never a fall back to the inline variable.
+ */
+export function readNsvxToken(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  const file = env.NSVX_AGENTOS_TOKEN_FILE?.trim();
+  if (!file) {
+    return env.NSVX_AGENTOS_TOKEN?.trim() || undefined;
+  }
+  try {
+    return tryReadSecretFileSync(file, "NSVX AgentOS token");
+  } catch {
+    return undefined;
+  }
 }

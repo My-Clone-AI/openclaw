@@ -87,38 +87,38 @@ or internal service endpoints that still need a decision.
 
 The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page; these are its main tabs.
 
-| Tab         | What it does                                                                 | Data owner                       |
-| ----------- | ---------------------------------------------------------------------------- | -------------------------------- |
-| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)   |
-| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes   |
-| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts          |
-| People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes   |
-| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace) |
-| Agenda      | Day, week, month; book, move, cancel; follow up, remind, calendar file       | NSVX Google Calendar (workspace) |
-| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)   |
-| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)   |
-| Group       | Apps, app page, Errors, Visits, Servers, Mail                                | NSVX owner screens and changes   |
-| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions      |
-| Setup       | Agent instructions and tools, team defaults, team ideas                      | Gateway config and AGENTS.md     |
-| Skills      | NSVX skills: on/off, review learned ones, steps and runs                     | NSVX owner screens and changes   |
-| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync` |
-| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages     |
-| Grow        | Coding apps (mode, run, stop all, log), ideas, brain, timers, model chains   | NSVX Grow, Build Me, and brain   |
-| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)      |
-| Progress    | This registry by family                                                      | `registry.json`, copied at build |
-| Tab         | What it does                                                                 | Data owner                        |
-| ----------- | ---------------------------------------------------------------------------- | --------------------------------- |
-| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)    |
-| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes    |
-| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts           |
-| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)    |
-| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)    |
-| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions       |
-| Aviation    | Logbook, yesterday's flights, docs, check-in, roster, settings, exports      | NSVX `/api/aviation`, `/api/work` |
-| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`  |
-| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages      |
-| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)       |
-| Progress    | This registry by family                                                      | `registry.json`, copied at build  |
+| Tab         | What it does                                                                 | Data owner                          |
+| ----------- | ---------------------------------------------------------------------------- | ----------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)      |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes      |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts             |
+| People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes      |
+| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace)    |
+| Agenda      | Day, week, month; book, move, cancel; follow up, remind, calendar file       | NSVX Google Calendar (workspace)    |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
+| Group       | Apps, app page, Errors, Visits, Servers, Mail                                | NSVX owner screens and changes      |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
+| Setup       | Agent instructions and tools, team defaults, team ideas                      | Gateway config and AGENTS.md        |
+| Skills      | NSVX skills: on/off, review learned ones, steps and runs                     | NSVX owner screens and changes      |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`    |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages        |
+| Grow        | Coding apps (mode, run, stop all, log), ideas, brain, timers, model chains   | NSVX Grow, Build Me, and brain      |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)         |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build    |
+| Tab         | What it does                                                                 | Data owner                          |
+| ----------- | ---------------------------------------------------------------------------- | ---------------------------------   |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)      |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes      |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts             |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
+| Aviation    | Logbook, yesterday's flights, docs, check-in, roster, settings, exports      | NSVX `/api/aviation`, `/api/work`   |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`    |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages        |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)         |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build    |
 | Tab         | What it does                                                                 | Data owner                          |
 | ----------- | ---------------------------------------------------------------------------- | ----------------------------------- |
 | Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)      |
@@ -145,12 +145,12 @@ Setup edits the same text NSVX's Architecture Manager edits: the `nsvx-openclaw:
 `AGENTS.md` (instructions) and the main agent's `nsvx-openclaw:policies` section (team rules), each written with the
 file hash so a hand edit is never overwritten. Tool access and team defaults go to Gateway config through the team
 history, so Team Undo restores them; paid API models are refused with NSVX's `provider_kind` rule. Ideas asks NSVX's
-own suggest route (owner session) and Add creates the agent and links it under its lead. Chat gets `nsvx_agents` and
+own suggest route (owner route) and Add creates the agent and links it under its lead. Chat gets `nsvx_agents` and
 `nsvx_skills`; changes run only on the owner's own turns, and approving a learned skill stays a person's tap.
 `ui/src/e2e/nsvx-setup.e2e.test.ts` covers both tabs at 1280 and 390 wide (`ui/e2e-shots/nsvx-setup/`).
 
 Messages and Quick reply read NSVX through `nsvx.view` and change it only through `nsvx.messages.*` and
-`nsvx.quickReply.*`, one fixed NSVX route each (`OWNER_WRITES`), sent with the owner session and the CSRF token NSVX
+`nsvx.quickReply.*`, one fixed NSVX route each (`OWNER_WRITES`), sent through the deprecated owner path with the CSRF token NSVX
 gives that session. A reply keeps its idempotency key until NSVX confirms it, so an uncertain send is repeated with
 the same key and NSVX dedupes it. The AI draft button and the Quick reply tab use NSVX Quick Reply under its current
 rules; the draft lands in the composer or on screen and is never sent by itself. Chat gets `nsvx_messages` on the
@@ -223,24 +223,15 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, Quick reply, Money, and
-  Group read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
-  `NSVX_OWNER_SESSION`; Messages, Quick reply, and Group also make the fixed `OWNER_WRITES` changes. Until it is set, those
-  Device read NSVX owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with
-  `NSVX_OWNER_SESSION`; Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those
-  tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX payloads, not against a live
-  NSVX.
+- **Owner screens wait on NSVX.** The Gateway signs in only with the bearer token from `NSVX_AGENTOS_TOKEN_FILE`, but
+  NSVX has no owner-read actions yet, so Today, Find, Work, Activity, Messages, Quick reply, Money, and the other owner
+  tabs show Not connected, or Coming soon once a token is set. They were proven against a mock Gateway with synthetic
+  NSVX payloads, not against a live NSVX. `NSVX_OWNER_SESSION` is deprecated and goes away with this cutover; never
+  use a browser cookie as a Gateway credential.
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
-  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
-  owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`,
-  `nsvx_people`, and optional `nsvx_finance` and `nsvx_group` tools (`nsvx_messages` and `nsvx_people` never send;
-  finance is read-only; group reads and runs dev-only actions).
-  The Actions tab therefore uses the owner session for the owner's own taps (cookie, plus CSRF on POST); the
-  `nsvx_actions` and `nsvx_run` chat tools use only the bearer token and stay blocked until it exists. The owner
-  session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, `nsvx_messages`, `nsvx_people`,
-  `nsvx_skills`, `nsvx_agents` (suggest), and optional `nsvx_finance` tools (`nsvx_messages` and `nsvx_people` never
-  send; finance is read-only).
+  approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header, so the Actions tab and
+  the `nsvx_actions` and `nsvx_run` chat tools show Sign-in rejected until the bearer token work (`AD-8` in the NSVX
+  AgentOS architecture doc) lands in NSVX.
 - **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
   Everything else needs a contract in NSVX.
 - **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.

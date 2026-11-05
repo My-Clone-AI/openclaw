@@ -2,7 +2,7 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createAgentSettings } from "./src/agent-settings.js";
 import { createNsvxAviationTool } from "./src/aviation-tool.js";
 import { createNsvxClient } from "./src/client.js";
-import { parseNsvxConfig } from "./src/config.js";
+import { parseNsvxConfig, readNsvxToken } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
 import { createNsvxFleetTool } from "./src/fleet-tool.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
@@ -27,10 +27,15 @@ export default definePluginEntry({
   name: "NSVX",
   description: "Run NSVX actions, manage the agent team, and track parity from Control",
   register(api) {
+    if (process.env.NSVX_OWNER_SESSION) {
+      api.logger.warn(
+        "NSVX_OWNER_SESSION is deprecated: a browser cookie is not a Gateway credential. Unset it and use NSVX_AGENTOS_TOKEN_FILE.",
+      );
+    }
     // The token stays in this process: the browser only ever talks to these methods.
     const client = createNsvxClient({
       baseUrl: parseNsvxConfig(api.pluginConfig).baseUrl,
-      token: process.env.NSVX_AGENTOS_TOKEN,
+      token: () => readNsvxToken(),
       ownerSession: process.env.NSVX_OWNER_SESSION,
     });
     const team = createTeamService(api.runtime, () => ({

@@ -687,14 +687,14 @@ suite.define(() => {
             "nsvx.view": {
               __mockError: {
                 code: "unconfigured",
-                message: "NSVX owner sign-in is not set up on this Gateway.",
+                message: "NSVX sign-in is not set up on this Gateway.",
               },
             },
           },
         });
         await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx`);
         const surface = page.locator(".nsvx");
-        await surface.getByText("Adicione a sessão NSVX neste Gateway.", { exact: true }).waitFor();
+        await surface.getByText("Adicione o token NSVX neste Gateway.", { exact: true }).waitFor();
         expect(await surface.getByRole("button", { name: "Repetir" }).count()).toBe(1);
         if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
           const frame = await takeControlUiScreenshotFrame(page, surface, [], {
@@ -702,6 +702,39 @@ suite.define(() => {
             viewport: { width: 390, height: 844 },
           });
           await writeFile(path.join(suite.artifactDir, "nsvx-sign-in-390.png"), frame.png);
+        }
+      },
+    );
+  });
+
+  it("says the tab is coming, not to add a token, when the Gateway already has one", async () => {
+    await suite.withPage(
+      { viewport: { width: 390, height: 844 }, locale: "pt-PT", serviceWorkers: "block" },
+      async ({ page }) => {
+        await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          featureMethods: [...defaultControlUiFeatureMethods, "nsvx.view"],
+          methodResponses: {
+            "plugins.list": { plugins: [], diagnostics: [], mutationAllowed: true },
+            "nsvx.view": {
+              __mockError: {
+                code: "token-pending",
+                message: "NSVX does not offer this screen to a token yet.",
+              },
+            },
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx`);
+        const surface = page.locator(".nsvx");
+        await surface.getByText("O NSVX ainda não abre isto com token.", { exact: true }).waitFor();
+        expect(await surface.getByText("Adicione o token NSVX neste Gateway.").count()).toBe(0);
+        if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
+          const frame = await takeControlUiScreenshotFrame(page, surface, [], {
+            animations: "disabled",
+            viewport: { width: 390, height: 844 },
+          });
+          await writeFile(path.join(suite.artifactDir, "nsvx-token-pending-390.png"), frame.png);
         }
       },
     );
