@@ -1,6 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createNsvxClient, type NsvxErrorKind } from "./client.js";
-import { parseNsvxConfig } from "./config.js";
+import { parseNsvxConfig, readNsvxToken } from "./config.js";
 import { readNsvxStatus } from "./gateway.js";
 
 const json = (status: number, body: unknown) =>
@@ -39,6 +42,27 @@ describe("nsvx client", () => {
     const client = createNsvxClient({ baseUrl: "https://nsvx.test", token: undefined, fetchImpl });
     expect(await kindOf(client.listActions())).toBe("unconfigured");
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("sends the current token on every call and never a cookie", async () => {
+    const fetchImpl = vi.fn(async (_url: string, _init: RequestInit) => json(200, { actions: [] }));
+    let token: string | undefined = "first";
+    const client = createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: () => token,
+      fetchImpl,
+    });
+    await client.listActions();
+    token = "rotated";
+    await client.listActions();
+    expect(fetchImpl.mock.calls.map(([, init]) => init.headers)).toEqual([
+      expect.objectContaining({ Authorization: "Bearer first" }),
+      expect.objectContaining({ Authorization: "Bearer rotated" }),
+    ]);
+    expect(JSON.stringify(fetchImpl.mock.calls)).not.toContain("Cookie");
+    token = undefined;
+    expect(await kindOf(client.listActions())).toBe("unconfigured");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
   it("reports a lost write as uncertain, once, and a lost read as offline", async () => {
@@ -102,7 +126,22 @@ describe("nsvx owner views", () => {
     const fetchImpl = vi.fn();
     expect(await kindOf(ownerClient(fetchImpl).readOwnerView("toString"))).toBe("invalid");
     expect(await kindOf(ownerClient(fetchImpl).readOwnerView("missionEvents"))).toBe("invalid");
-    expect(await kindOf(clientWith(fetchImpl).readOwnerView("today"))).toBe("unconfigured");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("never sends a token to a human route, and says which sign-in is missing", async () => {
+    const fetchImpl = vi.fn();
+    const noSignIn = createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: undefined,
+      fetchImpl,
+    });
+    expect(await kindOf(noSignIn.readOwnerView("today"))).toBe("unconfigured");
+    expect(await kindOf(clientWith(fetchImpl).readOwnerView("today"))).toBe("token-pending");
+    expect(await kindOf(clientWith(fetchImpl).readOwnerPost("find", { q: "ana" }))).toBe(
+      "token-pending",
+    );
+    expect(await kindOf(clientWith(fetchImpl).writeOwner("reply", "c1", {}))).toBe("token-pending");
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
@@ -206,6 +245,43 @@ describe("nsvx owner read posts", () => {
     expect(fetchImpl.mock.calls[0]?.[0]).toBe(
       "https://nsvx.test/api/auto/activity/export?start=2026-11-01&end=2026-11-05&ids=1%2C2",
     );
+  });
+});
+
+describe("readNsvxToken", () => {
+  const dirs: string[] = [];
+  const tokenFile = (content: string) => {
+    const dir = mkdtempSync(path.join(tmpdir(), "nsvx-token-"));
+    dirs.push(dir);
+    const file = path.join(dir, "token");
+    writeFileSync(file, content, { mode: 0o600 });
+    return file;
+  };
+  afterEach(() => {
+    for (const dir of dirs.splice(0)) {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("prefers the trimmed file and rereads it after rotation", () => {
+    const file = tokenFile("from-file\n");
+    const env = { NSVX_AGENTOS_TOKEN_FILE: file, NSVX_AGENTOS_TOKEN: "inline" };
+    expect(readNsvxToken(env)).toBe("from-file");
+    writeFileSync(file, "rotated\n");
+    expect(readNsvxToken(env)).toBe("rotated");
+  });
+
+  it("means no token when the named file is missing or empty, without using the inline value", () => {
+    for (const NSVX_AGENTOS_TOKEN_FILE of [path.join(tmpdir(), "nsvx-none"), tokenFile("\n")]) {
+      expect(
+        readNsvxToken({ NSVX_AGENTOS_TOKEN_FILE, NSVX_AGENTOS_TOKEN: "inline" }),
+      ).toBeUndefined();
+    }
+  });
+
+  it("uses the inline value only when no file is named", () => {
+    expect(readNsvxToken({ NSVX_AGENTOS_TOKEN: " inline " })).toBe("inline");
+    expect(readNsvxToken({})).toBeUndefined();
   });
 });
 
