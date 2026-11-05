@@ -9,6 +9,8 @@ import { createSignal, For, Show } from "solid-js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { agendaTranslator } from "./agenda-i18n.js";
 import { AgendaTab } from "./agenda-tab.js";
+import { appsTranslator } from "./apps-i18n.js";
+import { APPS_SECTIONS, AppsTab, type AppsOpen } from "./apps-tab.js";
 import { FinanceTab } from "./finance-tab.js";
 import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
@@ -44,6 +46,7 @@ type Tab =
   | "agenda"
   | "people"
   | "money"
+  | "apps"
   | "team"
   | "actions"
   | "progress";
@@ -380,6 +383,7 @@ const TABS: Tab[] = [
   "agenda",
   "people",
   "money",
+  "apps",
   "team",
   "actions",
   "progress",
@@ -395,6 +399,8 @@ const mountNsvx: ControlUiView = (container, context) => {
   const label = (id: Tab) =>
     id === "agenda"
       ? agendaTranslator(locale())("agenda")
+      : id === "apps"
+        ? appsTranslator(locale())("apps")
       : id === "messages" || id === "reply"
         ? mt(id)
         : id === "people"
@@ -416,6 +422,12 @@ const mountNsvx: ControlUiView = (container, context) => {
         ? { kind: "group", id: groupParam }
         : undefined,
   );
+  const appsParam = search.get("apps") ?? "";
+  const [appsOpen, setAppsOpen] = createSignal<AppsOpen | undefined>(
+    appsParam.startsWith("app:") || (APPS_SECTIONS as readonly string[]).includes(appsParam)
+      ? (appsParam as AppsOpen)
+      : undefined,
+  );
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
@@ -428,6 +440,7 @@ const mountNsvx: ControlUiView = (container, context) => {
       draft?: string;
       event?: string;
       people?: PeopleOpen;
+      apps?: AppsOpen;
     } = {},
   ) => {
     const url = new URL(location.href);
@@ -462,6 +475,11 @@ const mountNsvx: ControlUiView = (container, context) => {
         url.searchParams.delete(kind);
       }
     }
+    if (nextTab === "apps" && open.apps) {
+      url.searchParams.set("apps", open.apps);
+    } else {
+      url.searchParams.delete("apps");
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -473,7 +491,12 @@ const mountNsvx: ControlUiView = (container, context) => {
       draft: draft(),
       event: eventId(),
       people: personOpen(),
+      apps: appsOpen(),
     });
+  };
+  const openApps = (open: AppsOpen) => {
+    setAppsOpen(open);
+    remember(tab(), { apps: open });
   };
   const openMission = (id: string | undefined) => {
     setMission(id);
@@ -661,6 +684,16 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "apps"}>
+              <AppsTab
+                host={host}
+                t={t}
+                locale={locale()}
+                query={query()}
+                open={appsOpen()}
+                onOpen={openApps}
+              />
             </Show>
 
             <Show when={tab() === "team"}>

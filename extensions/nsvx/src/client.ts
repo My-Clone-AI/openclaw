@@ -198,6 +198,22 @@ const OWNER_VIEWS = {
   socialGroups: { path: "/api/social-groups", query: ["state", "person_id", "limit", "after"] },
   socialGroup: { path: "/api/social-groups/{id}" },
   conversationContext: { path: "/api/conversations/{id}/context" },
+  // Apps and access (`/apps`, `/permissoes`): connected accounts, browser logins, sign-in devices, and grants.
+  apps: { path: "/api/apps/freshness" },
+  appsSchedule: { path: "/api/apps/freshness/schedule" },
+  // `refresh=true` asks the browser for a new QR code, as the NSVX screen does when a code expires.
+  appLogin: { path: "/api/apps/{id}/login", query: ["refresh"] },
+  appLoginView: { path: "/api/apps/{id}/login/view" },
+  appLoginFields: { path: "/api/apps/{id}/login/fields" },
+  appApi: { path: "/api/meta-messaging/accounts/{id}" },
+  challenges: { path: "/api/browser-challenges" },
+  challengeView: { path: "/api/browser-challenges/{id}/view" },
+  devices: { path: "/api/auth/devices" },
+  appleIds: { path: "/api/auth/apple/identities" },
+  grants: { path: "/api/permissions" },
+  grantPeople: { path: "/api/permissions/people", query: ["q"] },
+  credentials: { path: "/api/credentials" },
+  credentialImport: { path: "/api/credentials/import/{id}" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -213,6 +229,8 @@ type OwnerWriteSpec = {
   path: string;
   query?: readonly string[];
   idempotency?: string;
+  /** NSVX's own wait for slow browser work, when longer than the default. */
+  timeoutMs?: number;
 };
 
 const OWNER_WRITES = {
@@ -271,6 +289,28 @@ const OWNER_WRITES = {
     query: ["group_id", "person_id"],
     idempotency: "Idempotency-Key",
   },
+  // Apps and access: the owner's taps on the NSVX Apps, Acesso, and Permissões screens (apps.ts limits bodies).
+  appPause: { method: "POST", path: "/api/apps/{id}" },
+  appCheck: { method: "POST", path: "/api/apps/{id}/check", timeoutMs: 120_000 },
+  appRiskAck: { method: "POST", path: "/api/apps/{id}/risk-ack" },
+  appLoginFill: { method: "POST", path: "/api/apps/{id}/login/fill" },
+  appLoginInput: { method: "POST", path: "/api/apps/{id}/login/input" },
+  // Audited look at the signed-in app; NSVX waits up to 150 s for the browser.
+  appScreen: { method: "POST", path: "/api/apps/{id}/browser-recovery", timeoutMs: 160_000 },
+  appApiCheck: { method: "POST", path: "/api/meta-messaging/accounts/{id}/check" },
+  appsSchedule: { method: "PUT", path: "/api/apps/freshness/schedule" },
+  challengeInput: { method: "POST", path: "/api/browser-challenges/{id}/input" },
+  challengeResume: { method: "POST", path: "/api/browser-challenges/{id}/resume" },
+  sessionEnd: { method: "POST", path: "/api/auth/sessions/{id}/revoke" },
+  passkeyRevoke: { method: "POST", path: "/api/auth/devices/{id}/revoke" },
+  appleUnlink: { method: "POST", path: "/api/auth/apple/identities/{id}/revoke" },
+  grantAdd: { method: "POST", path: "/api/permissions/people" },
+  grantSave: { method: "PUT", path: "/api/permissions/people/{id}" },
+  grantLogin: { method: "PUT", path: "/api/permissions/people/{id}/account" },
+  credentialAdd: { method: "POST", path: "/api/credentials" },
+  credentialReplace: { method: "POST", path: "/api/credentials/{id}" },
+  credentialRevoke: { method: "POST", path: "/api/credentials/{id}/revoke" },
+  credentialImport: { method: "POST", path: "/api/credentials/import" },
 } as const satisfies Record<string, OwnerWriteSpec>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
@@ -445,7 +485,7 @@ export function createNsvxClient(options: {
             : {}),
         },
         body: JSON.stringify(body ?? {}),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(spec.timeoutMs ?? TIMEOUT_MS),
       });
     } catch {
       throw new NsvxError("uncertain", "NSVX did not confirm the result. Check before repeating.");

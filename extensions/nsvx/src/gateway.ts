@@ -10,6 +10,7 @@ import {
   selectCalendar,
   submitChange,
 } from "./agenda.js";
+import { changeAccess, changeApp } from "./apps.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import {
@@ -163,6 +164,10 @@ export function registerNsvxGatewayMethods(
   // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
   method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));
   method("nsvx.groups.change", "operator.write", (params) => changeGroup(client, params));
+  // Apps reads through nsvx.view; these are the Apps taps (pause, check, sign in, visual checks). None sends a message.
+  method("nsvx.apps.change", "operator.write", (params) => changeApp(client, params));
+  // Who can enter NSVX and what they may see: the same scope as config changes.
+  method("nsvx.access.change", "operator.admin", (params) => changeAccess(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

@@ -68,6 +68,12 @@ const ICONS = {
   send: "M4 12 20 4l-4 16-4-7zm8 1 8-9",
   hand: "M8 13V5a1.5 1.5 0 0 1 3 0v6m0-1V4a1.5 1.5 0 0 1 3 0v6m0-1V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3 14a1.5 1.5 0 0 1 2.4-1.8L8 15",
   copy: "M9 9h11v11H9zM5 15H4V4h11v1",
+  apps: "M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z",
+  key: "M15 9a3 3 0 1 0 0-.01M12.5 11.5 3 21m3-3 2 2m1-5 2 2",
+  shield: "M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6zm-3 9 2 2 4-4",
+  qr: "M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z",
+  eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12m10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
+  server: "M4 4h16v6H4zm0 10h16v6H4zm3-7h.01M7 17h.01",
 } as const;
 
 export type IconName = keyof typeof ICONS;
