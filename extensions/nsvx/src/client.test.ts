@@ -169,21 +169,30 @@ describe("nsvx owner read posts", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
-  it("runs AgentOS for Control as the owner, while chat stays on the agent token", async () => {
-    const fetchImpl = vi.fn(async (url: string) =>
-      url.endsWith("/api/auth/state")
-        ? json(200, { authenticated: true, csrf: "csrf-1" })
-        : json(200, { id: "a1", state: "approved" }),
-    );
-    const client = owner(fetchImpl);
+  it("runs AgentOS for Control on the same Bearer token as chat; never the owner session", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fetchImpl: typeof fetch = async (url, init) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return json(200, { id: "a1", status: "approved" });
+    };
+    const client = createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: "secret",
+      ownerSession: "c",
+      fetchImpl,
+    });
     await client.control.decideApproval("a1", "approve");
-    const [url, init] = fetchImpl.mock.calls[1] as unknown as [string, RequestInit];
+    const { url, init } = calls[0]!;
     expect(url).toBe("https://nsvx.test/api/agentos/v1/approvals/a1/approve");
-    expect(init.headers).toMatchObject({ Cookie: "clone_session=c", "X-CSRF-Token": "csrf-1" });
-    expect(init.headers).not.toHaveProperty("Authorization");
-    // No token on this Gateway: the chat lane never borrows the owner's session.
-    expect(await kindOf(client.listActions())).toBe("unconfigured");
-    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(init.headers).toMatchObject({ Authorization: "Bearer secret" });
+    expect((init.headers as Record<string, string>).Cookie).toBeUndefined();
+    const blocked = createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: undefined,
+      ownerSession: "c",
+      fetchImpl,
+    });
+    await expect(blocked.control.listActions()).rejects.toMatchObject({ kind: "unconfigured" });
   });
 
   it("downloads the activity CSV as NSVX builds it", async () => {

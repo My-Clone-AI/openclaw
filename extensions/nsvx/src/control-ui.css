@@ -13,9 +13,16 @@
   margin-bottom: var(--space-4);
 }
 
+/* Wraps on desktop so every tab stays visible; phones show one icon row. */
 .nsvx__tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-1);
+  max-width: 100%;
+}
+
+.nsvx__tab {
+  white-space: nowrap;
 }
 
 .nsvx__tab,
@@ -711,10 +718,16 @@
   .nsvx__tabs {
     display: grid;
     grid-template-columns: repeat(7, minmax(44px, 1fr));
+  /* One scrolling row of icons; each keeps a 44px touch target. */
+  .nsvx__tabs {
+    flex-wrap: nowrap;
     width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .nsvx__tab {
+    flex: 1 0 44px;
     padding: 0;
   }
 

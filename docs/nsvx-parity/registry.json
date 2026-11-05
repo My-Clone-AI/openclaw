@@ -1559,7 +1559,7 @@
       "title": "Agenda",
       "family": "06",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/agenda"
@@ -1589,12 +1589,27 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.agenda.summary",
+          "nsvx.agenda.slots",
+          "nsvx.agenda.preview",
+          "nsvx.agenda.help",
+          "nsvx.agenda.submit",
+          "nsvx.agenda.select",
+          "nsvx.agenda.meeting"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agenda"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/workspace; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Agenda tab and the nsvx_agenda tool use NSVX /api/workspace with the owner session: reads through nsvx.view (status, calendars, events with live=1 on open, one event, an intent); free times, day summary, meeting prep, agenda and reply drafts, and the exact terms preview as CSRF POST reads; create, change, and cancel only through NSVX preview then /api/workspace/actions with the preview terms hash and one client key per intent, so NSVX keeps its own approval, idempotency, and audit. Chat never runs a change Google would announce to guests: it returns needsOwner with the terms.",
       "verification": {
         "requires": [
           "discovery",
@@ -1609,22 +1624,34 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
         "level": "source",
         "source": [
           "web/src/screens/Agenda.tsx",
-          "backend/clone/google_workspace/"
+          "backend/clone/google_workspace/api.py",
+          "backend/clone/google_workspace/ops.py",
+          "extensions/nsvx/src/agenda-tab.tsx",
+          "extensions/nsvx/src/agenda.ts",
+          "extensions/nsvx/src/client.ts",
+          "extensions/nsvx/src/tools.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-agenda.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX /api/workspace payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-agenda/): week view with clash and Meet marks, one live read on open, day summary, month grid with day list, event guests and replies, agenda draft, booking from a free time through preview, Book, and the tracked NSVX intent (submitted once with the preview hash); not-connected state in pt-PT. extensions/nsvx/src/agenda.test.ts: operation allowlist, terms hash, client key, owner-only chat tool that never invites."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX or Google account.",
+        "Not native yet: follow-up Gmail send/draft from an event, Google Tasks and Contacts panels, ICS feed download, and owner reminders."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Sources were read at clone develop 02fb14f6f5efbc51b24e664249aff6288953b98d (this runner lacks the pinned commit); Agenda.tsx and google_workspace/api.py exist there."
       ]
     },
     {
@@ -5346,7 +5373,7 @@
       "title": "Desktop app",
       "family": "22",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [],
         "backendPackages": [
@@ -5359,6 +5386,7 @@
         "sourceFiles": [
           "backend/clone/desktop_memory.py",
           "backend/clone/desktop_skills.py",
+          "backend/clone/desktop_sync.py",
           "backend/clone/desktop_tasks.py"
         ],
         "permissions": [
@@ -5369,12 +5397,25 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.desktop.bots.save",
+          "nsvx.desktop.jobs.stop",
+          "nsvx.desktop.jobs.stopAll",
+          "nsvx.desktop.memory.correct",
+          "nsvx.desktop.memory.forget"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_device"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin: nsvx.view reads /api/desktop/bots, /tasks, /memory/{bot}/*, and /skills with GET only (OWNER_VIEWS in extensions/nsvx/src/client.ts); bot saves (versioned, 409 on conflict), job stops, and memory fix and forget are one fixed OWNER_WRITES route each with the owner session and its CSRF token. Device tab (Jobs, Bots, Memory, Skills) is native Solid in extensions/nsvx/src/device-tab.tsx and device-memory.tsx. Chat: nsvx_device on owner turns lists bots, jobs, skills, and memory recall, and stops jobs; bot edits and memory changes stay on the page.",
       "verification": {
         "requires": [
           "discovery",
@@ -5389,29 +5430,43 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/desktop_memory.py",
           "backend/clone/desktop_skills.py",
-          "backend/clone/desktop_tasks.py"
+          "backend/clone/desktop_sync.py",
+          "backend/clone/desktop_tasks.py",
+          "extensions/nsvx/src/device.ts",
+          "extensions/nsvx/src/device-tab.tsx",
+          "extensions/nsvx/src/device-memory.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-device.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide: job counts and progress, Stop and Stop all requests, new bot with id from its name and version 0, memory recall with level and match, Forget, skill steps; screenshots in ui/e2e-shots/nsvx-device",
+          "extensions/nsvx/src/device.test.ts, 2026-11-05: nsvx_device is owner-only and a replayed tool call reuses one key"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX.",
+        "NSVX's linked-device credential (mac_node Hub) is not used: Control acts as the owner, not as a desktop device."
       ],
-      "unknowns": []
+      "unknowns": [
+        "No NSVX producer writes desktop_background_tasks yet (DESKTOP.md: API only), so the live job list may be empty."
+      ]
     },
     {
       "id": "health-and-legal",
       "title": "Health and legal pages",
       "family": "22",
       "priority": "P3",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [],
         "backendPackages": [
@@ -5432,11 +5487,11 @@
           "/data-deletion"
         ],
         "sourceFiles": [
-          "backend/clone/browser/service.py",
-          "backend/clone/credentials/bank_service.py",
           "backend/clone/legal.py",
+          "backend/clone/legal_content.py",
           "backend/clone/main.py",
-          "backend/clone/telnyx_dev_service.py"
+          "backend/clone/readiness.py",
+          "backend/clone/runtime_execution.py"
         ],
         "permissions": [
           "public"
@@ -5446,12 +5501,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.health",
+          "nsvx.legal",
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_device"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin: nsvx.health reads /healthz, /readyz (503 is data), and /runtimez, each probe on its own, adding the owner session only when set (NSVX then shows which checks fail); nsvx.legal reads /privacy, /terms, /cookies, /data-deletion in pt or en and turns NSVX's HTML into plain blocks drawn natively (extensions/nsvx/src/health-tab.tsx); nsvx.view reads /api/runtime/execution for one job's attempts. Chat: nsvx_device health and legal.",
       "verification": {
         "requires": [
           "discovery",
@@ -5466,21 +5531,31 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "data",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/browser/service.py",
-          "backend/clone/credentials/bank_service.py",
           "backend/clone/legal.py",
-          "backend/clone/main.py"
+          "backend/clone/main.py",
+          "backend/clone/readiness.py",
+          "extensions/nsvx/src/device.ts",
+          "extensions/nsvx/src/health-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "Live read-only run of extensions/nsvx/src/device.ts readHealth and readLegal against https://nsvx.com, 2026-11-05: live ok, ready, release digest read; all 4 legal pages in pt and en parsed (privacy 13 sections, terms 8, cookies 3, data deletion 4). No session, no writes.",
+          "ui/src/e2e/nsvx-device.e2e.test.ts, 2026-11-05: Health (status, checks, warnings, job attempts) and Legal (pages, languages, sections, table, mail link) at 1280 and 390 wide against a mock Gateway; screenshots in ui/e2e-shots/nsvx-device"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Job attempts (/api/runtime/execution) and the failing-check detail of /readyz need NSVX_OWNER_SESSION; without it Control shows ready or not ready only."
       ],
       "unknowns": []
     },
@@ -5489,7 +5564,7 @@
       "title": "Offline sync",
       "family": "22",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/"
@@ -5503,7 +5578,8 @@
         ],
         "sourceFiles": [
           "backend/clone/offline_sync.py",
-          "web/src/screens/TodayScreen.tsx"
+          "web/src/components/OfflinePanel.tsx",
+          "web/src/offlineTransport.ts"
         ],
         "permissions": [
           "owner session + CSRF"
@@ -5513,12 +5589,24 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.sync.overview",
+          "nsvx.sync.save",
+          "nsvx.sync.promote",
+          "nsvx.sync.discard",
+          "nsvx.sync.confirm"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_device"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin: nsvx.sync.overview reads /api/sync/changes and trims it (counts, held tasks, unsent drafts, names; no message history reaches the browser); nsvx.sync.save sends NSVX's four replayable changes (task, draft, rename task, rename person) to /api/sync/mutations with the caller's key and time; promote (Idempotency-Key), discard, and confirm send are one fixed route each. Sync section in extensions/nsvx/src/device-sync.tsx; a draft sends only after Review then Send. Chat: nsvx_device sync and promote; it never sends.",
       "verification": {
         "requires": [
           "discovery",
@@ -5533,21 +5621,33 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/offline_sync.py",
-          "web/src/screens/TodayScreen.tsx"
+          "web/src/components/OfflinePanel.tsx",
+          "extensions/nsvx/src/device.ts",
+          "extensions/nsvx/src/device-sync.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-device.e2e.test.ts, 2026-11-05: Sync at 1280 and 390 wide against a mock Gateway: counts, held task Create task with a UUID key, draft Review then Send, new task save, rename; screenshots in ui/e2e-shots/nsvx-device",
+          "extensions/nsvx/src/device.test.ts, 2026-11-05: changes go out as NSVX replay records with the caller's key and time; other kinds are refused; the projection drops message bodies"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment. Not yet run against a live NSVX.",
+        "Captures (Do it photos) are not offered: NSVX admits them only on its development runtime, as base64 uploads up to 5 MB."
       ],
-      "unknowns": []
+      "unknowns": [
+        "Control needs the Gateway, so it has no on-device outbox while offline like the NSVX web app; it reads and changes the same server-side sync records."
+      ]
     }
   ]
 }
