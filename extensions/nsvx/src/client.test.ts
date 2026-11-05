@@ -114,6 +114,51 @@ describe("nsvx owner views", () => {
   });
 });
 
+describe("nsvx owner read posts", () => {
+  const owner = (fetchImpl: (url: string, init: RequestInit) => Promise<Response>) =>
+    createNsvxClient({
+      baseUrl: "https://nsvx.test",
+      token: undefined,
+      ownerSession: "c",
+      fetchImpl,
+    });
+
+  it("sends search with this session's CSRF token, only to the fixed path", async () => {
+    const fetchImpl = vi.fn(async (url: string) =>
+      url.endsWith("/api/auth/state")
+        ? json(200, { authenticated: true, csrf: "csrf-1" })
+        : json(200, { groups: [] }),
+    );
+    await owner(fetchImpl).readOwnerPost("find", { q: "ana", limit: 5 });
+    const [url, init] = fetchImpl.mock.calls[1] as unknown as [string, RequestInit];
+    expect(url).toBe("https://nsvx.test/api/find");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toMatchObject({ "X-CSRF-Token": "csrf-1", Cookie: "clone_session=c" });
+    expect(JSON.parse(init.body as string)).toEqual({ q: "ana", limit: 5 });
+    expect(await kindOf(owner(fetchImpl).readOwnerPost("send" as "find", {}))).toBe("invalid");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops when NSVX no longer accepts the session", async () => {
+    const fetchImpl = vi.fn(async () => json(200, { authenticated: false, csrf: null }));
+    expect(await kindOf(owner(fetchImpl).readOwnerPost("activitySummary", {}))).toBe("signed-out");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("downloads the activity CSV as NSVX builds it", async () => {
+    const fetchImpl = vi.fn(async () => new Response("at_utc,kind\n", { status: 200 }));
+    const csv = await owner(fetchImpl).exportActivity({
+      start: "2026-11-01",
+      end: "2026-11-05",
+      ids: "1,2",
+    });
+    expect(csv).toBe("at_utc,kind\n");
+    expect(fetchImpl.mock.calls[0]?.[0]).toBe(
+      "https://nsvx.test/api/auto/activity/export?start=2026-11-01&end=2026-11-05&ids=1%2C2",
+    );
+  });
+});
+
 describe("parseNsvxConfig", () => {
   it("defaults to NSVX and accepts only an origin", () => {
     expect(parseNsvxConfig(undefined).baseUrl).toBe("https://nsvx.com");

@@ -62,7 +62,7 @@ function RowList(props: { rows: Row[]; t: T; onMission: (id: string) => void }) 
   );
 }
 
-function Tiles<K extends string>(props: {
+export function Tiles<K extends string>(props: {
   items: { id: K; icon: IconName; label: string; count: number; tone?: string | undefined }[];
   selected: K | undefined;
   onSelect: (id: K) => void;

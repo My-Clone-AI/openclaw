@@ -1,4 +1,6 @@
 import { jsonResult } from "openclaw/plugin-sdk/core";
+import { activityRange, findRequest, FIND_GROUPS, type FindResult } from "./activity-requests.js";
+import { filterActivity, type ActivityPage, type ActivitySummary } from "./activity-data.js";
 import type { AnyAgentTool, OpenClawPluginToolContext } from "openclaw/plugin-sdk/plugin-entry";
 import { Type } from "typebox";
 import type { NsvxClient } from "./client.js";
@@ -121,4 +123,135 @@ export function createNsvxTeamTool(
           : team.resume(params.agentId, "chat");
       }),
   } as AnyAgentTool;
+}
+
+/** NSVX keeps 200 entries per page; the tool reads at most this many while filtering. */
+const ACTIVITY_SCAN = 200;
+
+export const NSVX_OWNER_TOOL_NAMES = ["nsvx_search", "nsvx_activity"] as const;
+
+/**
+ * Tools over the owner's own NSVX data (people, conversations, tasks, documents, activity). Always offered so the
+ * prompt prefix stays stable; each call answers only on the owner's own turn, so a channel guest never reads them.
+ */
+export function createNsvxOwnerTools(
+  client: NsvxClient,
+  context: OpenClawPluginToolContext<2>,
+): AnyAgentTool[] {
+  const owned = (run: () => Promise<unknown>) =>
+    outcome(async () => {
+      context.assertInvocationCurrent();
+      if (context.senderIsOwner !== true) {
+        throw new NsvxError("denied", "Only the owner can read NSVX search and activity.");
+      }
+      return run();
+    });
+  return [
+    {
+      name: "nsvx_search",
+      label: "NSVX search",
+      description:
+        "Search the owner's NSVX: people, conversations, tasks (missions), AUTO tasks, and documents, in one call. Read only. Answer from the returned titles, excerpts and meta.",
+      parameters: Type.Object(
+        {
+          query: Type.String({ minLength: 2, maxLength: 200, description: "Words to find." }),
+          groups: Type.Optional(
+            Type.Array(Type.Union(FIND_GROUPS.map((group) => Type.Literal(group))), {
+              description: "Only these groups; all when omitted.",
+            }),
+          ),
+          limit: Type.Optional(
+            Type.Integer({ minimum: 1, maximum: 30, description: "Per group." }),
+          ),
+        },
+        { additionalProperties: false },
+      ),
+      execute: (_toolCallId, params: { query: string; groups?: string[]; limit?: number }) =>
+        owned(async () => {
+          const result = await client.readOwnerPost<FindResult>(
+            "find",
+            findRequest({ q: params.query, groups: params.groups, limit: params.limit }),
+          );
+          return result.groups.map((group) => ({
+            group: group.group,
+            total: group.total,
+            error: group.error,
+            items: group.items.map((item) => ({
+              kind: item.ref.kind,
+              id: item.ref.id,
+              title: item.title,
+              excerpt: item.excerpt,
+              meta: item.meta,
+              updatedAt: item.updated_at,
+            })),
+          }));
+        }),
+    },
+    {
+      name: "nsvx_activity",
+      label: "NSVX activity",
+      description:
+        "Read the owner's NSVX AUTO activity log (what tasks did, newest first), filtered by words, kind, or UTC days. With summarize and both days, NSVX writes a short summary of that period instead. Read only.",
+      parameters: Type.Object(
+        {
+          query: Type.Optional(Type.String({ maxLength: 200 })),
+          kind: Type.Optional(
+            Type.String({ maxLength: 60, description: "Event kind, e.g. status." }),
+          ),
+          start: Type.Optional(Type.String({ description: "First UTC day, YYYY-MM-DD." })),
+          end: Type.Optional(Type.String({ description: "Last UTC day, YYYY-MM-DD." })),
+          summarize: Type.Optional(Type.Boolean()),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+        },
+        { additionalProperties: false },
+      ),
+      execute: (
+        _toolCallId,
+        params: {
+          query?: string;
+          kind?: string;
+          start?: string;
+          end?: string;
+          summarize?: boolean;
+          limit?: number;
+        },
+      ) =>
+        owned(async () => {
+          if (params.summarize) {
+            const range = activityRange({ start: params.start, end: params.end });
+            const summary = await client.readOwnerPost<ActivitySummary>("activitySummary", {
+              ...range,
+              ids: null,
+            });
+            return {
+              count: summary.count,
+              summary: summary.text,
+              unavailable: summary.unavailable,
+            };
+          }
+          const page = await client.readOwnerView<ActivityPage>("activity", {
+            limit: String(ACTIVITY_SCAN),
+          });
+          const items = filterActivity(page.items, {
+            query: params.query ?? "",
+            kind: params.kind ?? "",
+            start: params.start ?? "",
+            end: params.end ?? "",
+          });
+          return {
+            scanned: page.items.length,
+            matched: items.length,
+            items: items.slice(0, params.limit ?? 30).map((event) => ({
+              id: event.id,
+              at: event.at,
+              kind: event.kind,
+              summary: event.summary,
+              status: event.to_status,
+              actor: event.actor_name ?? event.actor,
+              task: event.task_title,
+            })),
+          };
+        }),
+    },
+  ] as AnyAgentTool[];
 }

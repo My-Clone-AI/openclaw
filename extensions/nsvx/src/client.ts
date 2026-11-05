@@ -112,9 +112,27 @@ const OWNER_VIEWS = {
   missionEvents: { path: "/api/missions/{id}/events", query: ["before"] },
   workSummary: { path: "/api/tarefas-ao-vivo/summary" },
   workTasks: { path: "/api/tarefas-ao-vivo/tasks", query: ["state", "q", "cursor"] },
+  activity: { path: "/api/auto/activity", query: ["limit", "before"] },
+  activityWorkflows: { path: "/api/auto/activity/workflows" },
+  activityCount: { path: "/api/auto/activity/export/count", query: ["start", "end", "ids"] },
 } as const satisfies Record<string, { path: string; query?: readonly string[] }>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
+
+/**
+ * NSVX reads that take their input in a POST body (so search text never reaches URLs or access logs). POST needs the
+ * session's CSRF token, which the Gateway fetches per call for these fixed paths only: no other POST is reachable, so
+ * the owner session still cannot change NSVX data.
+ */
+const OWNER_READ_POSTS = {
+  find: "/api/find",
+  activitySummary: "/api/auto/activity/summary",
+} as const;
+
+export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
+
+/** The CSV export streams; larger ranges than this must be split by the owner. */
+const EXPORT_MAX_CHARS = 5_000_000;
 
 const OWNER_COOKIE = "clone_session";
 
@@ -162,27 +180,47 @@ export function createNsvxClient(options: {
 }) {
   const fetchImpl = options.fetchImpl ?? guardedFetch;
 
-  async function readOwner<T>(path: string): Promise<T> {
+  async function ownerFetch(
+    path: string,
+    init: { body?: unknown; csrf?: string; accept?: string } = {},
+  ): Promise<Response> {
     if (!options.ownerSession) {
       throw new NsvxError("unconfigured", "NSVX owner sign-in is not set up on this Gateway.");
     }
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${path}`, {
-        method: "GET",
+        method: init.csrf ? "POST" : "GET",
         headers: {
-          Accept: "application/json",
+          Accept: init.accept ?? "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
+          ...(init.csrf ? { "Content-Type": "application/json", "X-CSRF-Token": init.csrf } : {}),
         },
+        ...(init.csrf ? { body: JSON.stringify(init.body ?? {}) } : {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
+      // Only reads reach here, so a lost connection never leaves an uncertain effect.
       throw new NsvxError("offline", "NSVX cannot be reached.");
     }
     if (!response.ok) {
       throw errorFor(response.status, await problemFrom(response), false, path);
     }
-    return (await response.json()) as T;
+    return response;
+  }
+
+  async function readOwner<T>(path: string): Promise<T> {
+    return (await (await ownerFetch(path)).json()) as T;
+  }
+
+  async function postOwnerRead<T>(path: string, body: unknown): Promise<T> {
+    const state = await readOwner<{ authenticated?: boolean; csrf?: string | null }>(
+      "/api/auth/state",
+    );
+    if (!state.authenticated || !state.csrf) {
+      throw new NsvxError("signed-out", "NSVX rejected the owner sign-in.");
+    }
+    return (await (await ownerFetch(path, { body, csrf: state.csrf })).json()) as T;
   }
 
   async function call<T>(
@@ -247,6 +285,30 @@ export function createNsvxClient(options: {
       params: Record<string, unknown> = {},
     ): Promise<T> {
       return readOwner(ownerViewPath(view, params));
+    },
+    /** Owner reads sent as POST: `find` (unified search) and `activitySummary`. */
+    async readOwnerPost<T = unknown>(
+      name: OwnerReadPost,
+      body: Record<string, unknown>,
+    ): Promise<T> {
+      if (!Object.hasOwn(OWNER_READ_POSTS, name)) {
+        throw new NsvxError("invalid", "Unknown NSVX view.");
+      }
+      return postOwnerRead(OWNER_READ_POSTS[name], body);
+    },
+    /** The AUTO activity CSV for UTC days `start`..`end`, optionally only some entry ids, as NSVX builds it. */
+    async exportActivity(range: { start: string; end: string; ids?: string }): Promise<string> {
+      const query = new URLSearchParams({ start: range.start, end: range.end });
+      if (range.ids) {
+        query.set("ids", range.ids);
+      }
+      const csv = await (
+        await ownerFetch(`/api/auto/activity/export?${query}`, { accept: "text/csv" })
+      ).text();
+      if (csv.length > EXPORT_MAX_CHARS) {
+        throw new NsvxError("invalid", "Too much activity for one file. Pick fewer days.");
+      }
+      return csv;
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

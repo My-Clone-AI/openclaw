@@ -1,4 +1,6 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
+import { exportFileName } from "./activity-data.js";
+import { activityRange, findRequest } from "./activity-requests.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import parity from "./parity-data.json" with { type: "json" };
@@ -71,6 +73,25 @@ export function registerNsvxGatewayMethods(
       (params.params ?? {}) as Record<string, unknown>,
     ),
   );
+  // Unified search and the AUTO activity log: owner reads, also behind the owner-only chat tools in tools.ts.
+  method("nsvx.search", "operator.read", (params) =>
+    client.readOwnerPost("find", findRequest(params)),
+  );
+  method("nsvx.activity.summary", "operator.read", (params) => {
+    const range = activityRange(params);
+    return client.readOwnerPost("activitySummary", { ...range, ids: range.ids ?? null });
+  });
+  method("nsvx.activity.export", "operator.read", async (params) => {
+    const range = activityRange(params);
+    return {
+      fileName: exportFileName(range.start, range.end),
+      csv: await client.exportActivity({
+        start: range.start,
+        end: range.end,
+        ...(range.ids ? { ids: range.ids.join(",") } : {}),
+      }),
+    };
+  });
   method("nsvx.actions.list", "operator.read", async () => ({
     actions: await client.listActions(),
   }));

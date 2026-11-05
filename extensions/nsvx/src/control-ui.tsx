@@ -7,6 +7,7 @@ import {
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
 import { translator, type MessageKey } from "./i18n.js";
+import { ActivityTab, FindTab } from "./activity-tab.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
 import { ProgressTab } from "./progress-tab.js";
 import { TeamTab } from "./team-tab.js";
@@ -22,7 +23,7 @@ import {
 } from "./ui-kit.js";
 import "./control-ui.css";
 
-type Tab = "today" | "tasks" | "work" | "team" | "actions" | "progress";
+type Tab = "today" | "find" | "tasks" | "work" | "activity" | "team" | "actions" | "progress";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -345,7 +346,7 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "tasks", "work", "team", "actions", "progress"];
+const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "team", "actions", "progress"];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -404,7 +405,7 @@ const mountNsvx: ControlUiView = (container, context) => {
         <input
           class="nsvx__search"
           type="search"
-          placeholder={t("search")}
+          placeholder={t(tab() === "find" ? "findHint" : "search")}
           aria-label={t("search")}
           value={query()}
           onInput={(event) => setQuery(event.currentTarget.value)}
@@ -430,12 +431,20 @@ const mountNsvx: ControlUiView = (container, context) => {
             <Show when={tab() === "today"}>
               <TodayTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
             </Show>
+            <Show when={tab() === "find"}>
+              <FindTab host={host} t={t} query={query()} onMission={(id) => select("tasks", id)} />
+            </Show>
+
             <Show when={tab() === "tasks"}>
               <TasksTab host={host} t={t} query={query()} open={mission()} onOpen={openMission} />
             </Show>
             <Show when={tab() === "work"}>
               <WorkTab host={host} t={t} query={query()} />
             </Show>
+            <Show when={tab() === "activity"}>
+              <ActivityTab host={host} t={t} query={query()} />
+            </Show>
+
             <Show when={tab() === "team"}>
               <TeamTab host={host} t={t} query={query()} />
             </Show>

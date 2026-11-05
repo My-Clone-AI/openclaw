@@ -3,7 +3,12 @@ import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
-import { createNsvxTeamTool, createNsvxTools } from "./src/tools.js";
+import {
+  createNsvxOwnerTools,
+  createNsvxTeamTool,
+  createNsvxTools,
+  NSVX_OWNER_TOOL_NAMES,
+} from "./src/tools.js";
 
 export default definePluginEntry({
   id: "nsvx",
@@ -25,5 +30,15 @@ export default definePluginEntry({
       api.registerTool(tool);
     }
     api.registerTool((context) => createNsvxTeamTool(team, context), { name: "nsvx_team" });
+    for (const name of NSVX_OWNER_TOOL_NAMES) {
+      api.registerTool(
+        {
+          contextVersion: 2,
+          create: (context) =>
+            createNsvxOwnerTools(client, context).find((tool) => tool.name === name),
+        },
+        { name },
+      );
+    }
   },
 });
