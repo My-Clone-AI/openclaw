@@ -112,6 +112,10 @@ const ICONS = {
   skip: "M5 5l9 7-9 7zm14 0v14",
   scale: "M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zm14 0-3 7a3 3 0 0 0 6 0z",
   laptop: "M5 5h14v10H5zM2 19h20",
+  key: "M15 7a4 4 0 1 1-3.9 4.9L3 20v-3h3v-3h3l2.1-2.1A4 4 0 0 1 15 7m1 3h.01",
+  qr: "M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2zM6 6h2v2H6zm10 0h2v2h-2zM6 16h2v2H6z",
+  globe:
+    "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18",
 } as const;
 
 export type IconName = keyof typeof ICONS;

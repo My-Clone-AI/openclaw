@@ -1757,7 +1757,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX.",
         "nsvx_ai was unit tested, not run by a live agent turn.",
         "Account sign-in, adding or removing accounts, identity edits, evaluations, and request summaries are not in Control yet; they need the owner's provider login flow or stay NSVX-only."
       ],
@@ -1846,7 +1846,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX."
       ],
       "unknowns": [
         "Built and checked against clone develop 6cacba002b86415b2447b3606ddaab6bfa17634f; the routes used exist at the pin too."
@@ -1951,7 +1951,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX.",
         "nsvx_ai was unit tested, not run by a live agent turn.",
         "Benchmarks, dataset views, and per-metric charts of the bench dashboard are not in Control yet."
       ],
@@ -2043,7 +2043,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX.",
         "nsvx_ai was unit tested, not run by a live agent turn."
       ],
       "unknowns": [
@@ -2134,7 +2134,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX.",
         "nsvx_ai was unit tested, not run by a live agent turn."
       ],
       "unknowns": [
@@ -2233,7 +2233,7 @@
         ]
       },
       "blockers": [
-        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); with only NSVX_AGENTOS_TOKEN_FILE the tab shows Coming soon until NSVX serves AgentOS actions for these AI reads and changes. Not yet run against a live NSVX.",
         "nsvx_ai was unit tested, not run by a live agent turn.",
         "Creating, rotating, and revoking app keys and managing key users stay in NSVX: a new key is shown once and Control never handles secrets. Owner batches and per-server account overrides are not in Control yet."
       ],
