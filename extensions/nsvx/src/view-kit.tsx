@@ -8,11 +8,13 @@ export type T = (key: MessageKey) => string;
 /** One source's lifecycle; `data` survives a failed refresh so rows never vanish. */
 export type Source<V> = { data?: V; error?: string; loading: boolean };
 
-export const ICONS: Record<Tab | "refresh" | "stop" | "task", string> = {
+export const ICONS: Record<Tab | "refresh" | "stop" | "task" | "pause" | "resume", string> = {
   team: "M12 3v5m0 0a3 3 0 1 0 0 .01M5 21v-3a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3M12 11v4",
   actions: "M13 2 4 14h7l-1 8 9-12h-7z",
   progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
   stop: "M6 6h12v12H6z",
+  pause: "M8 5v14m8-14v14",
+  resume: "M7 4v16l13-8z",
   task: "M4 12 20 4l-4 16-4-7zm8 1 8-9",
   refresh: "M20 11a8 8 0 0 0-14.3-4L3 10m0-6v6h6m-5 3a8 8 0 0 0 14.3 4L21 14m0 6v-6h-6",
 };

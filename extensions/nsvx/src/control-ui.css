@@ -157,6 +157,10 @@
   background: var(--danger);
 }
 
+.nsvx__state--paused .nsvx__dot {
+  background: var(--warn);
+}
+
 .nsvx__chip {
   flex: none;
   padding: 2px var(--space-2);

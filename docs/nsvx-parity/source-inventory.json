@@ -3395,7 +3395,8 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "abliteration",
@@ -3403,7 +3404,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "acpx",
@@ -3413,7 +3415,8 @@
         "controlUi": false,
         "gatewayMethods": [
           "acpx.agents.list"
-        ]
+        ],
+        "tools": []
       },
       {
         "id": "active-memory",
@@ -3421,7 +3424,8 @@
           "memory"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "admin-http-rpc",
@@ -3429,7 +3433,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "advisor",
@@ -3437,7 +3442,8 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "agent-guidance",
@@ -3445,7 +3451,8 @@
           "other"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "agentsapi",
@@ -3453,7 +3460,8 @@
           "agent-runtimes"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "alibaba",
@@ -3461,7 +3469,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "amazon-bedrock",
@@ -3469,7 +3478,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "amazon-bedrock-mantle",
@@ -3477,7 +3487,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "anthropic",
@@ -3485,7 +3496,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "anthropic-vertex",
@@ -3493,7 +3505,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "apple-fm",
@@ -3501,7 +3514,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "arcee",
@@ -3509,7 +3523,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "autoreview",
@@ -3517,7 +3532,10 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "autoreview"
+        ]
       },
       {
         "id": "azure-speech",
@@ -3525,7 +3543,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "baseten",
@@ -3533,7 +3552,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "beam",
@@ -3541,7 +3561,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "bifrost",
@@ -3549,7 +3570,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "bonjour",
@@ -3557,7 +3579,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "brave",
@@ -3565,7 +3588,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "browser",
@@ -3573,7 +3597,10 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "browser"
+        ]
       },
       {
         "id": "buzz",
@@ -3581,7 +3608,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "byteplus",
@@ -3589,7 +3617,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "canvas",
@@ -3597,7 +3626,10 @@
           "documents-files"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "canvas"
+        ]
       },
       {
         "id": "cerebras",
@@ -3605,7 +3637,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "chutes",
@@ -3613,7 +3646,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "clawrouter",
@@ -3623,7 +3657,8 @@
         "controlUi": true,
         "gatewayMethods": [
           "clawrouter.pool.get"
-        ]
+        ],
+        "tools": []
       },
       {
         "id": "clickclack",
@@ -3631,7 +3666,10 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "discussion"
+        ]
       },
       {
         "id": "cloudflare",
@@ -3639,7 +3677,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "cloudflare-ai-gateway",
@@ -3647,7 +3686,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "code-mode-quickjs",
@@ -3655,7 +3695,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "codex",
@@ -3665,6 +3706,15 @@
         "controlUi": false,
         "gatewayMethods": [
           "codex.accountUsage"
+        ],
+        "tools": [
+          "codex_endpoint_probe",
+          "codex_plugins",
+          "codex_session_interrupt",
+          "codex_session_read",
+          "codex_session_send",
+          "codex_sessions_list",
+          "codex_threads"
         ]
       },
       {
@@ -3673,7 +3723,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "comfy",
@@ -3681,7 +3732,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "copilot",
@@ -3689,7 +3741,8 @@
           "agent-runtimes"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "copilot-proxy",
@@ -3697,7 +3750,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "crabbox",
@@ -3708,6 +3762,9 @@
         "gatewayMethods": [
           "crabbox.images.list",
           "crabbox.images.recover"
+        ],
+        "tools": [
+          "crabbox"
         ]
       },
       {
@@ -3716,7 +3773,8 @@
           "computer-use"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "deepgram",
@@ -3724,7 +3782,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "deepinfra",
@@ -3732,7 +3791,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "deepseek",
@@ -3740,7 +3800,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "device-pair",
@@ -3748,7 +3809,8 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "diagnostics-otel",
@@ -3756,7 +3818,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "diagnostics-prometheus",
@@ -3764,7 +3827,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "diffs",
@@ -3772,7 +3836,10 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "diffs"
+        ]
       },
       {
         "id": "diffs-language-pack",
@@ -3780,7 +3847,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "discord",
@@ -3788,7 +3856,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "document-extract",
@@ -3796,7 +3865,8 @@
           "documents-files"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "duckduckgo",
@@ -3804,7 +3874,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "elevenlabs",
@@ -3812,7 +3883,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "exa",
@@ -3820,7 +3892,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "facetime",
@@ -3828,7 +3901,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "facetime_call"
+        ]
       },
       {
         "id": "fal",
@@ -3836,7 +3912,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "featherless",
@@ -3844,7 +3921,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "feishu",
@@ -3852,7 +3930,23 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "feishu_app_scopes",
+          "feishu_bitable_create_app",
+          "feishu_bitable_create_field",
+          "feishu_bitable_create_record",
+          "feishu_bitable_get_meta",
+          "feishu_bitable_get_record",
+          "feishu_bitable_list_fields",
+          "feishu_bitable_list_records",
+          "feishu_bitable_update_record",
+          "feishu_chat",
+          "feishu_doc",
+          "feishu_drive",
+          "feishu_perm",
+          "feishu_wiki"
+        ]
       },
       {
         "id": "file-transfer",
@@ -3860,7 +3954,13 @@
           "documents-files"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "dir_fetch",
+          "dir_list",
+          "file_fetch",
+          "file_write"
+        ]
       },
       {
         "id": "firecrawl",
@@ -3868,7 +3968,11 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "firecrawl_scrape",
+          "firecrawl_search"
+        ]
       },
       {
         "id": "fireworks",
@@ -3876,7 +3980,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "fish-audio-speech",
@@ -3884,7 +3989,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "geolocation",
@@ -3894,7 +4000,8 @@
         "controlUi": false,
         "gatewayMethods": [
           "geolocation.lookup"
-        ]
+        ],
+        "tools": []
       },
       {
         "id": "github",
@@ -3902,7 +4009,11 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "github_read",
+          "github_search"
+        ]
       },
       {
         "id": "github-copilot",
@@ -3910,7 +4021,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "gmi",
@@ -3918,7 +4030,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "google",
@@ -3926,7 +4039,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "google-meet",
@@ -3949,6 +4063,9 @@
           "googlemeet.testListen",
           "googlemeet.testSpeech",
           "googlemeet.transcript"
+        ],
+        "tools": [
+          "google_meet"
         ]
       },
       {
@@ -3957,7 +4074,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "gradium",
@@ -3965,7 +4083,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "groq",
@@ -3973,7 +4092,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "huggingface",
@@ -3981,7 +4101,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "imap",
@@ -3989,7 +4110,8 @@
           "inbox-collaboration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "imessage",
@@ -3997,7 +4119,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "inworld",
@@ -4005,7 +4128,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "irc",
@@ -4013,7 +4137,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "kie",
@@ -4021,7 +4146,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "kilocode",
@@ -4029,7 +4155,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "kimi",
@@ -4037,7 +4164,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "knowledge",
@@ -4045,7 +4173,47 @@
           "memory"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "knowledge_annotate",
+          "knowledge_attach",
+          "knowledge_attach_file",
+          "knowledge_attachment",
+          "knowledge_chronicle_day",
+          "knowledge_chronicle_last_seen",
+          "knowledge_chronicle_since",
+          "knowledge_connections",
+          "knowledge_correct",
+          "knowledge_create_claim",
+          "knowledge_create_relationship",
+          "knowledge_diagnostics",
+          "knowledge_edit_body",
+          "knowledge_evidence_read",
+          "knowledge_extract_section",
+          "knowledge_grep",
+          "knowledge_history",
+          "knowledge_lookup",
+          "knowledge_merge",
+          "knowledge_mutation",
+          "knowledge_ontology",
+          "knowledge_publish_batch",
+          "knowledge_recall",
+          "knowledge_reconcile_evidence",
+          "knowledge_record",
+          "knowledge_records",
+          "knowledge_relink",
+          "knowledge_remember",
+          "knowledge_resume",
+          "knowledge_revision",
+          "knowledge_save_page",
+          "knowledge_source_check",
+          "knowledge_status",
+          "knowledge_supersede",
+          "knowledge_timeline",
+          "knowledge_unmerge",
+          "knowledge_verify",
+          "knowledge_withdraw"
+        ]
       },
       {
         "id": "levanto",
@@ -4053,7 +4221,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "line",
@@ -4061,7 +4230,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "linux-node",
@@ -4069,7 +4239,8 @@
           "infrastructure"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "liquid-ai",
@@ -4077,7 +4248,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "litellm",
@@ -4085,7 +4257,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "llama-cpp",
@@ -4093,7 +4266,10 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "local_image"
+        ]
       },
       {
         "id": "llm-task",
@@ -4101,7 +4277,10 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "llm-task"
+        ]
       },
       {
         "id": "lmstudio",
@@ -4109,7 +4288,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "lobster",
@@ -4117,7 +4297,10 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "lobster"
+        ]
       },
       {
         "id": "logbook",
@@ -4127,7 +4310,8 @@
         "controlUi": false,
         "gatewayMethods": [
           "logbook.status"
-        ]
+        ],
+        "tools": []
       },
       {
         "id": "longcat",
@@ -4135,7 +4319,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "matrix",
@@ -4143,7 +4328,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "mattermost",
@@ -4151,7 +4337,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "mcp-events",
@@ -4161,6 +4348,9 @@
         "controlUi": false,
         "gatewayMethods": [
           "mcp-events.status"
+        ],
+        "tools": [
+          "mcp_events"
         ]
       },
       {
@@ -4169,7 +4359,8 @@
           "infrastructure"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "memory-core",
@@ -4177,7 +4368,12 @@
           "memory"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "intent",
+          "memory_get",
+          "memory_search"
+        ]
       },
       {
         "id": "memory-lancedb",
@@ -4185,7 +4381,12 @@
           "memory"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "memory_forget",
+          "memory_recall",
+          "memory_store"
+        ]
       },
       {
         "id": "memory-wiki",
@@ -4193,7 +4394,14 @@
           "memory"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "wiki_apply",
+          "wiki_get",
+          "wiki_lint",
+          "wiki_search",
+          "wiki_status"
+        ]
       },
       {
         "id": "meta",
@@ -4201,7 +4409,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "microsoft",
@@ -4209,7 +4418,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "microsoft-foundry",
@@ -4217,7 +4427,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "migrate-claude",
@@ -4225,7 +4436,8 @@
           "integrations"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "migrate-hermes",
@@ -4233,7 +4445,8 @@
           "integrations"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "minimax",
@@ -4241,7 +4454,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "mistral",
@@ -4249,7 +4463,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "moonshot",
@@ -4257,7 +4472,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "msteams",
@@ -4265,7 +4481,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "muse",
@@ -4273,7 +4490,8 @@
           "agent-runtimes"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "mxc",
@@ -4281,7 +4499,8 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "nextcloud-talk",
@@ -4289,7 +4508,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "nostr",
@@ -4297,7 +4517,8 @@
           "channels"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "novita",
@@ -4305,7 +4526,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "nvidia",
@@ -4313,7 +4535,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "oc-path",
@@ -4321,7 +4544,8 @@
           "documents-files"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "ollama",
@@ -4329,7 +4553,10 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "node_inference"
+        ]
       },
       {
         "id": "omlx",
@@ -4337,7 +4564,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "onepassword",
@@ -4345,7 +4573,10 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "onepassword"
+        ]
       },
       {
         "id": "onnx",
@@ -4353,7 +4584,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "openai",
@@ -4361,7 +4593,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "opencode",
@@ -4369,7 +4602,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "opencode-go",
@@ -4377,7 +4611,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "openrouter",
@@ -4385,7 +4620,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "openshell",
@@ -4393,7 +4629,8 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "parallel",
@@ -4401,7 +4638,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "particle",
@@ -4409,7 +4647,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "perplexity",
@@ -4417,7 +4656,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "pixverse",
@@ -4425,7 +4665,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "policy",
@@ -4433,7 +4674,8 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "qa-channel",
@@ -4441,7 +4683,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "qa-lab",
@@ -4449,7 +4692,11 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "qa_restart_unsafe_probe",
+          "qa_restart_wait"
+        ]
       },
       {
         "id": "qianfan",
@@ -4457,7 +4704,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "qwen",
@@ -4465,7 +4713,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "radius",
@@ -4473,7 +4722,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "raft",
@@ -4481,7 +4731,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "reef",
@@ -4489,7 +4740,8 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "requesty",
@@ -4497,7 +4749,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "runway",
@@ -4505,7 +4758,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "searxng",
@@ -4513,7 +4767,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "senseaudio",
@@ -4521,7 +4776,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "session-share",
@@ -4529,7 +4785,8 @@
           "inbox-collaboration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "sglang",
@@ -4537,7 +4794,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "signal",
@@ -4545,7 +4803,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "skill-workshop",
@@ -4553,7 +4812,10 @@
           "agent-orchestration"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "skill_workshop"
+        ]
       },
       {
         "id": "slack",
@@ -4561,7 +4823,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "slack-huddles",
@@ -4569,7 +4832,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "slack_huddles"
+        ]
       },
       {
         "id": "sms",
@@ -4577,7 +4843,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "stepfun",
@@ -4585,7 +4852,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "subq",
@@ -4593,7 +4861,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "synology-chat",
@@ -4601,7 +4870,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "synthetic",
@@ -4609,7 +4879,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "talk-voice",
@@ -4617,7 +4888,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "talk_voice"
+        ]
       },
       {
         "id": "tavily",
@@ -4625,7 +4899,11 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "tavily_extract",
+          "tavily_search"
+        ]
       },
       {
         "id": "team-reports",
@@ -4633,7 +4911,8 @@
           "data-analytics"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "teams-meetings",
@@ -4641,7 +4920,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "teams_meetings"
+        ]
       },
       {
         "id": "telegram",
@@ -4649,7 +4931,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "tencent",
@@ -4657,7 +4940,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "tlon",
@@ -4665,7 +4949,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "together",
@@ -4673,7 +4958,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "tokenjuice",
@@ -4681,7 +4967,8 @@
           "context"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "tts-local-cli",
@@ -4689,7 +4976,8 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "twitch",
@@ -4697,7 +4985,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "typesafe",
@@ -4705,7 +4994,8 @@
           "developer-tools"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "vault",
@@ -4713,7 +5003,8 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "venice",
@@ -4721,7 +5012,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "vercel-ai-gateway",
@@ -4729,7 +5021,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "visitor-access",
@@ -4737,7 +5030,12 @@
           "security"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "visitor_invite",
+          "visitor_list",
+          "visitor_revoke"
+        ]
       },
       {
         "id": "vllm",
@@ -4745,7 +5043,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "voice-call",
@@ -4753,7 +5052,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "voice_call"
+        ]
       },
       {
         "id": "volcengine",
@@ -4761,7 +5063,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "voyage",
@@ -4769,7 +5072,8 @@
           "memory"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "vydra",
@@ -4777,7 +5081,8 @@
           "media"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "web-readability",
@@ -4785,7 +5090,8 @@
           "web"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "whatsapp",
@@ -4793,7 +5099,11 @@
           "channels"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "whatsapp_call",
+          "whatsapp_login"
+        ]
       },
       {
         "id": "workboard",
@@ -4801,7 +5111,47 @@
           "productivity"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "workboard_attachment_add",
+          "workboard_attachment_delete",
+          "workboard_attachment_read",
+          "workboard_block",
+          "workboard_board_archive",
+          "workboard_board_create",
+          "workboard_board_delete",
+          "workboard_boards",
+          "workboard_claim",
+          "workboard_comment",
+          "workboard_complete",
+          "workboard_create",
+          "workboard_decompose",
+          "workboard_dispatch",
+          "workboard_heartbeat",
+          "workboard_link",
+          "workboard_list",
+          "workboard_move",
+          "workboard_notify_advance",
+          "workboard_notify_events",
+          "workboard_notify_list",
+          "workboard_notify_subscribe",
+          "workboard_notify_unsubscribe",
+          "workboard_promote",
+          "workboard_proof",
+          "workboard_protocol_violation",
+          "workboard_read",
+          "workboard_reassign",
+          "workboard_reclaim",
+          "workboard_release",
+          "workboard_runs",
+          "workboard_sessions_board_move",
+          "workboard_sessions_board_read",
+          "workboard_sessions_board_update",
+          "workboard_specify",
+          "workboard_stats",
+          "workboard_unblock",
+          "workboard_worker_log"
+        ]
       },
       {
         "id": "x",
@@ -4809,7 +5159,8 @@
           "channels"
         ],
         "controlUi": true,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "xai",
@@ -4817,7 +5168,11 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "code_execution",
+          "x_search"
+        ]
       },
       {
         "id": "xiaomi",
@@ -4825,7 +5180,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "zai",
@@ -4833,7 +5189,8 @@
           "models"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "zalo",
@@ -4841,7 +5198,8 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": []
       },
       {
         "id": "zalouser",
@@ -4849,7 +5207,10 @@
           "channels"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "zalouser"
+        ]
       },
       {
         "id": "zoom-meetings",
@@ -4857,7 +5218,10 @@
           "voice"
         ],
         "controlUi": false,
-        "gatewayMethods": []
+        "gatewayMethods": [],
+        "tools": [
+          "zoom_meetings"
+        ]
       }
     ]
   },
@@ -5262,9 +5626,9 @@
     },
     "parity": {
       "discovered": 61,
-      "native": 7,
+      "native": 8,
       "partial": 13,
-      "missing": 41,
+      "missing": 40,
       "blocked": 0,
       "verified": 0,
       "families": [
@@ -5472,9 +5836,9 @@
           "id": "08",
           "name": "Agents",
           "discovered": 15,
-          "native": 7,
+          "native": 8,
           "partial": 3,
-          "missing": 5,
+          "missing": 4,
           "blocked": 0,
           "verified": 0
         },

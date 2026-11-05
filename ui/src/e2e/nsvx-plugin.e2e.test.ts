@@ -16,6 +16,22 @@ const entries = {
   tester: { identity: { name: "Tester" } },
 };
 
+const teamResponses = (paused: string[]) => ({
+  "config.get": { hash: "rev-1", parsed: { agents: { entries } } },
+  "agents.list": {
+    defaultId: "main",
+    agents: [{ id: "main" }, { id: "coder" }, { id: "tester" }],
+  },
+  "node.list": { nodes: [{ nodeId: "mac", displayName: "Mac" }] },
+  "sessions.list": {
+    sessions: [
+      { key: "agent:coder:main", agentId: "coder", hasActiveRun: true },
+      { key: "agent:tester:main", agentId: "tester" },
+    ],
+  },
+  "nsvx.team.paused": { paused: paused.map((id) => ({ id, supervisors: ["coder"] })) },
+});
+
 suite.define(() => {
   it("stops a running agent and sends a task from the team chart", async () => {
     await suite.withPage(
@@ -25,18 +41,7 @@ suite.define(() => {
           nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
           operatorScopes: ["operator.admin"],
           methodResponses: {
-            "config.get": { hash: "rev-1", parsed: { agents: { entries } } },
-            "agents.list": {
-              defaultId: "main",
-              agents: [{ id: "main" }, { id: "coder" }, { id: "tester" }],
-            },
-            "node.list": { nodes: [{ nodeId: "mac", displayName: "Mac" }] },
-            "sessions.list": {
-              sessions: [
-                { key: "agent:coder:main", agentId: "coder", hasActiveRun: true },
-                { key: "agent:tester:main", agentId: "tester" },
-              ],
-            },
+            ...teamResponses([]),
             "sessions.abort": { ok: true },
             agent: { runId: "run-1", status: "accepted" },
           },
@@ -86,6 +91,62 @@ suite.define(() => {
         expect(typeof sent.idempotencyKey).toBe("string");
         await coder.getByText("Sent", { exact: true }).waitFor();
         await expect.poll(() => coder.getByRole("textbox", { name: "Task" }).inputValue()).toBe("");
+      },
+    );
+  });
+
+  it("pauses an agent after a confirm and resumes a paused one", async () => {
+    await suite.withPage(
+      { viewport: desktop, locale: "en-US", serviceWorkers: "block" },
+      async ({ page }) => {
+        const gateway = await installMockGateway(page, {
+          nativePlugins: [{ pluginId: "nsvx", rootDir: pluginRoot, source: "src/control-ui.tsx" }],
+          operatorScopes: ["operator.admin"],
+          methodResponses: {
+            ...teamResponses(["tester"]),
+            "nsvx.team.pause": { id: "coder", supervisors: ["main"], stopped: 1, failed: 0 },
+            "nsvx.team.resume": { id: "tester", supervisors: ["coder"] },
+          },
+        });
+        await page.goto(`${suite.server.baseUrl}plugin?plugin=nsvx&id=nsvx`);
+        const surface = page.locator(".nsvx");
+        const row = (name: string) =>
+          surface.locator(".nsvx-agent").filter({
+            has: page.locator(".nsvx-agent__name", { hasText: new RegExp(`^${name}$`) }),
+          });
+        await row("Tester").getByText("Paused", { exact: true }).waitFor();
+        // The main agent cannot pause, and a paused agent cannot be moved until it resumes.
+        expect(await row("Boss").getByRole("button", { name: "Pause" }).count()).toBe(0);
+        expect(await row("Tester").getByRole("combobox", { name: "Reports to" }).count()).toBe(0);
+
+        if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
+          for (const viewport of [desktop, { width: 390, height: 844 }]) {
+            const frame = await takeControlUiScreenshotFrame(
+              page,
+              surface,
+              [row("Coder").getByRole("button", { name: "Pause" })],
+              { animations: "disabled", viewport },
+            );
+            await writeFile(
+              path.join(suite.artifactDir, `nsvx-pause-${viewport.width}.png`),
+              frame.png,
+            );
+          }
+          await page.setViewportSize(desktop);
+        }
+
+        await row("Coder").getByRole("button", { name: "Pause" }).click();
+        await row("Coder").getByRole("button", { name: "Confirm" }).click();
+        expect((await gateway.waitForRequest("nsvx.team.pause")).params).toEqual({
+          agentId: "coder",
+        });
+        await surface.locator(".nsvx__notice", { hasText: "Paused" }).first().waitFor();
+
+        await row("Tester").getByRole("button", { name: "Resume" }).click();
+        expect((await gateway.waitForRequest("nsvx.team.resume")).params).toEqual({
+          agentId: "tester",
+        });
+        await surface.getByText("Resumed", { exact: true }).waitFor();
       },
     );
   });

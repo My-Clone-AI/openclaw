@@ -57,6 +57,10 @@ const en = {
   task: "Task",
   send: "Send",
   sent: "Sent",
+  pause: "Pause",
+  resume: "Resume",
+  paused: "Paused",
+  resumed: "Resumed",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -120,6 +124,10 @@ const pt: Record<MessageKey, string> = {
   task: "Tarefa",
   send: "Enviar",
   sent: "Enviado",
+  pause: "Pausar",
+  resume: "Retomar",
+  paused: "Em pausa",
+  resumed: "Retomado",
 };
 
 const es: Record<MessageKey, string> = {
@@ -181,6 +189,10 @@ const es: Record<MessageKey, string> = {
   task: "Tarea",
   send: "Enviar",
   sent: "Enviado",
+  pause: "Pausar",
+  resume: "Reanudar",
+  paused: "En pausa",
+  resumed: "Reanudado",
 };
 
 const CATALOGS: Record<string, Record<MessageKey, string>> = { en, pt, es };

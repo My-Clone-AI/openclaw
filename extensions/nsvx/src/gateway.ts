@@ -2,6 +2,7 @@ import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import parity from "./parity-data.json" with { type: "json" };
+import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
 
 function requiredText(params: Record<string, unknown>, name: string): string {
@@ -30,14 +31,19 @@ export async function readNsvxStatus(client: NsvxClient): Promise<NsvxStatus> {
   }
 }
 
-export function registerNsvxGatewayMethods(api: OpenClawPluginApi, client: NsvxClient) {
+export function registerNsvxGatewayMethods(
+  api: OpenClawPluginApi,
+  client: NsvxClient,
+  team: TeamService,
+) {
+  // Full names, so the parity generator can find each method in source.
   const method = (
-    name: string,
-    scope: "operator.read" | "operator.write" | "operator.approvals",
+    name: `nsvx.${string}`,
+    scope: "operator.read" | "operator.write" | "operator.approvals" | "operator.admin",
     run: (params: Record<string, unknown>) => Promise<unknown>,
   ) => {
     api.registerGatewayMethod(
-      `nsvx.${name}`,
+      name,
       async ({ params, respond }) => {
         try {
           respond(true, await run(params));
@@ -55,17 +61,19 @@ export function registerNsvxGatewayMethods(api: OpenClawPluginApi, client: NsvxC
       { scope },
     );
   };
-  method("status", "operator.read", () => readNsvxStatus(client));
-  method("parity", "operator.read", async () => parity);
-  method("actions.list", "operator.read", async () => ({ actions: await client.listActions() }));
-  method("actions.get", "operator.read", (params) =>
+  method("nsvx.status", "operator.read", () => readNsvxStatus(client));
+  method("nsvx.parity", "operator.read", async () => parity);
+  method("nsvx.actions.list", "operator.read", async () => ({
+    actions: await client.listActions(),
+  }));
+  method("nsvx.actions.get", "operator.read", (params) =>
     client.getAction(requiredText(params, "actionId")),
   );
-  method("tasks.list", "operator.read", async () => ({ tasks: await client.listTasks() }));
-  method("approvals.list", "operator.read", async () => ({
+  method("nsvx.tasks.list", "operator.read", async () => ({ tasks: await client.listTasks() }));
+  method("nsvx.approvals.list", "operator.read", async () => ({
     approvals: await client.listApprovals(),
   }));
-  method("actions.run", "operator.write", (params) =>
+  method("nsvx.actions.run", "operator.write", (params) =>
     client.runAction({
       actionId: requiredText(params, "actionId"),
       idempotencyKey: requiredText(params, "idempotencyKey"),
@@ -74,11 +82,19 @@ export function registerNsvxGatewayMethods(api: OpenClawPluginApi, client: NsvxC
     }),
   );
   // People decide approvals here; no chat tool can, because the model never grants permission.
-  method("approvals.decide", "operator.approvals", (params) => {
+  method("nsvx.approvals.decide", "operator.approvals", (params) => {
     const decision = requiredText(params, "decision");
     if (decision !== "approve" && decision !== "deny") {
       throw new NsvxError("invalid", "decision must be approve or deny.");
     }
     return client.decideApproval(requiredText(params, "approvalId"), decision);
   });
+  method("nsvx.team.paused", "operator.read", () => team.listPaused());
+  // Pause and resume rewrite the agent tree, so they need the same scope as config.patch.
+  method("nsvx.team.pause", "operator.admin", (params) =>
+    team.pause(requiredText(params, "agentId")),
+  );
+  method("nsvx.team.resume", "operator.admin", (params) =>
+    team.resume(requiredText(params, "agentId")),
+  );
 }

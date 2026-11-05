@@ -19,4 +19,4 @@ Run NSVX actions, manage the agent team, and track parity from Control.
 
 ## Surface
 
-This plugin declares no channels, providers, commands, or contracts.
+- Contracts: `tools`

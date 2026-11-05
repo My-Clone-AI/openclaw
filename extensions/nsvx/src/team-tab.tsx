@@ -18,6 +18,8 @@ type TeamData = {
   entries: Record<string, AgentEntry>;
   nodes: { nodeId: string; displayName?: string }[];
   defaultId: string;
+  /** Agents paused in this plugin; their old leads come back on resume. */
+  paused: Set<string>;
 };
 
 type ConfigSnapshot = {
@@ -26,17 +28,19 @@ type ConfigSnapshot = {
 };
 
 async function loadTeam(host: ControlUiHost): Promise<TeamData> {
-  const [config, roster, sessions, nodes] = await Promise.all([
+  const [config, roster, sessions, nodes, paused] = await Promise.all([
     host.request<ConfigSnapshot>("config.get"),
     host.request<{ defaultId: string; agents: { id: string; name?: string }[] }>("agents.list"),
     host.request<{ sessions: TeamSession[] }>("sessions.list", { limit: 200 }),
     host.request<{ nodes: { nodeId: string; displayName?: string }[] }>("node.list"),
+    host.request<{ paused: { id: string }[] }>("nsvx.team.paused"),
   ]);
   const entries = config.parsed?.agents?.entries ?? {};
   return {
     entries,
     nodes: nodes.nodes,
     defaultId: roster.defaultId,
+    paused: new Set(paused.paused.map((agent) => agent.id)),
     chart: buildTeamChart({
       entries,
       roster: roster.agents,
@@ -46,7 +50,7 @@ async function loadTeam(host: ControlUiHost): Promise<TeamData> {
   };
 }
 
-function StateBadge(props: { state: TeamAgent["state"]; t: T }) {
+function StateBadge(props: { state: TeamAgent["state"] | "paused"; t: T }) {
   return (
     <span class={["nsvx__state", `nsvx__state--${props.state}`]}>
       <span class="nsvx__dot" aria-hidden="true" />
@@ -181,10 +185,34 @@ export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
     }
   };
 
+  const [pausing, setPausing] = createSignal<string>();
+  /** NSVX pause: unlink from every lead and stop runs; resume restores the same leads. */
+  const togglePause = async (agent: TeamAgent, paused: boolean) => {
+    if (!paused && pausing() !== agent.id) {
+      setPausing(agent.id);
+      return;
+    }
+    setPausing(undefined);
+    setSaving(true);
+    setNotice("");
+    try {
+      await props.host.request(paused ? "nsvx.team.resume" : "nsvx.team.pause", {
+        agentId: agent.id,
+      });
+      setNotice(props.t(paused ? "resumed" : "paused"));
+    } catch (cause) {
+      setNotice(errorMessage(props.host, cause));
+    } finally {
+      setSaving(false);
+      await team.refresh();
+    }
+  };
+
   const canEdit = () => props.host.connection.canAdmin && !saving();
   const AgentRow = (row: { agent: TeamAgent; data: TeamData }) => {
     const supervisors = () => Object.keys(row.data.entries).filter((id) => id !== row.agent.id);
     const isRoot = () => row.agent.id === row.data.defaultId;
+    const paused = () => row.data.paused.has(row.agent.id);
     return (
       <li class="nsvx-agent" style={{ "--nsvx-depth": String(Math.min(row.agent.depth, 6)) }}>
         <span class="nsvx-agent__avatar" aria-hidden="true">
@@ -192,7 +220,10 @@ export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
         </span>
         <span class="nsvx-agent__main">
           <span class="nsvx-agent__name">{row.agent.name}</span>
-          <StateBadge state={row.agent.state} t={props.t} />
+          <StateBadge
+            state={paused() && row.agent.state === "idle" ? "paused" : row.agent.state}
+            t={props.t}
+          />
         </span>
         <span class="nsvx-agent__controls">
           <button
@@ -216,6 +247,17 @@ export function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
             </button>
           </Show>
           <Show when={!isRoot() && row.data.entries[row.agent.id]}>
+            <button
+              type="button"
+              class={["nsvx__button", { "nsvx__button--danger": pausing() === row.agent.id }]}
+              disabled={!canEdit()}
+              onClick={() => void togglePause(row.agent, paused())}
+            >
+              <Icon name={paused() ? "resume" : "pause"} />
+              {props.t(paused() ? "resume" : pausing() === row.agent.id ? "confirm" : "pause")}
+            </button>
+          </Show>
+          <Show when={!isRoot() && !paused() && row.data.entries[row.agent.id]}>
             <label class="nsvx-field">
               <span>{props.t("reportsTo")}</span>
               <select

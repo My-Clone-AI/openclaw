@@ -41,7 +41,13 @@ export type OpenClawInventory = {
   uiRoutes: { id: string; path: string; aliases: string[] }[];
   pages: string[];
   gatewayMethods: { name: string; group: string | null; scope: string }[];
-  extensions: { id: string; categories: string[]; controlUi: boolean; gatewayMethods: string[] }[];
+  extensions: {
+    id: string;
+    categories: string[];
+    controlUi: boolean;
+    gatewayMethods: string[];
+    tools: string[];
+  }[];
 };
 
 const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -446,7 +452,8 @@ export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory 
   for (const file of pluginSources) {
     const directory = file.split("/")[1] ?? "";
     for (const match of (contents.get(file) ?? "").matchAll(
-      /registerGatewayMethod\(\s*["']([\w.-]+)["']/g,
+      // Also a local `method("plugin.name", ...)` helper that forwards to registerGatewayMethod.
+      /(?:registerGatewayMethod|\bmethod)\(\s*["']([\w-]+\.[\w.-]+)["']/g,
     )) {
       const methods = pluginMethods.get(directory) ?? new Set<string>();
       methods.add(match[1] ?? "");
@@ -458,6 +465,7 @@ export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory 
       id?: string;
       categories?: string[];
       controlUi?: unknown;
+      contracts?: { tools?: string[] };
     };
     const directory = file.split("/")[1] ?? "";
     // Source plugins declare their view in package.json; the build writes it into the manifest.
@@ -469,6 +477,8 @@ export function buildOpenClawInventory(reader: SourceReader): OpenClawInventory 
       categories: manifest.categories ?? [],
       controlUi: manifest.controlUi !== undefined || pkg.openclaw?.controlUi !== undefined,
       gatewayMethods: uniqueSorted(pluginMethods.get(directory) ?? []),
+      // The loader refuses agent tools a manifest does not declare, so this is the real tool list.
+      tools: uniqueSorted(manifest.contracts?.tools ?? []),
     };
   });
   return {
@@ -674,6 +684,7 @@ export function crossCheckOpenClaw(registry: Registry, inventory: OpenClawInvent
     ...inventory.gatewayMethods.map((method) => method.name),
     ...inventory.extensions.flatMap((extension) => extension.gatewayMethods),
   ]);
+  const tools = new Set(inventory.extensions.flatMap((extension) => extension.tools));
   for (const entry of registry.entries) {
     for (const id of entry.openclaw.uiRoutes) {
       if (!routes.has(id)) {
@@ -688,6 +699,11 @@ export function crossCheckOpenClaw(registry: Registry, inventory: OpenClawInvent
     for (const id of entry.openclaw.extensions) {
       if (!extensions.has(id)) {
         errors.push(`${entry.id}: unknown extension ${id}`);
+      }
+    }
+    for (const id of entry.openclaw.chatTools) {
+      if (!tools.has(id)) {
+        errors.push(`${entry.id}: no plugin declares chat tool ${id}`);
       }
     }
   }

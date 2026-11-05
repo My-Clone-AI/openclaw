@@ -1627,7 +1627,7 @@
       "title": "Pause and resume an agent",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1653,15 +1653,24 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [
-          "config.patch",
-          "sessions.abort"
+        "uiRoutes": [
+          "plugin"
         ],
-        "extensions": [],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.team.pause",
+          "nsvx.team.paused",
+          "nsvx.team.resume",
+          "sessions.abort",
+          "sessions.list"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_team"
+        ]
       },
-      "adapter": "Paused state lives in the NSVX database, so a native control must call NSVX or the Gateway needs its own paused state.",
+      "adapter": "Team tab Pause and Resume, and the owner-only nsvx_team tool: one plugin service unlinks the agent from its leads in Gateway config, stops its live runs, and keeps the old leads in plugin state for resume, as openclaw_admin pause.",
       "verification": {
         "requires": [
           "discovery",
@@ -1676,23 +1685,33 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "backend/clone/openclaw_admin/service.py",
-          "backend/clone/openclaw_admin/history.py",
-          "backend/migrations/272_openclaw_admin_paused.sql"
+          "backend/clone/openclaw_admin/mutations.py",
+          "extensions/nsvx/src/team.ts",
+          "extensions/nsvx/src/team-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/team.test.ts: pause, resume, refusals and lead fallback against fake config and Gateway, 2026-11-05",
+          "ui/src/e2e/nsvx-plugin.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "NSVX keeps its own pause record (openclaw_admin_paused) until AgentOS bearer sign-in lands; then openclaw_admin should call nsvx.team.pause instead, so one owner holds paused state."
       ],
       "unknowns": [
-        "Which owner should hold paused state."
+        "Not yet run against the live Gateway.",
+        "An agent paused from NSVX's own manager does not show as paused here."
       ]
     },
     {

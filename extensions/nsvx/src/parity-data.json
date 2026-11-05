@@ -1,8 +1,8 @@
 {
   "discovered": 61,
-  "native": 7,
+  "native": 8,
   "partial": 13,
-  "missing": 41,
+  "missing": 40,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -214,9 +214,9 @@
       "id": "08",
       "name": "Agents",
       "discovered": 15,
-      "native": 7,
+      "native": 8,
       "partial": 3,
-      "missing": 5,
+      "missing": 4,
       "blocked": 0,
       "verified": 0
     },
@@ -405,7 +405,7 @@
       "title": "Pause and resume an agent",
       "family": "08",
       "priority": "P1",
-      "status": "missing",
+      "status": "native",
       "verified": false
     },
     {

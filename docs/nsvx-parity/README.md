@@ -51,7 +51,7 @@ cannot fetch that private repository, so newer commits may exist. Moving the pin
 | `openclaw_admin`                  | Module files and the RPC allowlists in `gateway.py`                |
 | OpenClaw routes and pages         | `app-route-paths.ts`, `ui/src/pages/*/route.ts`                    |
 | OpenClaw Gateway methods          | `core-descriptors.ts`, `registerGatewayMethod`                     |
-| OpenClaw plugins and plugin views | `openclaw.plugin.json` (`controlUi`)                               |
+| OpenClaw plugins and plugin views | `openclaw.plugin.json` (`controlUi`, `contracts.tools`)            |
 
 Portals are covered by the `portals` route and the `portal.*` methods in the inventory.
 
@@ -89,12 +89,15 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 
 | Tab      | What it does                                                 | Data owner                       |
 | -------- | ------------------------------------------------------------ | -------------------------------- |
-| Team     | Agent tree; change Reports to and Runs on; send a Task; Stop | Gateway config and sessions      |
+| Team     | Agent tree; Reports to, Runs on, Task, Stop, Pause, Resume   | Gateway config and sessions      |
 | Actions  | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
 | Progress | This registry by family                                      | `registry.json`, copied at build |
 
+Pause keeps the agent's old leads in plugin state (`nsvx-paused`), so Resume restores the same tree. Chat gets the
+same through `nsvx_team`, which pauses or resumes only on the owner's own turns.
+
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
-the Stop and Task requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
+the Stop, Task, Pause, and Resume requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
 counts toward `ui`, `desktop`, and `mobile`; `data` and `chat` stay open until a live Gateway run is recorded.
 
 ## Brief copy
@@ -123,7 +126,7 @@ repository is public and the owner is anonymous on Git. The original is
   tracked. Registry entries name only their owning files and route prefixes; `--full-out <path>` writes the complete
   lists locally.
 - **Static parsing.** The generator misses `add_api_route` routes (3 at the pin), plugin Gateway methods registered
-  through a helper (such as `nsvx.*`), and job kinds passed as variables
+  through a helper other than `method("plugin.name", ...)`, and job kinds passed as variables
   (`unresolvedEnqueueCalls`). Sub-applications appear without their mount path, and a module that rebinds `router`
   uses the first binding's prefix.
 - **Unmatched clients.** 6 of 555 API client paths match no parsed backend route. Each may be a parser gap or a dead
