@@ -9,18 +9,6 @@ import {
   type FindResult,
 } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
-import {
-  cancelPayload,
-  dayKey,
-  draftFrom,
-  eventPayload,
-  todayKey,
-  windowFor,
-  type CalendarEvent,
-  type EventDetail,
-  type EventsPage,
-} from "./agenda-data.js";
-import { agendaSummary, freeSlots, previewChange, submitChange } from "./agenda.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError, OWNER_VIEW_NAMES } from "./client.js";
 import {
@@ -40,8 +28,9 @@ import {
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
 import type { TeamService } from "./team.js";
+import { agendaSummary, freeSlots, previewChange, submitChange } from "./agenda.js";
 
-function outcome(run: () => Promise<unknown>) {
+export function outcome(run: () => Promise<unknown>) {
   return run().then(jsonResult, (cause: unknown) => {
     if (cause instanceof NsvxError) {
       return jsonResult({ ok: false, reason: cause.kind, message: cause.message });
@@ -458,50 +447,6 @@ export function createNsvxFinanceTool(client: NsvxClient, context: OpenClawPlugi
   } as AnyAgentTool;
 }
 
-type AgendaToolParams = {
-  action: "events" | "event" | "free" | "summary" | "book" | "move" | "cancel";
-  from?: string;
-  days?: number;
-  time?: string;
-  minutes?: number;
-  title?: string;
-  attendees?: string[];
-  location?: string;
-  meet?: boolean;
-  eventId?: string;
-  timeZone?: string;
-};
-
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function agendaDay(value: string | undefined, zone: string) {
-  if (value === undefined) {
-    return todayKey(zone);
-  }
-  if (!DAY.test(value)) {
-    throw new NsvxError("invalid", "from must be YYYY-MM-DD.");
-  }
-  return value;
-}
-
-const eventRow = (event: CalendarEvent, zone: string) => ({
-  id: event.id ?? event.event_id,
-  title: event.summary,
-  day: dayKey(event, zone),
-  start: event.all_day ? null : event.start,
-  end: event.all_day ? null : event.end,
-  allDay: event.all_day,
-  location: event.location,
-  guests: event.attendees.filter((attendee) => !attendee.self).map((attendee) => attendee.email),
-  meet: Boolean(event.meet_url),
-  canChange: event.can_edit,
-});
-
-/**
- * The owner's NSVX Agenda (Google Calendar). Reads freely; books, moves, or cancels only changes nobody else sees.
- * Anything Google would announce to guests returns `needsOwner` with the exact terms for the owner to confirm in Control.
- */
 export function createNsvxAgendaTool(
   client: NsvxClient,
   context: Pick<OpenClawPluginToolContext, "senderIsOwner" | "assertInvocationCurrent">,

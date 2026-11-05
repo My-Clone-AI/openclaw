@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import manifest from "../openclaw.plugin.json" with { type: "json" };
 import type { NsvxClient } from "./client.js";
+import { createNsvxPeopleTool } from "./people-tool.js";
 import {
-  createNsvxAgendaTool,
   createNsvxFinanceTool,
   createNsvxMessagesTool,
   createNsvxOwnerTools,
@@ -53,7 +53,7 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     ...createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name),
     createNsvxMessagesTool({} as NsvxClient, ctx as never).name,
     createNsvxFinanceTool({} as NsvxClient, ctx as never).name,
-    createNsvxAgendaTool({} as NsvxClient, ctx as never).name,
+    createNsvxPeopleTool({} as NsvxClient, ctx as never).name,
   ];
   expect(NSVX_OWNER_TOOL_NAMES.toSorted()).toEqual(
     createNsvxOwnerTools({} as NsvxClient, ctx as never)

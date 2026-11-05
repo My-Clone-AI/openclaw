@@ -1,15 +1,6 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
-import {
-  agendaSummary,
-  freeSlots,
-  meetingFollowUp,
-  meetingHelp,
-  previewChange,
-  selectCalendar,
-  submitChange,
-} from "./agenda.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import {
@@ -23,8 +14,18 @@ import {
   startQuickReply,
 } from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
+import { changeGroup, changePerson } from "./people.js";
 import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
+import {
+  agendaSummary,
+  freeSlots,
+  meetingFollowUp,
+  meetingHelp,
+  previewChange,
+  selectCalendar,
+  submitChange,
+} from "./agenda.js";
 
 function requiredText(params: Record<string, unknown>, name: string): string {
   const value = params[name];
@@ -149,6 +150,10 @@ export function registerNsvxGatewayMethods(
     regenerateQuickReply(client, params),
   );
   method("nsvx.quickReply.delete", "operator.write", (params) => deleteQuickReply(client, params));
+  // People and groups read through nsvx.view; these are the owner's changes, each on one fixed NSVX route.
+  // None sends a message, but they change who clone answers and what it remembers, so they need write scope.
+  method("nsvx.people.change", "operator.write", (params) => changePerson(client, params));
+  method("nsvx.groups.change", "operator.write", (params) => changeGroup(client, params));
   // Agenda reads through nsvx.view (calendars, events, one event, an intent); these are its POST reads and taps.
   method("nsvx.agenda.summary", "operator.read", (params) => agendaSummary(client, params));
   method("nsvx.agenda.slots", "operator.read", (params) => freeSlots(client, params));
