@@ -30,6 +30,13 @@ suite.define(() => {
             credential: "configured",
             projects: [
               {
+                name: "other",
+                fullName: "Echelon-RSVP/other",
+                cloneUrl: "https://github.com/Echelon-RSVP/other.git",
+                webUrl: "https://github.com/Echelon-RSVP/other",
+                private: false,
+              },
+              {
                 name: "clone-ai",
                 fullName: "My-Clone-AI/clone-ai",
                 cloneUrl: "https://github.com/My-Clone-AI/clone-ai.git",
@@ -72,6 +79,7 @@ suite.define(() => {
         query: "clone-ai",
         org: "My-Clone-AI",
       });
+      expect(await picker.getByRole("button", { name: /Echelon-RSVP\/other/u }).count()).toBe(0);
       await picker.getByRole("button", { name: /My-Clone-AI\/clone-ai/u }).click();
       await pollLocatorText(project).toContain("My-Clone-AI/clone-ai");
       await page.keyboard.press("Escape");

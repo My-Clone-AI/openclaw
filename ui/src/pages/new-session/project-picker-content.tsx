@@ -362,7 +362,11 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                     ) : undefined}
                     {
                       <For
-                        each={projectSearchResult()?.projects ?? []}
+                        each={(projectSearchResult()?.projects ?? []).filter(
+                          (project) =>
+                            project.fullName.split("/")[0]?.toLowerCase() ===
+                            props.params.place.browser.projectOrg.toLowerCase(),
+                        )}
                         keyed={(project) => project.cloneUrl}
                       >
                         {(project) => {
