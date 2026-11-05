@@ -5270,10 +5270,22 @@
         "digest": "65fb5eea3a6045d0ea25e0a7af90954f9dad539083dd24f6ac547e9f624f9527"
       },
       "activity-log": {
-        "routes": 64,
-        "reads": 26,
-        "writes": 38,
-        "digest": "9b8b65629bb85e8711cbe25f8186a7e88ba5c96f2cef226bfe1e8be277cf87e1"
+        "routes": 66,
+        "reads": 27,
+        "writes": 39,
+        "digest": "81c28e447c715078c8804c6c69afb8dc31eede36828d046d6c5cf8c2072f0bc5"
+      },
+      "activities-hub": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "activities-filters": {
+        "routes": 3,
+        "reads": 3,
+        "writes": 0,
+        "digest": "2e59a4c11c362a4d080a37ef8810526c516d3f6de79f3aae0b7ff7ad3794f4df"
       },
       "messages": {
         "routes": 83,
@@ -5306,10 +5318,10 @@
         "digest": "79165c599f2c3c6cfe3aa04fe3490c163750f4c99011063e944da02f147d173a"
       },
       "automations": {
-        "routes": 25,
-        "reads": 13,
-        "writes": 12,
-        "digest": "d7f3721495e00115d37f2b97df115f6874e4157d9c43f369c4631f1870722f24"
+        "routes": 17,
+        "reads": 6,
+        "writes": 11,
+        "digest": "deaa5f9235ee743c2c704e39e6a1b4516d1f1f0516584cd26b22a44fb5452a71"
       },
       "live-tasks": {
         "routes": 12,
@@ -5480,16 +5492,28 @@
         "digest": "549237cfce4c8bee0bc60f5a412224639048099fbafb343869307620edd0acd3"
       },
       "finance": {
-        "routes": 183,
-        "reads": 86,
-        "writes": 97,
-        "digest": "4d07c8cff6a83b7c19bd9453ba83f26fdb85c2f4a7e7fc461de69103ce677924"
+        "routes": 91,
+        "reads": 40,
+        "writes": 51,
+        "digest": "41c86e504b79f96cb1504f60cf081a7d94ce7a1c1e9e7c3a0c106cd1cacbc3a7"
       },
       "bank-broker": {
+        "routes": 50,
+        "reads": 14,
+        "writes": 36,
+        "digest": "bfcf1536dabfdb6952ec8b662f9bcf8ddc5f38583f3502d04b8133eda83c904a"
+      },
+      "accounting-ledger": {
+        "routes": 42,
+        "reads": 24,
+        "writes": 18,
+        "digest": "526f0648f2d407c0bbf05d5a5b199070cb809eac1eadff7492bee02136bc6cb0"
+      },
+      "finance-docs": {
         "routes": 9,
-        "reads": 0,
-        "writes": 9,
-        "digest": "9bedfa28333241758b4713257607a85da5e02945070eb92557407a7a9540b3fb"
+        "reads": 8,
+        "writes": 1,
+        "digest": "b058eac7ef84691b79ce681eea7707bc8497818b3befea5389104b56c58e2919"
       },
       "mortgage": {
         "routes": 20,
@@ -5622,25 +5646,13 @@
         "reads": 1,
         "writes": 4,
         "digest": "7b720a68075100221d352d27779dcae2964408fbc942691bdf8794be90215391"
-      },
-      "activities-hub": {
-        "routes": 0,
-        "reads": 0,
-        "writes": 0,
-        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
-      },
-      "activities-filters": {
-        "routes": 3,
-        "reads": 3,
-        "writes": 0,
-        "digest": "2e59a4c11c362a4d080a37ef8810526c516d3f6de79f3aae0b7ff7ad3794f4df"
       }
     },
     "parity": {
       "discovered": 65,
-      "native": 9,
-      "partial": 21,
-      "missing": 34,
+      "native": 10,
+      "partial": 23,
+      "missing": 31,
       "blocked": 1,
       "verified": 0,
       "families": [
@@ -5768,9 +5780,9 @@
           "id": "22",
           "name": "Everything else",
           "discovered": 3,
-          "native": 0,
-          "partial": 0,
-          "missing": 3,
+          "native": 1,
+          "partial": 2,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

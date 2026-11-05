@@ -1,3 +1,4 @@
+import { LEGAL_LANGS, LEGAL_PAGES } from "./device-data.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxTask } from "./types.js";
 
 export const AGENTOS_PATH = "/api/agentos/v1";
@@ -171,6 +172,20 @@ const OWNER_VIEWS = {
     query: ["book", "year", "status", "limit", "offset"],
   },
   ledgerTax: { path: "/api/ledger/tax", query: ["book", "year"] },
+  // Desktop (`/api/desktop/*`): the routes the clone desktop app uses, with the owner session.
+  desktopBots: { path: "/api/desktop/bots" },
+  desktopTasks: { path: "/api/desktop/tasks", query: ["state", "limit"] },
+  memoryProfile: { path: "/api/desktop/memory/{bot}/profile", query: ["limit"] },
+  memoryJournal: { path: "/api/desktop/memory/{bot}/journal", query: ["limit"] },
+  memoryFacts: { path: "/api/desktop/memory/{bot}/facts", query: ["person_id", "limit"] },
+  memoryRecall: { path: "/api/desktop/memory/{bot}/recall", query: ["q", "person_id", "limit"] },
+  memoryRevocations: { path: "/api/desktop/memory/{bot}/revocations" },
+  skills: { path: "/api/desktop/skills" },
+  skillVersions: { path: "/api/desktop/skills/{slug}/versions" },
+  skill: { path: "/api/desktop/skills/{slug}/versions/{version}" },
+  // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
+  syncChanges: { path: "/api/sync/changes" },
+  runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -186,10 +201,18 @@ const OWNER_WRITES = {
   quickReplyCreate: { method: "POST", path: "/api/quick-reply/drafts" },
   quickReplyGenerate: { method: "POST", path: "/api/quick-reply/drafts/{id}/generate" },
   quickReplyDelete: { method: "DELETE", path: "/api/quick-reply/drafts/{id}" },
-} as const satisfies Record<string, { method: "POST" | "DELETE"; path: string }>;
+  desktopBotSave: { method: "PUT", path: "/api/desktop/bots/{id}" },
+  desktopTaskStop: { method: "POST", path: "/api/desktop/tasks/{id}/stop" },
+  desktopTasksStopAll: { method: "POST", path: "/api/desktop/tasks/stop-all" },
+  memoryCorrect: { method: "POST", path: "/api/desktop/memory/{id}/correct" },
+  memoryForget: { method: "POST", path: "/api/desktop/memory/{id}/forget" },
+  syncSave: { method: "POST", path: "/api/sync/mutations" },
+  syncPromote: { method: "POST", path: "/api/sync/tasks/{id}/promote" },
+  syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
+  syncConfirm: { method: "POST", path: "/api/sync/drafts/{id}/confirm" },
+} as const satisfies Record<string, { method: "POST" | "PUT" | "DELETE"; path: string }>;
 
 export type OwnerWrite = keyof typeof OWNER_WRITES;
-
 
 /**
  * NSVX reads that take their input in a POST body (so search text never reaches URLs or access logs). POST needs the
@@ -207,6 +230,20 @@ export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
 const EXPORT_MAX_CHARS = 5_000_000;
 
 const OWNER_COOKIE = "clone_session";
+
+/**
+ * Public NSVX pages: health probes (`/readyz` adds which checks fail when the owner session comes along) and the
+ * legal pages. `/readyz` answers 503 with the same body when not ready.
+ */
+const PUBLIC_READS = {
+  live: { path: "/healthz" },
+  ready: { path: "/readyz", alsoOk: 503 },
+  runtime: { path: "/runtimez" },
+} as const;
+
+export type PublicRead = keyof typeof PUBLIC_READS;
+/** The rendered legal pages are a few dozen kilobytes. */
+const LEGAL_LIMIT = 1024 * 1024;
 
 function ownerViewSpec(view: string): OwnerViewSpec {
   if (!Object.hasOwn(OWNER_VIEWS, view)) {
@@ -306,6 +343,7 @@ export function createNsvxClient(options: {
     action: OwnerWrite,
     id: string | undefined,
     body: unknown,
+    idempotencyKey?: string,
   ): Promise<T> {
     const spec = OWNER_WRITES[action];
     let path: string = spec.path;
@@ -330,6 +368,7 @@ export function createNsvxClient(options: {
           "Content-Type": "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
+          ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
         },
         body: JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -341,6 +380,26 @@ export function createNsvxClient(options: {
       throw errorFor(response.status, await problemFrom(response), true, path);
     }
     return (await response.json()) as T;
+  }
+
+  async function publicFetch(path: string, accept: string, alsoOk?: number): Promise<Response> {
+    let response: Response;
+    try {
+      response = await fetchImpl(`${options.baseUrl}${path}`, {
+        method: "GET",
+        headers: {
+          Accept: accept,
+          ...(options.ownerSession ? { Cookie: `${OWNER_COOKIE}=${options.ownerSession}` } : {}),
+        },
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
+    } catch {
+      throw new NsvxError("offline", "NSVX cannot be reached.");
+    }
+    if (!response.ok && response.status !== alsoOk) {
+      throw errorFor(response.status, await problemFrom(response), false, path);
+    }
+    return response;
   }
 
   async function call<T>(
@@ -443,8 +502,33 @@ export function createNsvxClient(options: {
       return csv;
     },
     /** One owner change on a fixed NSVX route; `body` must already be validated by the caller. */
-    writeOwner<T = unknown>(action: OwnerWrite, id: string | undefined, body: unknown): Promise<T> {
-      return writeOwner(action, id, body);
+    writeOwner<T = unknown>(
+      action: OwnerWrite,
+      id: string | undefined,
+      body: unknown,
+      idempotencyKey?: string,
+    ): Promise<T> {
+      return writeOwner(action, id, body, idempotencyKey);
+    },
+    /** A public health probe; the owner session, when set, only adds detail NSVX shows its owner. */
+    async readPublic(name: PublicRead): Promise<{ status: number; body: Record<string, unknown> }> {
+      const spec: { path: string; alsoOk?: number } = PUBLIC_READS[name];
+      const response = await publicFetch(spec.path, "application/json", spec.alsoOk);
+      return {
+        status: response.status,
+        body: (await response.json()) as Record<string, unknown>,
+      };
+    },
+    /** One public legal page as NSVX renders it (HTML). */
+    async readLegalPage(page: string, lang: string): Promise<string> {
+      if (!LEGAL_PAGES.includes(page as never) || !LEGAL_LANGS.includes(lang as never)) {
+        throw new NsvxError("invalid", "Unknown legal page.");
+      }
+      const html = await (await publicFetch(`/${page}?lang=${lang}`, "text/html")).text();
+      if (html.length > LEGAL_LIMIT) {
+        throw new NsvxError("invalid", "NSVX sent too large a page.");
+      }
+      return html;
     },
     decideApproval(approvalId: string, decision: "approve" | "deny"): Promise<NsvxApproval> {
       return call(`/approvals/${encodeURIComponent(approvalId)}/${decision}`, { method: "POST" });

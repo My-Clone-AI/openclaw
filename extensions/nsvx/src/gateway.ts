@@ -3,6 +3,7 @@ import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
+import { registerDeviceMethods } from "./device.js";
 import {
   approveDraft,
   deleteQuickReply,
@@ -140,6 +141,7 @@ export function registerNsvxGatewayMethods(
     regenerateQuickReply(client, params),
   );
   method("nsvx.quickReply.delete", "operator.write", (params) => deleteQuickReply(client, params));
+  registerDeviceMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

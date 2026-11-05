@@ -6,14 +6,17 @@ import {
   type ControlUiView,
 } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
-import { translator, type MessageKey } from "./i18n.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
+import { deviceTranslator, type DT } from "./device-i18n.js";
+import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
+import { HealthTab } from "./health-tab.js";
+import { translator, type MessageKey } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
-import { QuickReplyTab } from "./quick-reply-tab.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
 import { ProgressTab } from "./progress-tab.js";
+import { QuickReplyTab } from "./quick-reply-tab.js";
 import { TeamTab } from "./team-tab.js";
 import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
 import {
@@ -29,7 +32,20 @@ import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
 
-type Tab = "today" | "find" | "tasks" | "work" | "activity" | "messages" | "reply" | "money" | "team" | "actions" | "progress";
+type Tab =
+  | "today"
+  | "find"
+  | "tasks"
+  | "work"
+  | "activity"
+  | "messages"
+  | "reply"
+  | "money"
+  | "device"
+  | "health"
+  | "team"
+  | "actions"
+  | "progress";
 
 const STATUS_COPY: Record<
   Exclude<NsvxStatus["state"], "connected">,
@@ -352,7 +368,21 @@ function ActionsTab(props: { host: ControlUiHost; t: T; query: string }) {
   );
 }
 
-const TABS: Tab[] = ["today", "find", "tasks", "work", "activity", "messages", "reply", "money", "team", "actions", "progress"];
+const TABS: Tab[] = [
+  "today",
+  "find",
+  "tasks",
+  "work",
+  "activity",
+  "messages",
+  "reply",
+  "money",
+  "device",
+  "health",
+  "team",
+  "actions",
+  "progress",
+];
 
 const mountNsvx: ControlUiView = (container, context) => {
   const host = context.host;
@@ -360,7 +390,13 @@ const mountNsvx: ControlUiView = (container, context) => {
   const unsubscribe = host.subscribe(() => setLocale(host.locale));
   const t: T = (key) => translator(locale())(key);
   const mt: MT = (key) => messagesTranslator(locale())(key);
-  const label = (id: Tab) => (id === "messages" || id === "reply" ? mt(id) : t(id));
+  const dt: DT = (key) => deviceTranslator(locale())(key);
+  const label = (id: Tab) =>
+    id === "messages" || id === "reply"
+      ? mt(id)
+      : id === "device" || id === "health"
+        ? dt(id)
+        : t(id);
   const search = new URLSearchParams(location.search);
   const initial = (search.get("tab") ?? "today") as Tab;
   const [tab, setTab] = createSignal<Tab>(TABS.includes(initial) ? initial : "today");
@@ -431,6 +467,14 @@ const mountNsvx: ControlUiView = (container, context) => {
                 title={label(id)}
                 aria-selected={tab() === id ? "true" : "false"}
                 class={["nsvx__tab", { "nsvx__tab--active": tab() === id }]}
+                // Phones scroll the tab row; a deep-linked tab starts in view.
+                ref={(element) => {
+                  if (tab() === id) {
+                    requestAnimationFrame(() =>
+                      element.scrollIntoView({ block: "nearest", inline: "nearest" }),
+                    );
+                  }
+                }}
                 onClick={() => select(id)}
               >
                 <Icon name={id} />
@@ -525,6 +569,12 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "device"}>
+              <DeviceTab host={host} t={t} dt={dt} query={query()} />
+            </Show>
+            <Show when={tab() === "health"}>
+              <HealthTab host={host} t={t} dt={dt} query={query()} />
             </Show>
 
             <Show when={tab() === "team"}>

@@ -15,7 +15,9 @@
 
 .nsvx__tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-1);
+  max-width: 100%;
 }
 
 .nsvx__tab,
@@ -693,12 +695,16 @@
     padding: var(--space-3);
   }
 
+  /* One scrolling row of icons; each keeps a 44px touch target. */
   .nsvx__tabs {
+    flex-wrap: nowrap;
     width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .nsvx__tab {
-    flex: 1;
+    flex: 1 0 44px;
     padding: 0;
   }
 
@@ -990,4 +996,3 @@
     padding-left: var(--space-3);
   }
 }
-
