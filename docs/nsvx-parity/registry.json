@@ -1888,7 +1888,7 @@
       "title": "Action contracts and approvals",
       "family": "08",
       "priority": "P0",
-      "status": "blocked",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -1937,7 +1937,7 @@
           "nsvx_run"
         ]
       },
-      "adapter": "nsvx plugin Actions tab and chat tools call /api/agentos/v1 with NSVX_AGENTOS_TOKEN as a bearer token, an Idempotency-Key per intent, and approval decisions by people only (extensions/nsvx/src/client.ts, tools.ts).",
+      "adapter": "Actions tab calls /api/agentos/v1 for the owner's taps with the owner session (cookie, plus CSRF on POST), since NSVX accepts only that today; an Idempotency-Key per intent; approvals decided by people only. Chat tools nsvx_actions and nsvx_run use only NSVX_AGENTOS_TOKEN and never the owner session (extensions/nsvx/src/client.ts).",
       "verification": {
         "requires": [
           "discovery",
@@ -1952,7 +1952,9 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback"
         ]
       },
       "evidence": {
@@ -1962,10 +1964,13 @@
           "backend/clone/mcp_api.py",
           "web/src/screens/Apps.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/client.test.ts: Control lane sends the owner session and CSRF, chat lane refuses without a token, 2026-11-05"
+        ]
       },
       "blockers": [
-        "Writes and chat need AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py)."
+        "Chat needs AgentOS bearer sign-in, which NSVX does not implement yet (get_principal in agentos/rest_api.py).",
+        "Control needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session) and the agentos.gateway flag on; neither checked live."
       ],
       "unknowns": []
     },
@@ -2703,7 +2708,7 @@
       "title": "Agent instructions",
       "family": "08",
       "priority": "P2",
-      "status": "partial",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -2728,16 +2733,20 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "agents"
+          "plugin"
         ],
         "gatewayMethods": [
-          "agents.files.get",
-          "agents.files.set"
+          "nsvx.agents.get",
+          "nsvx.agents.instructions"
         ],
-        "extensions": [],
-        "chatTools": []
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agents"
+        ]
       },
-      "adapter": "None for plain files. The NSVX managed block inside an instructions file has no native editor.",
+      "adapter": "Setup tab, Agents: edits the NSVX managed section of the agent's AGENTS.md (same markers as openclaw_admin/mutations.py) through agents.files.set with the file hash; hand-written text stays; Undo writes the previous text back. Chat: nsvx_agents instructions on the owner's own turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -2752,25 +2761,39 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/openclaw_admin/mutations.py"
+          "backend/clone/openclaw_admin/mutations.py",
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/agent-settings.ts",
+          "extensions/nsvx/src/setup-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/agent-settings.test.ts: writes against fake Gateway config and AGENTS.md, 2026-11-05",
+          "ui/src/e2e/nsvx-setup.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-setup/), 2026-11-05"
+        ]
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Changes made here are not in the NSVX version log (openclaw_admin/history.py), so NSVX rollback does not see them.",
+        "Not yet run against the live Gateway."
+      ]
     },
     {
       "id": "architecture-permissions",
       "title": "Agent tool permissions",
       "family": "08",
       "priority": "P2",
-      "status": "partial",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -2795,16 +2818,21 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "agents"
+          "plugin"
         ],
         "gatewayMethods": [
-          "tools.effective",
-          "config.patch"
+          "nsvx.agents.get",
+          "nsvx.agents.tools",
+          "tools.catalog"
         ],
-        "extensions": [],
-        "chatTools": []
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agents"
+        ]
       },
-      "adapter": "None needed for reads; NSVX profile presets have no native picker.",
+      "adapter": "Setup tab, Agents, Tools: NSVX's four profiles plus Default, one chip per catalog tool (deny, extras, or only-these), saved by nsvx.agents.tools with openclaw_admin permissions_patch rules; logged in the team history so Undo restores it. Chat: nsvx_agents tools on the owner's own turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -2819,25 +2847,40 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/openclaw_admin/mutations.py"
+          "backend/clone/openclaw_admin/mutations.py",
+          "extensions/nsvx/src/agent-settings.ts",
+          "extensions/nsvx/src/setup-data.ts",
+          "extensions/nsvx/src/setup-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/agent-settings.test.ts: writes against fake Gateway config and AGENTS.md, 2026-11-05",
+          "extensions/nsvx/src/setup-data.test.ts: chip toggles to deny, extras, and only-these, 2026-11-05",
+          "ui/src/e2e/nsvx-setup.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-setup/), 2026-11-05"
+        ]
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "Chips show the configured policy, not the effective set for one session (tools.effective needs a session).",
+        "Not yet run against the live Gateway."
+      ]
     },
     {
       "id": "architecture-policies",
       "title": "Fleet defaults",
       "family": "08",
       "priority": "P2",
-      "status": "partial",
+      "status": "native",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -2863,15 +2906,21 @@
       },
       "openclaw": {
         "uiRoutes": [
-          "config"
+          "plugin"
         ],
         "gatewayMethods": [
-          "config.patch"
+          "nsvx.agents.defaults",
+          "nsvx.agents.setDefaults",
+          "models.list"
         ],
-        "extensions": [],
-        "chatTools": []
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agents"
+        ]
       },
-      "adapter": "None needed: same config paths. The NSVX paid-provider block has no native rule.",
+      "adapter": "Setup tab, Defaults: team model (paid API providers blocked with NSVX's provider_kind rule), thinking, agents and helpers at once, and team rules in the main agent's NSVX policies section; config changes are logged for Undo. Chat: nsvx_agents defaults and setDefaults on the owner's own turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -2886,25 +2935,40 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/openclaw_admin/service.py"
+          "backend/clone/openclaw_admin/graph.py",
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/agent-settings.ts",
+          "extensions/nsvx/src/setup-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/agent-settings.test.ts: writes against fake Gateway config and AGENTS.md, 2026-11-05",
+          "ui/src/e2e/nsvx-setup.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-setup/), 2026-11-05"
+        ]
       },
       "blockers": [],
-      "unknowns": []
+      "unknowns": [
+        "NSVX picks the policy agent from heartbeat/systemAgent config; this uses the Gateway's default agent. They match when both name the Boss.",
+        "NSVX shows a built-in default policy text when none is set; Control shows an empty field.",
+        "Not yet run against the live Gateway."
+      ]
     },
     {
       "id": "architecture-suggest",
       "title": "AI agent suggestions",
       "family": "08",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -2929,12 +2993,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.agents.suggest",
+          "nsvx.agents.adopt"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_agents"
+        ]
       },
-      "adapter": "Proxy to openclaw_admin suggest; degrade by hiding the control when unavailable.",
+      "adapter": "Setup tab, Ideas: goal (typed or spoken) to NSVX's own suggest route (clone-ai when free, its template otherwise) through the owner session; Add creates the agent with agents.create, sets its role, and puts it under its lead with nsvx.team.move. Chat: nsvx_agents suggest and add on the owner's own turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -2949,18 +3022,27 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/openclaw_admin/service.py"
+          "backend/clone/openclaw_admin/service.py",
+          "extensions/nsvx/src/agent-settings.ts",
+          "extensions/nsvx/src/setup-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-setup.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-setup/), 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Suggestions need NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX."
       ],
       "unknowns": []
     },
@@ -2969,7 +3051,7 @@
       "title": "Skills",
       "family": "08",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -2995,12 +3077,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.skills.state",
+          "nsvx.skills.review"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_skills"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "Skills tab: NSVX skills list (/api/skills), on/off/review/failing tiles with alerts, steps and latest runs, on/off switch and approve/reject of learned skills, each on one fixed NSVX route with the owner session and its CSRF token. Chat: nsvx_skills list, read, enable, disable on the owner's own turns; approving stays a person's tap.",
       "verification": {
         "requires": [
           "discovery",
@@ -3015,20 +3107,30 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "backend/clone/grow_skills_api.py",
           "backend/clone/skills_api.py",
-          "web/src/screens/Apps.tsx"
+          "web/src/screens/Apps.tsx",
+          "extensions/nsvx/src/skills.ts",
+          "extensions/nsvx/src/skills-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-setup.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-setup/), 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Source binding, run summaries, outcome CSV, and memory listing are not built yet.",
+        "The Grow skills API (/api/grow-skills) is a bearer service API for the Grow engine, not an owner screen."
       ],
       "unknowns": []
     },
@@ -3245,8 +3347,8 @@
       "id": "group-companies",
       "title": "Group companies",
       "family": "10",
-      "priority": "P2",
-      "status": "missing",
+      "priority": "P1",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/empresas-do-grupo"
@@ -3268,9 +3370,6 @@
         ],
         "sourceFiles": [
           "backend/clone/group_companies/api.py",
-          "backend/clone/group_companies/mail/api.py",
-          "backend/clone/group_companies/marketing/admin_api.py",
-          "backend/clone/group_companies/servers.py",
           "backend/clone/grupo_doit/api.py",
           "web/src/screens/GroupCompanies.tsx"
         ],
@@ -3285,12 +3384,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.group.preview",
+          "nsvx.group.operation"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/group-companies, /api/doit, /api/pay; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Group tab, app page (?tab=group&app=<id>): nsvx.view reads /api/group-companies/{cid}/summary, /manifest, /resources/{kind}, /resources/{kind}/{rid}, /audit and /runs/{runId}; app operations are checked with nsvx.group.preview and run with nsvx.group.operation (confirm, typed CONFIRM for high risk, one idempotency key per intent, run progress polled). nsvx_group company, resources and audit read for chat; chat never runs app operations. NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -3305,7 +3414,11 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
@@ -3316,13 +3429,456 @@
           "backend/clone/grupo_doit/",
           "backend/clone/grupo_pay/"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): app page with KPIs, attention and checks; records with detail and timeline; Hide listing checked, confirmed and run with its preview token",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Grupo DoIt (/api/doit), Grupo Pay (/api/pay), cross-app (/api/cross-app) and business action grants (/api/group-companies/business-action-grants) have no native screen yet.",
+        "The AI request box (POST /api/group-companies/proposals) and voice input (/transcribe) are not ported."
+      ]
+    },
+    {
+      "id": "group-overview",
+      "title": "Group overview",
+      "family": "10",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/overview",
+          "/api/group-companies/actions"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/overview.py",
+          "backend/clone/group_companies/quick_actions.py",
+          "web/src/screens/GroupOverview.tsx",
+          "web/src/logic/groupOverview.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "GitHub",
+          "Group apps"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.group.devAction"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
+      },
+      "adapter": "nsvx plugin Group tab, Apps: nsvx.view reads /api/group-companies/overview, /actions and /overview/incidents (OWNER_VIEWS); dev-only CI, redeploy, restart and Grow actions go through nsvx.group.devAction (operator.admin) to POST /api/group-companies/actions/{cid}/{action} with confirm, development and an Idempotency-Key. nsvx_group overview and devAction give chat the same. NSVX stays the owner.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/overview.py",
+          "backend/clone/group_companies/quick_actions.py",
+          "web/src/screens/GroupOverview.tsx",
+          "web/src/logic/groupOverview.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): app cards worst first with versions, CI, PRs, errors and 7-day visitors; adult apps absent; CI run confirmed then sent once with its key; unavailable actions disabled with the reason",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
+      },
+      "blockers": [
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "NSVX's owner card set also joins /api/group-companies company KPIs; the overview cards here use the overview feed only, and KPIs show on the app page.",
+        "The AI request box (POST /api/group-companies/proposals) is not ported."
+      ]
+    },
+    {
+      "id": "group-mail",
+      "title": "Group mail",
+      "family": "10",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/mail"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/mail/api.py",
+          "web/src/screens/GroupMail.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Group app mailboxes (JMAP/SMTP)"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.group.mailAction",
+          "nsvx.group.mailDraft",
+          "nsvx.group.mailSend"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
+      },
+      "adapter": "nsvx plugin Group tab, Mail: nsvx.view reads /mail/overview, /mail/threads, /{cid}/mail/threads and /{cid}/mail/threads/{tid}; mark, archive, star, spam go through nsvx.group.mailAction; reply, reply all, forward and new save a draft (nsvx.group.mailDraft) and send only after a second confirm (nsvx.group.mailSend with NSVX's idempotency key). Bodies show as plain text, never as HTML. nsvx_group mail and mailThread read for chat and never send.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/mail/api.py",
+          "web/src/screens/GroupMail.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): unified list, plain-text reader with attachments listed, mark read, reply saved as a draft and sent only after Send now",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
+      },
+      "blockers": [
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "Attachment download and upload are not ported: the Gateway relays JSON only, and NSVX streams attachments as files.",
+        "Remote images are never loaded; NSVX offers an opt-in."
+      ]
+    },
+    {
+      "id": "group-metrics",
+      "title": "Group metrics",
+      "family": "10",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/metrics"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/metrics.py",
+          "web/src/screens/GroupMetrics.tsx",
+          "web/src/logic/groupMetricsChart.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [
+          "Group apps"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
+      },
+      "adapter": "nsvx plugin Group tab, Visits: nsvx.view reads /api/group-companies/metrics?from&to for Lisbon days (7, 30, 90, 365); native SVG chart per app with legend toggles, totals, and CSV export built in the browser. nsvx_group metrics sums the same for chat.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/metrics.py",
+          "web/src/screens/GroupMetrics.tsx",
+          "web/src/logic/groupMetricsChart.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): one line per app, the Lisbon range in the request, legend totals, CSV",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
+      },
+      "blockers": [
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "Custom date ranges and the per-day table are not ported; the presets cover NSVX's buttons."
+      ]
+    },
+    {
+      "id": "group-errors",
+      "title": "Group errors",
+      "family": "10",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/errors"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/errors.py",
+          "web/src/screens/GroupErrors.tsx",
+          "web/src/logic/groupErrors.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "read",
+        "integrations": [
+          "Group apps"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
+      },
+      "adapter": "nsvx plugin Group tab, Errors: nsvx.view reads /api/group-companies/errors?hours (1, 6, 24, 168); grouped rows with level, app, route, age and count, filtered by level and app, adult sources dropped. nsvx_group errors gives chat the same list.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/errors.py",
+          "web/src/screens/GroupErrors.tsx",
+          "web/src/logic/groupErrors.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): grouped errors with level and app filters; adult rows absent",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
+      },
+      "blockers": [
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "Rows do not link to each app's own error view; NSVX links out to the app."
+      ]
+    },
+    {
+      "id": "group-servers",
+      "title": "Group servers",
+      "family": "10",
+      "priority": "P1",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies/servers"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/servers.py",
+          "web/src/screens/GroupServers.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "clone-ops agent",
+          "Master observer"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.group.serverAction"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_group"
+        ]
+      },
+      "adapter": "nsvx plugin Group tab, Servers: nsvx.view reads /servers, /servers/{sid}/services and /servers/{sid}/logs; restart a service, clean, stop a process, reboot (typed server name) and cancel reboot go through nsvx.group.serverAction (operator.admin) to POST /servers/{sid}/actions/{verb} with confirm. nsvx_group servers, services and logs read for chat; chat never runs server actions.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "source",
+        "source": [
+          "backend/clone/group_companies/servers.py",
+          "web/src/screens/GroupServers.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-group.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (ui/e2e-shots/nsvx-group): CPU, RAM and disk gauges per server, top processes, services, a service log",
+          "extensions/nsvx/src/group.test.ts, 2026-11-05: fixed routes, CSRF, idempotency keys, adult apps refused, nsvx_group owner-only"
+        ]
+      },
+      "blockers": [
+        "Owner screens need NSVX_OWNER_SESSION (the owner's own clone_session cookie) in the Gateway environment; NSVX has no machine sign-in for /api routes. Not yet run against a live NSVX."
+      ],
+      "unknowns": [
+        "NSVX server actions have no idempotency key: an uncertain answer says to check the server before repeating.",
+        "The AI server request (POST /servers/proposals) is not ported."
       ]
     },
     {

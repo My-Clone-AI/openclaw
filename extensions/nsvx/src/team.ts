@@ -13,7 +13,15 @@ type TeamRuntime = {
   gateway: Pick<PluginRuntime["gateway"], "request">;
 };
 
-export type TeamChange = "move" | "assign" | "pause" | "resume" | "rollback";
+export type TeamChange =
+  | "move"
+  | "assign"
+  | "pause"
+  | "resume"
+  | "rollback"
+  | "tools"
+  | "defaults"
+  | "add";
 
 /** One tree change, as NSVX's openclaw_admin_history row: who, what, and the section before it. */
 export type TeamVersion = {
@@ -244,6 +252,19 @@ export function createTeamService(
         assignAgent(entriesOf(draft), agent, node),
       );
       return { id: agent, node, version };
+    },
+
+    /**
+     * Agent settings (tool access, team defaults, a new agent's role) share the tree's history, so
+     * Undo restores them as well. `mutate` gets the config draft; no change logs nothing.
+     */
+    async edit(
+      change: "tools" | "defaults" | "add",
+      agent: string,
+      by: TeamVersion["by"],
+      mutate: (draft: Draft) => void,
+    ) {
+      return writeTree({ change, agent, by }, mutate);
     },
 
     /** Newest first, without the before-images. */

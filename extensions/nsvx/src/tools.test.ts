@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import manifest from "../openclaw.plugin.json" with { type: "json" };
 import type { NsvxClient } from "./client.js";
-import { createNsvxPeopleTool } from "./people-tool.js";
+import { createNsvxGroupTool } from "./group-tool.js";
 import { createNsvxDeviceTool } from "./device.js";
+import { createNsvxPeopleTool } from "./people-tool.js";
 import {
+  createNsvxAgentsTool,
   createNsvxAgendaTool,
   createNsvxFinanceTool,
   createNsvxMessagesTool,
+  createNsvxSkillsTool,
   createNsvxOwnerTools,
   createNsvxTeamTool,
   createNsvxTools,
@@ -49,14 +52,25 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     undo: async () => ({}),
   };
   const ctx = { senderIsOwner: true };
+  const settings = {
+    get: async () => ({}),
+    defaults: async () => ({}),
+    setInstructions: async () => ({}),
+    setTools: async () => ({}),
+    setDefaults: async () => ({}),
+    add: async () => ({}),
+  };
   const names = [
     ...createNsvxTools({} as NsvxClient).map((tool) => tool.name),
     createNsvxTeamTool(team as never, ctx as never).name,
+    createNsvxAgentsTool(settings as never, {} as NsvxClient, ctx as never).name,
+    createNsvxSkillsTool({} as NsvxClient, ctx as never).name,
     ...createNsvxOwnerTools({} as NsvxClient, ctx as never).map((tool) => tool.name),
     createNsvxMessagesTool({} as NsvxClient, ctx as never).name,
     createNsvxFinanceTool({} as NsvxClient, ctx as never).name,
     createNsvxAgendaTool({} as NsvxClient, ctx as never).name,
     createNsvxPeopleTool({} as NsvxClient, ctx as never).name,
+    createNsvxGroupTool({} as NsvxClient, ctx as never).name,
     createNsvxDeviceTool({} as NsvxClient, ctx as never).name,
   ];
   expect(NSVX_OWNER_TOOL_NAMES.toSorted()).toEqual(
@@ -65,5 +79,5 @@ it("declares every registered tool, because the loader drops undeclared tools", 
       .toSorted(),
   );
   expect(manifest.contracts.tools.toSorted()).toEqual([...new Set(names)].toSorted());
-  expect(manifest.contracts.tools).toHaveLength(11);
+  expect(manifest.contracts.tools).toHaveLength(14);
 });

@@ -478,8 +478,8 @@ const DEVICE_ACTIONS = [
   "jobs",
   "stopJob",
   "stopAllJobs",
-  "skills",
-  "skill",
+  "desktopSkills",
+  "desktopSkill",
   "recall",
   "sync",
   "promote",
@@ -598,23 +598,23 @@ async function runDeviceAction(
     case "stopAllJobs":
       context.assertInvocationCurrent?.();
       return stopAllJobs(client);
-    case "skills":
-      return (await client.readOwnerView<{ items: Skill[] }>("skills")).items.map(
+    case "desktopSkills":
+      return (await client.readOwnerView<{ items: Skill[] }>("desktopSkills")).items.map(
         ({ slug, name, when_to_use }) => ({ slug, name, when_to_use }),
       );
-    case "skill": {
+    case "desktopSkill": {
       if (typeof params.slug !== "string" || !SLUG.test(params.slug)) {
         throw new NsvxError("invalid", "slug is required.");
       }
       const { items } = await client.readOwnerView<{ items: { version: string }[] }>(
-        "skillVersions",
+        "desktopSkillVersions",
         { slug: params.slug },
       );
       const version = items[0]?.version;
       if (!version) {
         throw new NsvxError("not-found", "No such skill.");
       }
-      const detail = await client.readOwnerView<SkillDetail>("skill", {
+      const detail = await client.readOwnerView<SkillDetail>("desktopSkill", {
         slug: params.slug,
         version,
       });
