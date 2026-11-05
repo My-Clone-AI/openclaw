@@ -529,16 +529,28 @@
       },
       "openclaw": {
         "uiRoutes": [
+          "plugin",
           "channels",
           "sessions"
         ],
-        "gatewayMethods": [],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.messages.reply",
+          "nsvx.messages.approve",
+          "nsvx.messages.reject",
+          "nsvx.messages.takeover",
+          "nsvx.messages.autoReply",
+          "nsvx.quickReply.start"
+        ],
         "extensions": [
+          "nsvx",
           "whatsapp"
         ],
-        "chatTools": []
+        "chatTools": [
+          "nsvx_messages"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/conversations, /api/reply-coverage; NSVX stays the owner of data and jobs.",
+      "adapter": "Messages tab in the nsvx plugin page: conversation list (To answer, channel logos, search, paging), thread with delivery state, clone drafts to approve or discard, the owner's reply, Take over and Auto replies, and an AI draft through Quick Reply. Reads are fixed GET owner views (/api/conversations/page, /api/conversations/{id}); each change is one fixed NSVX route sent with the owner session and its CSRF token from /api/auth/state, so NSVX keeps its own checks, idempotency, and audit. nsvx_messages gives chat unanswered, find, read, draft, takeover, and autoReply on owner turns only; it never sends.",
       "verification": {
         "requires": [
           "discovery",
@@ -553,23 +565,36 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Messages.tsx",
-          "backend/clone/meta_messaging/"
+          "backend/clone/api.py",
+          "backend/clone/social_api.py",
+          "extensions/nsvx/src/messages.ts",
+          "extensions/nsvx/src/messages-tab.tsx",
+          "extensions/nsvx/src/tools.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/messages.test.ts: CSRF and idempotency key on reply, uncertain on lost writes, owner-only chat tool, against a fake NSVX, 2026-11-05",
+          "ui/src/e2e/nsvx-messages.e2e.test.ts: built nsvx plugin in Control UI with a mock Gateway: list, filters, thread, AI draft, send, approve, take over; Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
+        "Not built yet: attachments and voice notes in the composer, media previews, delete for everyone, Instagram comment hide, email trash, the coverage screen, context panel, conversation language, approval-prompt mode."
       ],
       "unknowns": [
-        "Native channels route to agents; a shared human inbox does not exist.",
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Chat never sends by design: a message read into the model could carry instructions, so only the owner's tap in Control sends.",
+        "Background refresh polls every 15 s (thread) and 30 s (list) while the page is visible, as NSVX does."
       ]
     },
     {
@@ -577,7 +602,7 @@
       "title": "Quick Reply",
       "family": "02",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/quick-reply"
@@ -606,12 +631,23 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.quickReply.start",
+          "nsvx.quickReply.regenerate",
+          "nsvx.quickReply.delete"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_messages"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/quick-reply; NSVX stays the owner of data and jobs.",
+      "adapter": "Quick reply tab in the nsvx plugin page: paste a message (sender, subject, and style filled from the paste), optional guidance by voice or text, Write reply, Copy, Again with a change, Delete, and recent drafts. Also the AI draft button in Messages. Drafts and generations stay in NSVX (/api/quick-reply/drafts, /generate under the current rules revision); nsvx_messages draft does the same from chat on owner turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -626,23 +662,33 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/QuickReply.tsx",
-          "backend/clone/quick_reply/"
+          "backend/clone/quick_reply/api.py",
+          "backend/clone/quick_reply/contracts.py",
+          "extensions/nsvx/src/messages.ts",
+          "extensions/nsvx/src/quick-reply-tab.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "extensions/nsvx/src/messages.test.ts: draft from a message, generate with the rules revision, stop on a failed job, paste hints, 2026-11-05",
+          "ui/src/e2e/nsvx-messages.e2e.test.ts: paste, autofill, write, copy; Chromium 1280 and 390 wide, 2026-11-05"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); nothing was run against a live NSVX.",
+        "Not built yet: rules and signatures editor, source picker, suggested actions (task, reminder, workspace) with preflight and execute, the generation queue view."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "people",
@@ -3130,7 +3176,7 @@
         "effect": "external",
         "integrations": [
           "Banks",
-          "Portal das Finanças",
+          "Portal das Finan\u00e7as",
           "e-Fatura"
         ],
         "runtime": "not-checked"
@@ -3428,7 +3474,7 @@
         ],
         "effect": "external",
         "integrations": [
-          "Portal das Finanças"
+          "Portal das Finan\u00e7as"
         ],
         "runtime": "not-checked"
       },

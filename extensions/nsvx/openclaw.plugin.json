@@ -2,15 +2,28 @@
   "id": "nsvx",
   "name": "NSVX",
   "description": "Run NSVX actions, manage the agent team, and track parity from Control",
-  "categories": ["productivity"],
+  "categories": [
+    "productivity"
+  ],
   "enabledByDefault": false,
   "activation": {
     "onStartup": true
   },
   "contracts": {
-    "tools": ["nsvx_actions", "nsvx_run", "nsvx_parity", "nsvx_team", "nsvx_search", "nsvx_activity"]
+    "tools": [
+      "nsvx_actions",
+      "nsvx_run",
+      "nsvx_parity",
+      "nsvx_team",
+      "nsvx_search",
+      "nsvx_activity",
+      "nsvx_messages"
+    ]
   },
-  "uiCapabilities": ["page", "navigation"],
+  "uiCapabilities": [
+    "page",
+    "navigation"
+  ],
   "uiHints": {
     "baseUrl": {
       "label": "NSVX address",

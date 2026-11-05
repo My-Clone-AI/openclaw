@@ -4,6 +4,7 @@ import { parseNsvxConfig } from "./src/config.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
 import {
+  createNsvxMessagesTool,
   createNsvxOwnerTools,
   createNsvxTeamTool,
   createNsvxTools,
@@ -30,6 +31,9 @@ export default definePluginEntry({
       api.registerTool(tool);
     }
     api.registerTool((context) => createNsvxTeamTool(team, context), { name: "nsvx_team" });
+    api.registerTool((context) => createNsvxMessagesTool(client, context), {
+      name: "nsvx_messages",
+    });
     for (const name of NSVX_OWNER_TOOL_NAMES) {
       api.registerTool(
         {

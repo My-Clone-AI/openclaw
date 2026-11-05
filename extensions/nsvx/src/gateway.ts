@@ -3,6 +3,16 @@ import { exportFileName } from "./activity-data.js";
 import { activityRange, findRequest } from "./activity-requests.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
+import {
+  approveDraft,
+  deleteQuickReply,
+  regenerateQuickReply,
+  rejectDraft,
+  sendReply,
+  setAutoReply,
+  setTakeover,
+  startQuickReply,
+} from "./messages.js";
 import parity from "./parity-data.json" with { type: "json" };
 import type { TeamService } from "./team.js";
 import type { NsvxStatus } from "./types.js";
@@ -65,8 +75,8 @@ export function registerNsvxGatewayMethods(
   };
   method("nsvx.status", "operator.read", () => readNsvxStatus(client));
   method("nsvx.parity", "operator.read", async () => parity);
-  // Owner screens (Today, tasks, work). Deliberately not a chat tool: the model gets NSVX data only through AgentOS
-  // contracts, which withhold owner-only views from agents.
+  // Owner screens (Today, tasks, work, messages). Not a chat tool: the model gets NSVX data through AgentOS contracts,
+  // which withhold owner-only views from agents, or through nsvx_messages on the owner's own turns.
   method("nsvx.view", "operator.read", (params) =>
     client.readOwnerView(
       requiredText(params, "view"),
@@ -118,6 +128,18 @@ export function registerNsvxGatewayMethods(
     }
     return client.decideApproval(requiredText(params, "approvalId"), decision);
   });
+  // Messages and Quick Reply read through nsvx.view; these are the owner's taps, each on one fixed NSVX route.
+  // Sending and approving reach real people, so they need write scope like chat.send.
+  method("nsvx.messages.reply", "operator.write", (params) => sendReply(client, params));
+  method("nsvx.messages.approve", "operator.write", (params) => approveDraft(client, params));
+  method("nsvx.messages.reject", "operator.write", (params) => rejectDraft(client, params));
+  method("nsvx.messages.takeover", "operator.write", (params) => setTakeover(client, params));
+  method("nsvx.messages.autoReply", "operator.write", (params) => setAutoReply(client, params));
+  method("nsvx.quickReply.start", "operator.write", (params) => startQuickReply(client, params));
+  method("nsvx.quickReply.regenerate", "operator.write", (params) =>
+    regenerateQuickReply(client, params),
+  );
+  method("nsvx.quickReply.delete", "operator.write", (params) => deleteQuickReply(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.
