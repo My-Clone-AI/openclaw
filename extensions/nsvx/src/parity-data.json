@@ -1,8 +1,23 @@
 {
+  "discovered": 76,
+  "native": 13,
+  "partial": 39,
+  "missing": 24,
   "discovered": 73,
   "native": 13,
   "partial": 35,
   "missing": 25,
+  "native": 10,
+  "partial": 36,
+  "missing": 26,
+  "native": 9,
+  "partial": 33,
+  "missing": 30,
+  "blocked": 1,
+  "discovered": 68,
+  "native": 12,
+  "partial": 26,
+  "missing": 30,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -63,20 +78,20 @@
     {
       "id": "15",
       "name": "Aviation",
-      "discovered": 1,
+      "discovered": 4,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 4,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
     {
       "id": "16",
       "name": "TVDE and transport",
-      "discovered": 2,
+      "discovered": 7,
       "native": 0,
-      "partial": 0,
-      "missing": 2,
+      "partial": 7,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -674,10 +689,34 @@
     },
     {
       "id": "aviation",
-      "title": "Aviation",
+      "title": "Aviation hub: overview, roster, mail, portal, settings, and stats",
       "family": "15",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-logbook",
+      "title": "Aviation logbook: entries, previous-day flights, Flight Log, exports",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-docs",
+      "title": "Aviation docs: library, expiry, preview, pin, rename",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "aviation-checkin",
+      "title": "Aviation auto check-in",
+      "family": "15",
+      "priority": "P3",
+      "status": "partial",
       "verified": false
     },
     {
@@ -685,7 +724,7 @@
       "title": "Transports",
       "family": "16",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -693,7 +732,47 @@
       "title": "TVDE fleet",
       "family": "16",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "tvde-ops",
+      "title": "TVDE ops",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "tvde-money",
+      "title": "TVDE money",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "tvde-intel",
+      "title": "TVDE intel",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "tvde-mileage",
+      "title": "TVDE mileage",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "driver-portal",
+      "title": "Driver portal",
+      "family": "16",
+      "priority": "P3",
+      "status": "partial",
       "verified": false
     },
     {

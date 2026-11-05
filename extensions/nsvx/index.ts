@@ -1,8 +1,10 @@
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createAgentSettings } from "./src/agent-settings.js";
+import { createNsvxAviationTool } from "./src/aviation-tool.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
+import { createNsvxFleetTool } from "./src/fleet-tool.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
@@ -52,6 +54,10 @@ export default definePluginEntry({
     api.registerTool((context) => createNsvxDeviceTool(client, context), {
       name: "nsvx_device",
     });
+    api.registerTool((context) => createNsvxAviationTool(client, context), {
+      name: "nsvx_aviation",
+    });
+    api.registerTool((context) => createNsvxFleetTool(client, context), { name: "nsvx_fleet" });
     api.registerTool((context) => createNsvxFinanceTool(client, context), {
       name: "nsvx_finance",
       optional: true,
