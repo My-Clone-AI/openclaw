@@ -408,8 +408,8 @@ export function ProjectPickerContent(props: ProjectChipProps) {
                 </Errored>
               </>
             ) : undefined}
-            <details open={props.nativeTerminal || props.params.place.isAdmin()}>
-              <summary hidden={props.nativeTerminal || props.params.place.isAdmin()}>
+            <details open={props.nativeTerminal}>
+              <summary hidden={props.nativeTerminal}>
                 {t("newSession.projectAdvanced")}
               </summary>
               {props.params.place.remotePlacement && !view().query ? (
