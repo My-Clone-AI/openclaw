@@ -1,25 +1,8 @@
 {
-  "discovered": 76,
+  "discovered": 82,
   "native": 13,
-  "partial": 39,
-  "missing": 24,
-  "discovered": 73,
-  "native": 13,
-  "partial": 38,
-  "missing": 22,
-  "partial": 35,
-  "missing": 25,
-  "native": 10,
-  "partial": 36,
-  "missing": 26,
-  "native": 9,
-  "partial": 33,
-  "missing": 30,
-  "blocked": 1,
-  "discovered": 68,
-  "native": 12,
-  "partial": 26,
-  "missing": 30,
+  "partial": 53,
+  "missing": 16,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -102,18 +85,18 @@
       "name": "Legal",
       "discovered": 1,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 1,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
     {
       "id": "18",
       "name": "Research and web",
-      "discovered": 1,
+      "discovered": 2,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 2,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -122,8 +105,8 @@
       "name": "Marketing and social",
       "discovered": 1,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 1,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -244,8 +227,6 @@
       "native": 0,
       "partial": 3,
       "missing": 0,
-      "partial": 0,
-      "missing": 3,
       "blocked": 0,
       "verified": 0
     }
@@ -784,7 +765,7 @@
       "title": "Legal cases",
       "family": "17",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -792,7 +773,15 @@
       "title": "Research",
       "family": "18",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "research-settings",
+      "title": "Research settings: automatic delivery, account, contacts, history",
+      "family": "18",
+      "priority": "P3",
+      "status": "partial",
       "verified": false
     },
     {
@@ -800,7 +789,7 @@
       "title": "Marketing",
       "family": "19",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {

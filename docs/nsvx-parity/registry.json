@@ -5897,7 +5897,7 @@
       "title": "Legal cases",
       "family": "17",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/processos"
@@ -5927,12 +5927,25 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.cases.change",
+          "nsvx.cases.upload",
+          "nsvx.cases.file",
+          "nsvx.legalReview.change",
+          "nsvx.procedures.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_legal"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/cases, /api/legal-reviews; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Legal tab (Cases, Routines) reads NSVX /api/cases (dashboard, list, suggestions, settings, vocab, one case with summary, parties, facts, timeline, deadlines, evidence and pages, payments and obligations, documents, research sources, AI runs, history, exports, sheets) and /api/procedures through nsvx.view; every change (case create/edit, suggestion review and convert, discovery, parties, facts, events, evidence upload/Drive/version/derive/check/annotations, obligations, payments, deadlines, sources, documents, legal AI prepare/authorize/cancel, exports, sheet split, procedure create/edit/run/resume/cancel, outbox legal review prepare/authorize/cancel) goes through nsvx.cases.change, nsvx.cases.upload, nsvx.legalReview.change or nsvx.procedures.change, one fixed OWNER_WRITES route each with the owner session and its CSRF token. Files (evidence originals, documents, exports) come back through nsvx.cases.file. nsvx_legal gives chat dashboard, cases, one case, suggestions, deadlines, evidence names, payments, timeline, documents, AI runs, procedures, and create, status, deadline, event, fact, AI prepare (authorize stays in Control), discovery, and procedure runs with a per-request key, on the owner's turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -5947,30 +5960,48 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/LegalCases.tsx",
-          "backend/clone/cases/"
+          "backend/clone/cases/api.py",
+          "backend/clone/legal_reply_api.py",
+          "backend/clone/procedure_api.py",
+          "extensions/nsvx/src/legal-tab.tsx",
+          "extensions/nsvx/src/legal-case.tsx",
+          "extensions/nsvx/src/legal-proofs.tsx",
+          "extensions/nsvx/src/legal-procedures.tsx",
+          "extensions/nsvx/src/legal.ts",
+          "extensions/nsvx/src/legal-tool.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-office.e2e.test.ts, 2026-11-05: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-office/nsvx-legal-*): case list, suggestions, new case, summary, timeline, evidence with page viewer, money, documents, deadlines, legal AI consent (nothing sent before authorize), routines with one key per request and no resume of an uncertain step, Portuguese phone with sign-in state, no horizontal overflow.",
+          "extensions/nsvx/src/office.test.ts, 2026-11-05: legal changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, owner cookie, multipart upload); values NSVX would refuse never reach it; nsvx_legal answers only the owner and confirms only on the current turn."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_legal was unit tested, not run by a live agent turn.",
+        "The legal AI authorize and outbox legal review authorize stay owner taps in Control; chat can only prepare."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "research",
       "title": "Research",
       "family": "18",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/pesquisas"
@@ -5998,12 +6029,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.research.change",
+          "nsvx.research.file"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_research"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/research; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Research tab (In progress, Completed, one job) reads NSVX /api/research and /api/research/{id} through nsvx.view; create from a conversation, rename, retry, cancel, send, and resend go through nsvx.research.change on fixed OWNER_WRITES routes with the owner session and CSRF token; the report PDF comes back through nsvx.research.file. Send and resend queue the report under NSVX's own delivery rules. nsvx_research gives chat list, read, settings, retry, cancel, and name; send and automatic delivery return needsOwner.",
       "verification": {
         "requires": [
           "discovery",
@@ -6018,30 +6059,132 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Research.tsx",
-          "backend/clone/research/"
+          "backend/clone/research/api.py",
+          "extensions/nsvx/src/research-tab.tsx",
+          "extensions/nsvx/src/research.ts",
+          "extensions/nsvx/src/research-data.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-office.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway with synthetic payloads (screenshots in ui/e2e-shots/nsvx-office/nsvx-research-list-*, nsvx-research-job-*): lists jobs, opens one, asks before it sends, phone layout fits.",
+          "extensions/nsvx/src/office.test.ts, 2026-11-05: research changes reach fixed NSVX routes with CSRF and owner cookie; nsvx_research refuses send and autoDelivery from chat."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_research was unit tested, not run by a live agent turn.",
+        "Running a job needs the NSVX ChatGPT browser session; Control shows NSVX's own sign-in state and retry."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
+    },
+    {
+      "id": "research-settings",
+      "title": "Research settings: automatic delivery, account, contacts, history",
+      "family": "18",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/pesquisas"
+        ],
+        "backendPackages": [
+          "research"
+        ],
+        "jobPackages": [
+          "research"
+        ],
+        "apiPrefixes": [
+          "/api/research/settings"
+        ],
+        "sourceFiles": [
+          "backend/clone/research/api.py",
+          "backend/clone/research/settings.py",
+          "web/src/screens/ResearchSettings.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.research.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_research"
+        ]
+      },
+      "adapter": "nsvx plugin Research tab Settings reads NSVX /api/research/settings (per account or global, inherited state, effective state, contacts, history) through nsvx.view and saves enabled, allowlist or blocklist mode, and contacts through nsvx.research.change (settings) with the owner session and CSRF token. nsvx_research settings reads it in chat; turning automatic delivery on stays an owner tap in Control.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/screens/ResearchSettings.tsx",
+          "backend/clone/research/api.py",
+          "backend/clone/research/settings.py",
+          "extensions/nsvx/src/research-tab.tsx",
+          "extensions/nsvx/src/research.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-office.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway (screenshots in ui/e2e-shots/nsvx-office/nsvx-research-settings-*): account choice, automatic delivery with NSVX's held-in-development state, allowlist/blocklist and contacts, history, save request.",
+          "extensions/nsvx/src/office.test.ts, 2026-11-05: settings save reaches POST /api/research/settings with CSRF and owner cookie."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX."
+      ],
+      "unknowns": []
     },
     {
       "id": "marketing",
       "title": "Marketing",
       "family": "19",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/empresas-do-grupo"
@@ -6071,12 +6214,23 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.marketing.change",
+          "nsvx.marketing.gate",
+          "nsvx.marketing.inventory"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_marketing"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned.",
+      "adapter": "nsvx plugin Marketing tab (Overview, Create, Calendar, Accounts, Report) reads NSVX /api/group-companies/marketing overview, brands, calendar, channels, analytics, and jobs through nsvx.view; generate, preview, schedule, publish, retry, pause, cancel, and activations go through nsvx.marketing.change; the publishing gate (test-only or live, stop all, with a reason) through nsvx.marketing.gate (operator.admin); the social accounts inventory export through nsvx.marketing.inventory. Adult apps are never shown. nsvx_marketing gives chat overview, calendar, accounts, report, generate, preview, retry, pause, and stopAll; publish and goLive return needsOwner.",
       "verification": {
         "requires": [
           "discovery",
@@ -6091,19 +6245,36 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
+          "web/src/screens/MarketingAdmin.tsx",
+          "web/src/screens/GroupCompanies.tsx",
+          "backend/clone/group_companies/marketing/admin_api.py",
           "backend/clone/group_companies/marketing/inventory_api.py",
-          "web/src/screens/GroupCompanies.tsx"
+          "extensions/nsvx/src/marketing-tab.tsx",
+          "extensions/nsvx/src/marketing-accounts.tsx",
+          "extensions/nsvx/src/marketing.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-office.e2e.test.ts, 2026-11-05: Chromium 1280 and 390 against a mock Gateway with synthetic payloads (screenshots in ui/e2e-shots/nsvx-office/nsvx-marketing-*): gate switch needs a reason, create, calendar, accounts, report, no adult apps, phone layout fits.",
+          "extensions/nsvx/src/office.test.ts, 2026-11-05: marketing changes reach fixed NSVX routes with CSRF and owner cookie; nsvx_marketing refuses publish and goLive from chat."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_marketing was unit tested, not run by a live agent turn.",
+        "Content generation works only on NSVX's development server (NSVX's own rule)."
       ],
       "unknowns": []
     },
