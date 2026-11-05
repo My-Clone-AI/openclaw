@@ -1,5 +1,6 @@
 import { accessTranslator } from "./access-i18n.js";
 import { agendaTranslator } from "./agenda-i18n.js";
+import { aiTranslator } from "./ai-i18n.js";
 import { aviationTranslator } from "./aviation-i18n.js";
 import { deviceTranslator } from "./device-i18n.js";
 import { fleetTranslator } from "./fleet-i18n.js";
@@ -25,6 +26,7 @@ export const TABS = [
   "agenda",
   "people",
   "money",
+  "ai",
   "group",
   "fleet",
   "aviation",
@@ -51,6 +53,8 @@ export function tabLabel(locale: string, id: Tab): string {
   switch (id) {
     case "access":
       return accessTranslator(locale)(id);
+    case "ai":
+      return aiTranslator(locale)(id);
     case "agenda":
       return agendaTranslator(locale)(id);
     case "aviation":

@@ -31,6 +31,7 @@ import {
   submitChange,
 } from "./agenda.js";
 import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
+import { changeAi } from "./ai.js";
 import { registerAviationMethods } from "./aviation.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
@@ -253,6 +254,9 @@ export function registerNsvxGatewayMethods(
   // None pays or approves money; access links and driver news reach drivers only through their own portal.
   method("nsvx.fleet.change", "operator.write", (params) => changeFleet(client, params));
   method("nsvx.fleet.ask", "operator.read", (params) => askFleet(client, params));
+  // AI routing, subscriptions, Clone AI, training, and voice read through nsvx.view. Changes reroute every NSVX
+  // model call (and lane and account tests spend subscription usage), so they need the same scope as config.patch.
+  method("nsvx.ai.change", "operator.admin", (params) => changeAi(client, params));
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

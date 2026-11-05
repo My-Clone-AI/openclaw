@@ -1,8 +1,8 @@
 {
-  "discovered": 82,
+  "discovered": 85,
   "native": 13,
-  "partial": 53,
-  "missing": 16,
+  "partial": 57,
+  "missing": 15,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -203,10 +203,10 @@
     {
       "id": "07",
       "name": "AI and inference",
-      "discovered": 3,
+      "discovered": 6,
       "native": 0,
-      "partial": 2,
-      "missing": 1,
+      "partial": 6,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -378,7 +378,7 @@
     },
     {
       "id": "ai-models",
-      "title": "AI models, routing and keys",
+      "title": "AI routes, accounts, usage and request log",
       "family": "07",
       "priority": "P1",
       "status": "partial",
@@ -397,7 +397,31 @@
       "title": "clone-ai models and training",
       "family": "07",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "clone-ai-admin",
+      "title": "Clone AI admin: Mac, routing, promotion",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "gpt-voice-settings",
+      "title": "GPT voice-note settings",
+      "family": "07",
+      "priority": "P2",
+      "status": "partial",
+      "verified": false
+    },
+    {
+      "id": "inference-flows",
+      "title": "Inference flows: models, servers, apps",
+      "family": "07",
+      "priority": "P1",
+      "status": "partial",
       "verified": false
     },
     {
