@@ -1,7 +1,8 @@
 # NSVX plugin
 
 Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, People, Agenda, Money,
-AI (routes, accounts, flows, Clone AI, voice, log), Group, Aviation (logbook, documents, auto check-in, roster), Fleet
+AI (routes, accounts, flows, Clone AI, voice, log), Group, Homes (real estate, rent, loans, mortgage, short
+stays), Aviation (logbook, documents, auto check-in, roster), Fleet
 (TVDE drivers, cars, plan, money, km, ask, driver portal, Uber trips), Device (desktop jobs, bots, memory, skills,
 sync), Health (status and legal pages), Grow (coding apps, Build Me ideas, the OpenClaw brain, timers), the agent team
 chart (move, assign, task, stop, pause), NSVX action contracts, approvals, and parity progress.
@@ -64,13 +65,16 @@ The fixed routes in `OWNER_WRITES` (`src/client.ts`) are the only owner changes:
 - Device: desktop bot saves, job stops, memory fix and forget, and the offline sync changes (save, create, discard, and
   send a reviewed draft).
 - Aviation: logbook entries, previous-day flights, document details, settings, and check-ins.
+- Homes: home costs, alert and notice reads, rent payment matches (match, match all, undo), new mortgage cases and a
+  bank's document list, short-stay check-in and check-out steps, cleaning task moves, reported fixes, and notices
+  read. No receipt is issued, no bank is called, and no guest is messaged.
 - Grow: the fixed `/api/grow`, Build Me admin, and brain routes.
 - Skills: skill state and review.
 
 Finance / Money is read only. AI changes reroute every NSVX model call, so `nsvx.ai.change` needs `operator.admin`.
 
 Owner chat tools (`nsvx_messages`, `nsvx_people`, `nsvx_search`, `nsvx_activity`, `nsvx_agenda`, `nsvx_ai`,
-`nsvx_device`, `nsvx_grow`, `nsvx_aviation`, `nsvx_fleet`, `nsvx_skills`, `nsvx_agents` (suggest), optional
+`nsvx_device`, `nsvx_grow`, `nsvx_aviation`, `nsvx_fleet`, `nsvx_homes` (optional), `nsvx_skills`, `nsvx_agents` (suggest), optional
 `nsvx_finance` and `nsvx_group`) run on the owner's own turns only:
 
 - `nsvx_messages`, `nsvx_people`, and `nsvx_device` never send.
@@ -83,6 +87,8 @@ Owner chat tools (`nsvx_messages`, `nsvx_people`, `nsvx_search`, `nsvx_activity`
 - `nsvx_aviation` confirms a pending flight as NSVX prepared it, asks NSVX to check yesterday or re-read the Flight
   Log, and schedules or stops a free check-in; corrections, voids, and document edits stay on the page.
 - `nsvx_fleet` never pays, approves payouts, makes driver links, or writes to drivers.
+- `nsvx_homes` reads homes, rent, loans, mortgage cases, and short stays, and moves a cleaning task or reports a fix;
+  rent matching, costs, and mortgage changes stay on the page.
 
 Aviation files (Excel, CSV, the printable EASA layout, and document downloads) cross the Gateway socket through
 `nsvx.aviation.file` and are saved by the browser; document pages arrive as images NSVX renders, so the browser

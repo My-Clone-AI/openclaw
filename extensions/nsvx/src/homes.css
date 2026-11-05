@@ -1,0 +1,661 @@
+.nsvx-homes,
+.nsvx-homes__stack {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nsvx-homes > .nsvx-seg,
+.nsvx-homes__stack > .nsvx-seg {
+  width: 100%;
+}
+
+.nsvx-homes__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-homes__tile {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card, transparent);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-homes__tile > span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nsvx-homes__tile > strong {
+  overflow: hidden;
+  color: var(--text-strong);
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-homes__tile > small {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-homes__tile--link:hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-homes__tile--ok,
+.nsvx-homes__card--ok,
+.nsvx-homes__house--ok {
+  border-left-color: var(--ok);
+}
+
+.nsvx-homes__tile--warn,
+.nsvx-homes__card--warn,
+.nsvx-homes__house--warn {
+  border-left-color: var(--warn);
+}
+
+.nsvx-homes__tile--bad,
+.nsvx-homes__card--bad,
+.nsvx-homes__house--bad {
+  border-left-color: var(--danger);
+}
+
+.nsvx-homes__tile--accent,
+.nsvx-homes__house--accent {
+  border-left-color: var(--info);
+}
+
+.nsvx-homes__chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-homes__chip .nsvx__icon {
+  width: 12px;
+  height: 12px;
+}
+
+.nsvx-homes__chip--ok {
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+}
+
+.nsvx-homes__chip--warn {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+}
+
+.nsvx-homes__chip--bad {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.nsvx-homes__chip--accent {
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+
+.nsvx-homes__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-homes__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.nsvx-homes__section {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-homes__section > h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 15px;
+}
+
+.nsvx-homes__count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-homes__act {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nsvx-homes__confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-homes__note {
+  color: var(--ok);
+  font-size: 12px;
+}
+
+.nsvx-homes__note--bad {
+  color: var(--danger);
+}
+
+.nsvx-homes__bars {
+  width: 100%;
+  height: 120px;
+}
+
+.nsvx-homes__axis {
+  stroke: var(--border);
+  stroke-width: 0.3;
+}
+
+.nsvx-homes__bar {
+  fill: var(--ok);
+}
+
+.nsvx-homes__bar--neg {
+  fill: var(--danger);
+}
+
+.nsvx-homes__bar--future {
+  opacity: 0.35;
+}
+
+.nsvx-homes__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-homes__form > input,
+.nsvx-homes__form > select {
+  flex: 1 1 140px;
+  min-width: 0;
+  min-height: 40px;
+}
+
+.nsvx-homes__form--row {
+  flex-wrap: nowrap;
+}
+
+.nsvx-homes__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 40px;
+}
+
+.nsvx-homes__quick {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.nsvx-homes__quick:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.nsvx-homes__answer {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.nsvx-homes__answer > .nsvx-homes__chip {
+  justify-self: start;
+}
+
+.nsvx-homes__answer > p {
+  margin: 0;
+  color: var(--text-strong);
+}
+
+.nsvx-homes__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-homes__card,
+.nsvx-homes__loan {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card, transparent);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+}
+
+.nsvx-homes__card:hover,
+.nsvx-homes__loan:hover {
+  background: var(--surface-hover);
+}
+
+.nsvx-homes__card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-homes__card-icon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nsvx-homes__amount {
+  flex: none;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.nsvx-homes__amount small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.nsvx-homes__back {
+  justify-self: start;
+}
+
+.nsvx-homes__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nsvx-homes__title strong {
+  color: var(--text-strong);
+  font-size: 18px;
+}
+
+.nsvx-homes__checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-homes__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.nsvx-homes__check--ok {
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
+  color: var(--text);
+}
+
+.nsvx-homes__check--ok .nsvx__icon {
+  stroke: var(--ok);
+}
+
+.nsvx-homes__check--warn .nsvx__icon {
+  stroke: var(--warn);
+}
+
+.nsvx-homes__check--bad {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  color: var(--danger);
+}
+
+.nsvx-homes__check--off {
+  color: var(--muted);
+}
+
+.nsvx-homes__monthbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.nsvx-homes__month {
+  min-width: 10ch;
+  color: var(--text-strong);
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.nsvx-homes__more > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  color: var(--muted);
+}
+
+.nsvx-homes__hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nsvx-homes__payment,
+.nsvx-homes__task {
+  display: grid;
+  min-width: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.nsvx-homes__payment > .nsvx-row,
+.nsvx-homes__task > .nsvx-row {
+  border-bottom: 0;
+}
+
+.nsvx-homes__options {
+  padding-left: var(--space-4);
+}
+
+.nsvx-homes__loans {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-homes__progress {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-selected);
+}
+
+.nsvx-homes__progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ok);
+}
+
+.nsvx-homes__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-homes__table th,
+.nsvx-homes__table td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--border);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.nsvx-homes__table th:first-child,
+.nsvx-homes__table td:first-child {
+  text-align: start;
+}
+
+.nsvx-homes__table th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.nsvx-homes__rates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-homes__rate {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nsvx-homes__rate ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.nsvx-homes__rate li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-homes__rate--custom {
+  background: var(--surface-selected);
+}
+
+.nsvx-homes__up {
+  color: var(--danger);
+}
+
+.nsvx-homes__down {
+  color: var(--ok);
+}
+
+.nsvx-homes__case {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 var(--space-3) var(--space-4);
+}
+
+.nsvx-homes__houses {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-2);
+}
+
+.nsvx-homes__house {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-homes__house > strong {
+  overflow: hidden;
+  color: var(--text-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nsvx-homes__house > .nsvx-homes__chip {
+  justify-self: start;
+}
+
+.nsvx-homes__house .nsvx-row__detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nsvx-homes__house-code {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.nsvx-homes__booking {
+  flex-wrap: wrap;
+}
+
+.nsvx-homes__mark {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.nsvx-homes__source {
+  flex: none;
+  min-width: 24px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nsvx-homes__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) var(--space-2);
+}
+
+.nsvx-homes__stock {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nsvx-homes__stock-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.nsvx-homes__stock-item > .nsvx-homes__progress {
+  grid-column: 1 / -1;
+}
+
+.nsvx-homes__stock-item--low {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+}
+
+.nsvx-homes__stock-item--low .nsvx-homes__progress > span {
+  background: var(--danger);
+}
+
+@media (max-width: 900px) {
+  .nsvx-homes__cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .nsvx-homes__tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nsvx-homes__cards,
+  .nsvx-homes__houses,
+  .nsvx-homes__stock,
+  .nsvx-homes__rates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nsvx-homes__form > input,
+  .nsvx-homes__form > select {
+    flex-basis: 100%;
+  }
+
+  .nsvx-homes__form--row > input,
+  .nsvx-homes__form--row > select {
+    flex-basis: auto;
+  }
+
+  .nsvx-homes .nsvx-row {
+    flex-wrap: wrap;
+  }
+
+  .nsvx-homes .nsvx-row__main {
+    flex: 1 1 60%;
+  }
+
+  .nsvx-homes__case,
+  .nsvx-homes__options {
+    padding-left: 0;
+  }
+
+  .nsvx-homes .nsvx-seg__item > span {
+    font-size: 13px;
+  }
+}

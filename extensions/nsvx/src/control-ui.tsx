@@ -17,6 +17,7 @@ import { GroupTab } from "./group-tab.js";
 import { growTranslator } from "./grow-i18n.js";
 import { GrowTab } from "./grow-tab.js";
 import { HealthTab } from "./health-tab.js";
+import { HomesTab } from "./homes-tab.js";
 import { translator } from "./i18n.js";
 import { legalTranslator } from "./legal-i18n.js";
 import { LegalTab } from "./legal-tab.js";
@@ -382,6 +383,9 @@ const mountNsvx: ControlUiView = (container, context) => {
                 locale={locale()}
                 query={query()}
               />
+            </Show>
+            <Show when={tab() === "homes"}>
+              <HomesTab host={host} t={t} locale={locale()} query={query()} />
             </Show>
             <Show when={tab() === "fleet"}>
               <FleetTab host={host} t={t} locale={locale()} query={query()} />

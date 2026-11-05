@@ -127,6 +127,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes      |
 | Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace)    |
 | Fleet       | TVDE home, drivers, cars, plan, money, km, ask, driver portal, Uber trips    | NSVX `/api/tvde`, `/api/transports` |
+| Homes       | Summary, homes, rent, loans, mortgage, short stays (AL)                      | NSVX `/api/realestate`, `/api/al`   |
 | Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
 | Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
@@ -209,6 +210,15 @@ document pages are NSVX's own page images. A second check-in for a booking that 
 `conflict` instead of a duplicate airline run. Chat gets `nsvx_aviation` on the owner's own turns: overview, logbook,
 entry, missing, pending, confirm, checkYesterday, compare, documents, checkins, airlines, checkin, cancelCheckin, and
 roster. `ui/src/e2e/nsvx-aviation.e2e.test.ts` covers every section at 1280 and 390 wide (`ui/e2e-shots/nsvx-aviation`).
+Homes reads NSVX `/api/realestate` (overview, units, rent ledger, loans), `/api/properties` (each home's services,
+bills, papers, contacts, costs, deadline alerts), `/api/arrendamento` (rent contracts, bank payments, matches),
+`/api/mortgage` (cases, lenders), and `/api/al` (houses today, bookings, cleaning, fixes, stock) through `nsvx.view`.
+Its changes are one fixed `OWNER_WRITES` route each (`nsvx.homes.*`, `nsvx.rent.*`, `nsvx.mortgage.*`, `nsvx.stay.*`):
+costs and new mortgage cases carry an `Idempotency-Key`, a bank's document list is fenced by the case revision, and
+rent matching uses NSVX's own ranked allocation. Nothing issues a receipt, calls a bank, or messages a guest. Questions
+go to NSVX's deterministic home assistant (`nsvx.homes.ask`) and rate moves to its calculator (`nsvx.homes.rates`).
+Chat gets `nsvx_homes` on the owner's own turns. `ui/src/e2e/nsvx-homes.e2e.test.ts` covers every area at 1280 and 390
+wide (`ui/e2e-shots/nsvx-homes`).
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run

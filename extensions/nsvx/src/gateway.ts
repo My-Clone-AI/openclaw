@@ -59,6 +59,7 @@ import {
   setTakeover,
   startQuickReply,
 } from "./messages.js";
+import { registerHomesMethods } from "./homes.js";
 import parity from "./parity-data.json" with { type: "json" };
 import { changeGroup, changePerson } from "./people.js";
 import { registerResearchMethods } from "./research.js";
@@ -257,6 +258,8 @@ export function registerNsvxGatewayMethods(
   // AI routing, subscriptions, Clone AI, training, and voice read through nsvx.view. Changes reroute every NSVX
   // model call (and lane and account tests spend subscription usage), so they need the same scope as config.patch.
   method("nsvx.ai.change", "operator.admin", (params) => changeAi(client, params));
+  // Homes read through nsvx.view; these are the owner's taps and two stored-data reads (homes.ts).
+  registerHomesMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

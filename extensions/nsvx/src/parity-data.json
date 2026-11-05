@@ -1,8 +1,8 @@
 {
   "discovered": 85,
   "native": 13,
-  "partial": 57,
-  "missing": 15,
+  "partial": 61,
+  "missing": 11,
   "blocked": 0,
   "verified": 0,
   "sources": {
@@ -45,8 +45,8 @@
       "name": "Real estate",
       "discovered": 3,
       "native": 0,
-      "partial": 0,
-      "missing": 3,
+      "partial": 3,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -55,8 +55,8 @@
       "name": "Short-stay rentals",
       "discovered": 1,
       "native": 0,
-      "partial": 0,
-      "missing": 1,
+      "partial": 1,
+      "missing": 0,
       "blocked": 0,
       "verified": 0
     },
@@ -669,7 +669,7 @@
       "title": "Mortgage",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -677,7 +677,7 @@
       "title": "Real estate",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -685,7 +685,7 @@
       "title": "Rentals",
       "family": "13",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {
@@ -693,7 +693,7 @@
       "title": "Short-stay rentals",
       "family": "14",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "verified": false
     },
     {

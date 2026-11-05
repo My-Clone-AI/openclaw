@@ -1,7 +1,7 @@
 import { NsvxError } from "./nsvx-client-core.js";
 
 /**
- * The AgentOS read action behind each Access, Legal, Research, Marketing, and AI read, so a Gateway with only the bearer
+ * The AgentOS read action behind each Access, Legal, Research, Marketing, AI, and Homes read, so a Gateway with only the bearer
  * token can open those tabs (NSVX's map: `docs/agentos/OPENCLAW_OWNER_TABS.md`). A view with no entry, or whose action
  * NSVX does not serve yet, stays `token-pending` by itself. Owner writes never go through here.
  */
@@ -72,6 +72,26 @@ export const OWNER_VIEW_ACTIONS = {
   gptVoice: "clone.voice.gpt.settings",
   cloneAiBench: "clone.ai.clone.bench",
   aiKeys: "clone.ai.keys",
+  homesOverview: "clone.homes.overview",
+  homesPortfolio: "clone.homes.portfolio",
+  homesUnits: "clone.homes.units",
+  homesRent: "clone.homes.rent",
+  homesLoans: "clone.homes.loans",
+  homesLoan: "clone.homes.loan",
+  homesHub: "clone.homes.hub",
+  homesHubProperty: "clone.homes.hub.property",
+  homesHubAlerts: "clone.homes.hub.alerts",
+  rentBoard: "clone.homes.rent.board",
+  rentSuggestions: "clone.homes.rent.suggestions",
+  mortgageCases: "clone.homes.mortgage.cases",
+  mortgageCase: "clone.homes.mortgage.case",
+  mortgageLenders: "clone.homes.mortgage.lenders",
+  stayMe: "clone.homes.stay.me",
+  stayOverview: "clone.homes.stay.overview",
+  stayReservations: "clone.homes.stay.reservations",
+  stayTasks: "clone.homes.stay.tasks",
+  stayMaintenance: "clone.homes.stay.maintenance",
+  stayInventory: "clone.homes.stay.inventory",
 } as const;
 
 export const OWNER_FILE_ACTIONS = {
