@@ -1,0 +1,4803 @@
+{
+  "schemaVersion": 1,
+  "generator": "scripts/nsvx-parity-inventory.mts",
+  "sources": {
+    "nsvx": {
+      "repo": "My-Clone-AI/clone",
+      "commit": "228296050da9da6fe364a88d5f5901bd9ce8b9b2"
+    },
+    "openclaw": {
+      "repo": "My-Clone-AI/openclaw",
+      "commit": "dfc33ec231d4afd31ae7eeb8b9b218575b39a596"
+    }
+  },
+  "nsvx": {
+    "fullListDigest": "7a3cb21b4042fdfcc7a65f4330b0c091a7cec39eb1b8e584bb2d8e58db21360a",
+    "counts": {
+      "webRoutes": 39,
+      "navigation": 27,
+      "screens": 151,
+      "tabs": 63,
+      "apiClients": 551,
+      "apiClientsWithBackendMatch": 545,
+      "backendRoutes": 1861,
+      "jobKinds": 155,
+      "unresolvedEnqueueCalls": 146,
+      "systemdUnits": 24
+    },
+    "topLevelWebRoutes": [
+      "/",
+      "/acesso",
+      "/agenda",
+      "/al",
+      "/apps",
+      "/arrendamento",
+      "/aviacao",
+      "/documentos",
+      "/empresarial",
+      "/empresas-do-grupo",
+      "/encomendas",
+      "/equipa",
+      "/financas",
+      "/garantias",
+      "/imoveis",
+      "/mensagens",
+      "/motorista",
+      "/permissoes",
+      "/pesquisas",
+      "/pessoal",
+      "/pessoas",
+      "/processos",
+      "/quick-reply",
+      "/tarefas",
+      "/trabalho",
+      "/transportes",
+      "/tvde",
+      "/tvde-consulta",
+      "/utilities"
+    ],
+    "backendRoutesByPackage": {
+      "(root)": 377,
+      "agentos": 10,
+      "airline": 11,
+      "al": 129,
+      "arrendamento": 18,
+      "auto": 25,
+      "aviation": 47,
+      "browser": 95,
+      "build_me": 18,
+      "business": 31,
+      "calls": 12,
+      "cases": 69,
+      "commerce": 11,
+      "credentials": 17,
+      "documents": 72,
+      "finance": 129,
+      "google_workspace": 41,
+      "group_companies": 88,
+      "grow": 14,
+      "grupo_doit": 14,
+      "grupo_pay": 4,
+      "inference": 64,
+      "ledger": 42,
+      "live_tasks": 5,
+      "meta_messaging": 27,
+      "mortgage": 20,
+      "openclaw_admin": 21,
+      "oplog": 2,
+      "orders": 7,
+      "pdf_forms": 11,
+      "phone_lookup": 6,
+      "properties": 47,
+      "quick_reply": 28,
+      "realestate": 113,
+      "rental_contracts": 9,
+      "research": 8,
+      "signatures": 22,
+      "subscriptions": 12,
+      "transports": 10,
+      "tvde": 140,
+      "utilities": 25,
+      "warranties": 10
+    },
+    "jobKindsByPackage": {
+      "(root)": 44,
+      "agentos": 5,
+      "airline": 1,
+      "al": 3,
+      "arrendamento": 1,
+      "auto": 4,
+      "aviation": 4,
+      "business": 5,
+      "calls": 4,
+      "cases": 4,
+      "credentials": 4,
+      "documents": 12,
+      "drive": 3,
+      "finance": 17,
+      "google_workspace": 13,
+      "grupo_doit": 1,
+      "grupo_pay": 2,
+      "ledger": 3,
+      "mortgage": 2,
+      "orders": 2,
+      "properties": 2,
+      "quick_reply": 2,
+      "realestate": 4,
+      "research": 1,
+      "signatures": 2,
+      "transports": 2,
+      "tvde": 3,
+      "utilities": 4,
+      "warranties": 1
+    },
+    "apiClientsByArea": {
+      "/api": 1,
+      "/api/access": 3,
+      "/api/ai": 27,
+      "/api/al": 43,
+      "/api/approvals": 1,
+      "/api/apps": 6,
+      "/api/arrendamento": 1,
+      "/api/attachments": 1,
+      "/api/auth": 15,
+      "/api/auto": 12,
+      "/api/autonomy": 1,
+      "/api/aviation": 25,
+      "/api/backlog-status": 1,
+      "/api/browser-challenges": 1,
+      "/api/build-me": 4,
+      "/api/business": 29,
+      "/api/call-requests": 1,
+      "/api/calls": 16,
+      "/api/cases": 10,
+      "/api/claude": 3,
+      "/api/client-errors": 1,
+      "/api/commands": 5,
+      "/api/controls": 4,
+      "/api/conversations": 2,
+      "/api/coverage": 1,
+      "/api/credentials": 2,
+      "/api/documents": 21,
+      "/api/doit": 3,
+      "/api/drive": 1,
+      "/api/driver": 7,
+      "/api/facts": 1,
+      "/api/file-access": 5,
+      "/api/finance": 44,
+      "/api/find": 1,
+      "/api/fix": 1,
+      "/api/golive": 1,
+      "/api/group-companies": 8,
+      "/api/grow": 3,
+      "/api/guest": 3,
+      "/api/identities": 1,
+      "/api/inspect": 1,
+      "/api/ledger": 30,
+      "/api/legal-reviews": 1,
+      "/api/live-sessions": 1,
+      "/api/memory": 1,
+      "/api/mentions": 1,
+      "/api/messages": 1,
+      "/api/meta-messaging": 2,
+      "/api/missions": 1,
+      "/api/mortgage": 1,
+      "/api/obligations": 1,
+      "/api/orders": 10,
+      "/api/outbox": 1,
+      "/api/owner-requests": 1,
+      "/api/pay": 2,
+      "/api/pdf-forms": 2,
+      "/api/people": 1,
+      "/api/permissions": 2,
+      "/api/phone-lookup": 1,
+      "/api/procedures": 3,
+      "/api/properties": 7,
+      "/api/quick-reply": 2,
+      "/api/realestate": 4,
+      "/api/recordings": 1,
+      "/api/rental-contracts": 3,
+      "/api/reply-coverage": 3,
+      "/api/research": 2,
+      "/api/settings": 1,
+      "/api/signatures": 9,
+      "/api/skills": 2,
+      "/api/social": 1,
+      "/api/social-groups": 1,
+      "/api/subject": 2,
+      "/api/sync": 4,
+      "/api/tarefas-ao-vivo": 2,
+      "/api/test": 1,
+      "/api/today": 2,
+      "/api/transports": 5,
+      "/api/tvde": 58,
+      "/api/utilities": 13,
+      "/api/v1": 3,
+      "/api/voice": 22,
+      "/api/voice-notes": 1,
+      "/api/warranties": 1,
+      "/api/work": 3,
+      "/api/workspace": 18
+    },
+    "openclawAdmin": {
+      "files": [
+        "backend/clone/openclaw_admin/__init__.py",
+        "backend/clone/openclaw_admin/api.py",
+        "backend/clone/openclaw_admin/gateway.py",
+        "backend/clone/openclaw_admin/graph.py",
+        "backend/clone/openclaw_admin/history.py",
+        "backend/clone/openclaw_admin/mutations.py",
+        "backend/clone/openclaw_admin/providers.py",
+        "backend/clone/openclaw_admin/providers_api.py",
+        "backend/clone/openclaw_admin/server_accounts.py",
+        "backend/clone/openclaw_admin/service.py",
+        "backend/clone/openclaw_admin/validation.py"
+      ],
+      "gatewayRpcs": [
+        "agents.create",
+        "agents.delete",
+        "agents.files.get",
+        "agents.files.list",
+        "agents.files.set",
+        "agents.list",
+        "agents.update",
+        "audit.activity.list",
+        "config.apply",
+        "config.get",
+        "config.patch",
+        "config.schema",
+        "config.schema.lookup",
+        "config.set",
+        "cron.list",
+        "device.pair.approve",
+        "device.pair.list",
+        "device.pair.reject",
+        "health",
+        "logs.tail",
+        "models.authStatus",
+        "models.list",
+        "node.describe",
+        "node.list",
+        "node.pair.approve",
+        "node.pair.reject",
+        "node.rename",
+        "sessions.abort",
+        "sessions.get",
+        "sessions.list",
+        "sessions.reset",
+        "sessions.usage",
+        "status",
+        "tools.catalog",
+        "tools.effective"
+      ]
+    }
+  },
+  "openclaw": {
+    "uiRoutes": [
+      {
+        "id": "about",
+        "path": "/settings/about",
+        "aliases": []
+      },
+      {
+        "id": "activity",
+        "path": "/activity",
+        "aliases": []
+      },
+      {
+        "id": "advanced",
+        "path": "/settings/advanced",
+        "aliases": []
+      },
+      {
+        "id": "agents",
+        "path": "/settings/agents",
+        "aliases": []
+      },
+      {
+        "id": "ai-agents",
+        "path": "/settings/ai-agents",
+        "aliases": [
+          "/ai-agents"
+        ]
+      },
+      {
+        "id": "appearance",
+        "path": "/settings/appearance",
+        "aliases": [
+          "/appearance"
+        ]
+      },
+      {
+        "id": "approvals",
+        "path": "/settings/approvals",
+        "aliases": []
+      },
+      {
+        "id": "apps",
+        "path": "/apps",
+        "aliases": []
+      },
+      {
+        "id": "automation",
+        "path": "/settings/automation",
+        "aliases": [
+          "/automation"
+        ]
+      },
+      {
+        "id": "channels",
+        "path": "/settings/channels",
+        "aliases": [
+          "/channels"
+        ]
+      },
+      {
+        "id": "chat",
+        "path": "/chat",
+        "aliases": []
+      },
+      {
+        "id": "cloud-workers",
+        "path": "/settings/cloud-workers",
+        "aliases": []
+      },
+      {
+        "id": "communications",
+        "path": "/settings/communications",
+        "aliases": [
+          "/communications"
+        ]
+      },
+      {
+        "id": "config",
+        "path": "/settings/general",
+        "aliases": [
+          "/config"
+        ]
+      },
+      {
+        "id": "connection",
+        "path": "/settings/connection",
+        "aliases": []
+      },
+      {
+        "id": "cron",
+        "path": "/automations",
+        "aliases": [
+          "/cron"
+        ]
+      },
+      {
+        "id": "custodian",
+        "path": "/custodian",
+        "aliases": []
+      },
+      {
+        "id": "dashboard",
+        "path": "/dashboard",
+        "aliases": []
+      },
+      {
+        "id": "dashboards",
+        "path": "/dashboards",
+        "aliases": []
+      },
+      {
+        "id": "debug",
+        "path": "/debug",
+        "aliases": []
+      },
+      {
+        "id": "device",
+        "path": "/settings/device",
+        "aliases": []
+      },
+      {
+        "id": "device-permissions",
+        "path": "/settings/device/permissions",
+        "aliases": []
+      },
+      {
+        "id": "devices",
+        "path": "/settings/devices",
+        "aliases": [
+          "/nodes"
+        ]
+      },
+      {
+        "id": "infrastructure",
+        "path": "/settings/infrastructure",
+        "aliases": [
+          "/infrastructure"
+        ]
+      },
+      {
+        "id": "labs",
+        "path": "/settings/labs",
+        "aliases": []
+      },
+      {
+        "id": "lobsterdex",
+        "path": "/settings/lobsterdex",
+        "aliases": [
+          "/lobsterdex"
+        ]
+      },
+      {
+        "id": "logs",
+        "path": "/logs",
+        "aliases": []
+      },
+      {
+        "id": "mcp",
+        "path": "/settings/mcp",
+        "aliases": [
+          "/mcp"
+        ]
+      },
+      {
+        "id": "meetings",
+        "path": "/meetings",
+        "aliases": []
+      },
+      {
+        "id": "memory",
+        "path": "/settings/memory",
+        "aliases": []
+      },
+      {
+        "id": "memory-import",
+        "path": "/memory-import",
+        "aliases": [
+          "/settings/memory-import"
+        ]
+      },
+      {
+        "id": "model-providers",
+        "path": "/settings/model-providers",
+        "aliases": [
+          "/model-providers"
+        ]
+      },
+      {
+        "id": "model-setup",
+        "path": "/settings/model-setup",
+        "aliases": [
+          "/model-setup"
+        ]
+      },
+      {
+        "id": "new-session",
+        "path": "/new",
+        "aliases": []
+      },
+      {
+        "id": "notifications",
+        "path": "/settings/notifications",
+        "aliases": []
+      },
+      {
+        "id": "plugin",
+        "path": "/plugin",
+        "aliases": []
+      },
+      {
+        "id": "plugin-settings",
+        "path": "/settings/plugins",
+        "aliases": []
+      },
+      {
+        "id": "plugins",
+        "path": "/plugins",
+        "aliases": []
+      },
+      {
+        "id": "portals",
+        "path": "/portals",
+        "aliases": []
+      },
+      {
+        "id": "profile",
+        "path": "/settings/profile",
+        "aliases": [
+          "/profile"
+        ]
+      },
+      {
+        "id": "search",
+        "path": "/settings/search",
+        "aliases": []
+      },
+      {
+        "id": "secrets",
+        "path": "/settings/secrets",
+        "aliases": []
+      },
+      {
+        "id": "security",
+        "path": "/settings/security",
+        "aliases": []
+      },
+      {
+        "id": "sessions",
+        "path": "/sessions",
+        "aliases": [
+          "/settings/sessions"
+        ]
+      },
+      {
+        "id": "settings",
+        "path": "/settings",
+        "aliases": []
+      },
+      {
+        "id": "skill-settings",
+        "path": "/settings/skills",
+        "aliases": []
+      },
+      {
+        "id": "skill-workshop",
+        "path": "/skills/workshop",
+        "aliases": []
+      },
+      {
+        "id": "skills",
+        "path": "/skills",
+        "aliases": []
+      },
+      {
+        "id": "systems",
+        "path": "/systems",
+        "aliases": []
+      },
+      {
+        "id": "talk",
+        "path": "/settings/talk",
+        "aliases": []
+      },
+      {
+        "id": "templates",
+        "path": "/templates",
+        "aliases": []
+      },
+      {
+        "id": "terminal",
+        "path": "/terminal",
+        "aliases": []
+      },
+      {
+        "id": "updates",
+        "path": "/settings/updates",
+        "aliases": []
+      },
+      {
+        "id": "usage",
+        "path": "/usage",
+        "aliases": []
+      },
+      {
+        "id": "workboard",
+        "path": "/workboard",
+        "aliases": []
+      },
+      {
+        "id": "worktrees",
+        "path": "/worktrees",
+        "aliases": [
+          "/settings/worktrees"
+        ]
+      }
+    ],
+    "pages": [
+      "about",
+      "activity",
+      "agents",
+      "approvals",
+      "apps",
+      "channels",
+      "chat",
+      "cloud-workers",
+      "config",
+      "connection",
+      "cron",
+      "custodian",
+      "dashboards",
+      "debug",
+      "device",
+      "devices",
+      "labs",
+      "lobsterdex",
+      "logs",
+      "meetings",
+      "memory-import",
+      "model-providers",
+      "model-setup",
+      "new-session",
+      "plugin",
+      "plugins",
+      "portals",
+      "profile",
+      "search",
+      "secrets",
+      "sessions",
+      "skill-workshop",
+      "skills",
+      "systems",
+      "templates",
+      "terminal",
+      "usage",
+      "workboard",
+      "worktrees"
+    ],
+    "gatewayMethods": [
+      {
+        "name": "agent.identity.get",
+        "group": "agent-identity",
+        "scope": "operator.read"
+      },
+      {
+        "name": "agent.wait",
+        "group": "agent",
+        "scope": "operator.write"
+      },
+      {
+        "name": "agents.avatar.generate",
+        "group": "agents",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "agents.create",
+        "group": "agents",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "agents.delete",
+        "group": "agents",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "agents.files.get",
+        "group": "agents",
+        "scope": "operator.read"
+      },
+      {
+        "name": "agents.files.list",
+        "group": "agents",
+        "scope": "operator.read"
+      },
+      {
+        "name": "agents.files.set",
+        "group": "agents",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "agents.list",
+        "group": "agents",
+        "scope": "operator.read"
+      },
+      {
+        "name": "agents.update",
+        "group": "agents",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "agents.workspace.get",
+        "group": "agents-workspace",
+        "scope": "operator.read"
+      },
+      {
+        "name": "agents.workspace.list",
+        "group": "agents-workspace",
+        "scope": "operator.read"
+      },
+      {
+        "name": "approval.get",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "approval.history",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "approval.resolve",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "artifacts.download",
+        "group": "artifacts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "artifacts.get",
+        "group": "artifacts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "artifacts.list",
+        "group": "artifacts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "assistant.media.get",
+        "group": null,
+        "scope": "operator.read"
+      },
+      {
+        "name": "attach.grant",
+        "group": "attach",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "attach.revoke",
+        "group": "attach",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "audit.activity.list",
+        "group": "audit",
+        "scope": "operator.read"
+      },
+      {
+        "name": "audit.list",
+        "group": "audit",
+        "scope": "operator.read"
+      },
+      {
+        "name": "audit.run.inspect",
+        "group": "audit",
+        "scope": "operator.read"
+      },
+      {
+        "name": "backup.recordOutcome",
+        "group": "backup",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "backup.status",
+        "group": "backup",
+        "scope": "operator.read"
+      },
+      {
+        "name": "board.action",
+        "group": "board",
+        "scope": "operator.write"
+      },
+      {
+        "name": "board.data.read",
+        "group": "board",
+        "scope": "operator.read"
+      },
+      {
+        "name": "board.event",
+        "group": "board",
+        "scope": "operator.write"
+      },
+      {
+        "name": "board.get",
+        "group": "board",
+        "scope": "operator.read"
+      },
+      {
+        "name": "board.prompt.authorize",
+        "group": "board",
+        "scope": "operator.read"
+      },
+      {
+        "name": "board.update",
+        "group": "board",
+        "scope": "operator.write"
+      },
+      {
+        "name": "board.widget.appView",
+        "group": "board",
+        "scope": "operator.read"
+      },
+      {
+        "name": "board.widget.grant",
+        "group": "board",
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "board.widget.put",
+        "group": "board",
+        "scope": "operator.write"
+      },
+      {
+        "name": "canvas.document.preview",
+        "group": "canvas",
+        "scope": "operator.read"
+      },
+      {
+        "name": "canvas.document.view",
+        "group": "canvas",
+        "scope": "operator.read"
+      },
+      {
+        "name": "catalog.browse",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "catalog.searchKeywords",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "channels.logout",
+        "group": "channels",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "channels.pairing.dismiss",
+        "group": "channel-pairing",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "channels.pairing.list",
+        "group": "channel-pairing",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "channels.start",
+        "group": "channels",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "channels.status",
+        "group": "channels",
+        "scope": "operator.read"
+      },
+      {
+        "name": "channels.stop",
+        "group": "channels",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "chat.abort",
+        "group": "chat-abort",
+        "scope": "operator.write"
+      },
+      {
+        "name": "chat.history",
+        "group": "chat",
+        "scope": "operator.read"
+      },
+      {
+        "name": "chat.inject",
+        "group": "chat",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "chat.message.get",
+        "group": "chat",
+        "scope": "operator.read"
+      },
+      {
+        "name": "chat.metadata",
+        "group": "chat",
+        "scope": "operator.read"
+      },
+      {
+        "name": "chat.pendingInputs.dismiss",
+        "group": "chat",
+        "scope": "operator.write"
+      },
+      {
+        "name": "chat.predict",
+        "group": "chat",
+        "scope": "operator.write"
+      },
+      {
+        "name": "chat.send",
+        "group": "chat-send",
+        "scope": "operator.write"
+      },
+      {
+        "name": "chat.startup",
+        "group": "chat",
+        "scope": "operator.read"
+      },
+      {
+        "name": "chat.toolTitles",
+        "group": "chat",
+        "scope": "operator.write"
+      },
+      {
+        "name": "commands.list",
+        "group": "commands",
+        "scope": "operator.read"
+      },
+      {
+        "name": "computer.invoke",
+        "group": "computer",
+        "scope": "operator.write"
+      },
+      {
+        "name": "computer.status",
+        "group": "computer",
+        "scope": "operator.read"
+      },
+      {
+        "name": "config.apply",
+        "group": "config",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "config.get",
+        "group": "config",
+        "scope": "operator.read"
+      },
+      {
+        "name": "config.openFile",
+        "group": "config",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "config.patch",
+        "group": "config",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "config.schema",
+        "group": "config",
+        "scope": "operator.read"
+      },
+      {
+        "name": "config.schema.lookup",
+        "group": "config",
+        "scope": "operator.read"
+      },
+      {
+        "name": "config.set",
+        "group": "config",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "connect",
+        "group": "connect",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "controlUi.githubDetail",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "controlUi.githubPreview",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "controlUi.linkPreview",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "controlUi.sessionPreview",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "controlUi.sessionPullRequests.checks",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "controlUi.sessionPullRequests.subscribe",
+        "group": "control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "conversations.list",
+        "group": "conversations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "conversations.send",
+        "group": "conversations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "conversations.turn",
+        "group": "conversations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "conversations.turn.cancel",
+        "group": "conversations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.add",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.bind",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.get",
+        "group": "cron",
+        "scope": "operator.read"
+      },
+      {
+        "name": "cron.history",
+        "group": "cron",
+        "scope": "operator.read"
+      },
+      {
+        "name": "cron.list",
+        "group": "cron",
+        "scope": "operator.read"
+      },
+      {
+        "name": "cron.remove",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.run",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.runs",
+        "group": "cron",
+        "scope": "operator.read"
+      },
+      {
+        "name": "cron.scratch.get",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.scratch.set",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "cron.status",
+        "group": "cron",
+        "scope": "operator.read"
+      },
+      {
+        "name": "cron.update",
+        "group": "cron",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "debugProxy.capture",
+        "group": "debug-proxy",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "desktop.launch",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "desktop.observe",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "desktop.release",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "device.pair.approve",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.pair.list",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.pair.reject",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.pair.remove",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.pair.rename",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.pair.setupCode",
+        "group": "device-pair-setup",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "device.pair.setupStatus",
+        "group": "device-pair-setup",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "device.scopes.requestUpgrade",
+        "group": "devices",
+        "scope": "operator.read"
+      },
+      {
+        "name": "device.scopes.waitUpgrade",
+        "group": "devices",
+        "scope": "operator.read"
+      },
+      {
+        "name": "device.token.revoke",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "device.token.rotate",
+        "group": "devices",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "diagnostics.capabilities",
+        "group": "diagnostics",
+        "scope": "operator.read"
+      },
+      {
+        "name": "diagnostics.cpuProfile",
+        "group": "diagnostics",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "diagnostics.heapProfile",
+        "group": "diagnostics",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "diagnostics.heapSnapshot",
+        "group": "diagnostics",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "diagnostics.lanes",
+        "group": "diagnostics",
+        "scope": "operator.read"
+      },
+      {
+        "name": "diagnostics.stability",
+        "group": "diagnostics",
+        "scope": "operator.read"
+      },
+      {
+        "name": "doctor.memory.backfillDreamDiary",
+        "group": "doctor",
+        "scope": "operator.write"
+      },
+      {
+        "name": "doctor.memory.dedupeDreamDiary",
+        "group": "doctor",
+        "scope": "operator.write"
+      },
+      {
+        "name": "doctor.memory.dreamDiary",
+        "group": "doctor",
+        "scope": "operator.read"
+      },
+      {
+        "name": "doctor.memory.repairDreamingArtifacts",
+        "group": "doctor",
+        "scope": "operator.write"
+      },
+      {
+        "name": "doctor.memory.resetDreamDiary",
+        "group": "doctor",
+        "scope": "operator.write"
+      },
+      {
+        "name": "doctor.memory.resetGroundedShortTerm",
+        "group": "doctor",
+        "scope": "operator.write"
+      },
+      {
+        "name": "doctor.memory.status",
+        "group": "doctor",
+        "scope": "operator.read"
+      },
+      {
+        "name": "environments.adoptSuggestedProfile",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.create",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.destroy",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.prepare",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.session.create",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.session.destroy",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.session.exec",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "environments.session.status",
+        "group": "environments",
+        "scope": "operator.read"
+      },
+      {
+        "name": "environments.status",
+        "group": "environments",
+        "scope": "operator.read"
+      },
+      {
+        "name": "exec.approval.get",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.grants.list",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.grants.revoke",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.list",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.request",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.resolve",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approval.waitDecision",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "exec.approvals.get",
+        "group": "exec-approvals",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "exec.approvals.native.commit",
+        "group": "exec-approvals",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "exec.approvals.node.get",
+        "group": "exec-approvals",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "exec.approvals.node.set",
+        "group": "exec-approvals",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "exec.approvals.set",
+        "group": "exec-approvals",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "factory.githubPublication.redeem",
+        "group": "factory-github-proof",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.identity.get",
+        "group": "system",
+        "scope": "operator.read"
+      },
+      {
+        "name": "gateway.restart.preflight",
+        "group": "restart",
+        "scope": "operator.read"
+      },
+      {
+        "name": "gateway.restart.request",
+        "group": "restart",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.stop.request",
+        "group": "restart",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.suspend.handoff",
+        "group": "suspend",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.suspend.prepare",
+        "group": "suspend",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.suspend.resume",
+        "group": "suspend",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "gateway.suspend.status",
+        "group": "suspend",
+        "scope": "operator.read"
+      },
+      {
+        "name": "health",
+        "group": "health",
+        "scope": "operator.read"
+      },
+      {
+        "name": "hooks.status",
+        "group": "hooks-status",
+        "scope": "operator.read"
+      },
+      {
+        "name": "last-heartbeat",
+        "group": "system",
+        "scope": "operator.read"
+      },
+      {
+        "name": "logs.tail",
+        "group": "logs",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.callTool",
+        "group": "mcp-app",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.discover",
+        "group": "mcp-app-extensions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.formResource",
+        "group": "mcp-app",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.launch",
+        "group": "mcp-app-extensions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.listResourceTemplates",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.listResources",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.listTools",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.mention",
+        "group": "mcp-app-extensions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.modelContext",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.onboard",
+        "group": "mcp-app-onboarding",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.openFile",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.readResource",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.removeModelContext",
+        "group": "mcp-app",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.settings",
+        "group": "mcp-app-extensions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.subscribeResource",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.unsubscribeResource",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.updateModelContext",
+        "group": "mcp-app",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.app.view",
+        "group": "mcp-app",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mcp.app.writeResource",
+        "group": "mcp-app",
+        "scope": "operator.write"
+      },
+      {
+        "name": "mcp.authLogin",
+        "group": "mcp-auth-login",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "mcp.authLogout",
+        "group": "mcp-auth-logout",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "mcp.events.list",
+        "group": "mcp-events",
+        "scope": "operator.read"
+      },
+      {
+        "name": "memory.get",
+        "group": "memory-search",
+        "scope": "operator.read"
+      },
+      {
+        "name": "memory.search",
+        "group": "memory-search",
+        "scope": "operator.read"
+      },
+      {
+        "name": "memory.search.owner",
+        "group": "memory-search",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "memory.status",
+        "group": "memory-search",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mentions.dismiss",
+        "group": "mentions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "mentions.list",
+        "group": "mentions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "message.action",
+        "group": "send",
+        "scope": "operator.write"
+      },
+      {
+        "name": "migrations.memory.apply",
+        "group": "migrations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "migrations.memory.plan",
+        "group": "migrations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authLogin",
+        "group": "models-auth-login",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authLogout",
+        "group": "models-auth-status",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authOrderSet",
+        "group": "models-auth-order",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authRefresh",
+        "group": "models-auth-status",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authSetApiKey",
+        "group": "models-auth-status",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "models.authStatus",
+        "group": "models-auth-status",
+        "scope": "operator.read"
+      },
+      {
+        "name": "models.list",
+        "group": "models",
+        "scope": "operator.read"
+      },
+      {
+        "name": "models.probe",
+        "group": "models-probe",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "nativeHook.invoke",
+        "group": "native-hook-relay",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "node.describe",
+        "group": "nodes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "node.event",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.invoke.progress",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.invoke.result",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.list",
+        "group": "nodes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "node.pair.approve",
+        "group": "nodes",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "node.pair.list",
+        "group": "nodes",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "node.pair.reject",
+        "group": "nodes",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "node.pair.remove",
+        "group": "nodes",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "node.pending.ack",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.pending.drain",
+        "group": "nodes-pending",
+        "scope": "node"
+      },
+      {
+        "name": "node.pending.enqueue",
+        "group": "nodes-pending",
+        "scope": "operator.write"
+      },
+      {
+        "name": "node.pending.pull",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.pluginSurface.refresh",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.pluginTools.update",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.rename",
+        "group": "nodes",
+        "scope": "operator.pairing"
+      },
+      {
+        "name": "node.runnerInventory.update",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "node.skills.update",
+        "group": "nodes",
+        "scope": "node"
+      },
+      {
+        "name": "openclaw.approval.list",
+        "group": "system-agent-approvals",
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "openclaw.changes.list",
+        "group": "system-changes",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.chat",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.chat.history",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.activate",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.activate.start",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.auth.start",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.auto",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.detect",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.prepare.start",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.runtime.start",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "openclaw.setup.verify",
+        "group": "system-agent",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugin.approval.list",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "plugin.approval.request",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "plugin.approval.resolve",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "plugin.approval.waitDecision",
+        "group": null,
+        "scope": "operator.approvals"
+      },
+      {
+        "name": "plugin.surface.refresh",
+        "group": "nodes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.catalog.browse",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.catalog.categories",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.catalog.get",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.controlUi.list",
+        "group": "plugins-control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.controlUi.reload",
+        "group": "plugins-control-ui",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.controlUi.report",
+        "group": "plugins-control-ui",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.controlUi.status",
+        "group": "plugins-control-ui",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.credentials.inspect",
+        "group": "plugins",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.inspect",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.install",
+        "group": "plugins-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.list",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.refresh",
+        "group": "plugins-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.reload",
+        "group": "plugins-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.search",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.setEnabled",
+        "group": "plugins-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "plugins.skills.read",
+        "group": "plugins",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.uiDescriptors",
+        "group": "plugin-host-hooks",
+        "scope": "operator.read"
+      },
+      {
+        "name": "plugins.uninstall",
+        "group": "plugins-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "poll",
+        "group": "send",
+        "scope": "operator.write"
+      },
+      {
+        "name": "portal.close",
+        "group": "portals",
+        "scope": "operator.write"
+      },
+      {
+        "name": "portal.list",
+        "group": "portals",
+        "scope": "operator.read"
+      },
+      {
+        "name": "portal.open",
+        "group": "portals",
+        "scope": "operator.write"
+      },
+      {
+        "name": "portal.session.close",
+        "group": "portals",
+        "scope": "operator.write"
+      },
+      {
+        "name": "portal.session.list",
+        "group": "portals",
+        "scope": "operator.write"
+      },
+      {
+        "name": "portal.session.open",
+        "group": "portals",
+        "scope": "operator.write"
+      },
+      {
+        "name": "presence.query",
+        "group": "presence",
+        "scope": "operator.read"
+      },
+      {
+        "name": "progressCard.get",
+        "group": "progress-card",
+        "scope": "operator.read"
+      },
+      {
+        "name": "progressCard.put",
+        "group": "progress-card",
+        "scope": "operator.write"
+      },
+      {
+        "name": "progressCard.refresh",
+        "group": "progress-card",
+        "scope": "operator.write"
+      },
+      {
+        "name": "projects.add",
+        "group": "projects",
+        "scope": "operator.write"
+      },
+      {
+        "name": "projects.checkoutOptions",
+        "group": "projects",
+        "scope": "operator.read"
+      },
+      {
+        "name": "projects.list",
+        "group": "projects",
+        "scope": "operator.read"
+      },
+      {
+        "name": "projects.register",
+        "group": "projects",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "projects.remove",
+        "group": "projects",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "projects.searchRemote",
+        "group": "projects",
+        "scope": "operator.read"
+      },
+      {
+        "name": "push.test",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "push.web.preferences.get",
+        "group": "push",
+        "scope": "operator.read"
+      },
+      {
+        "name": "push.web.preferences.set",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "push.web.subscribe",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "push.web.test",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "push.web.unsubscribe",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "push.web.vapidPublicKey",
+        "group": "push",
+        "scope": "operator.write"
+      },
+      {
+        "name": "question.get",
+        "group": null,
+        "scope": "operator.questions"
+      },
+      {
+        "name": "question.list",
+        "group": null,
+        "scope": "operator.questions"
+      },
+      {
+        "name": "question.request",
+        "group": null,
+        "scope": "operator.questions"
+      },
+      {
+        "name": "question.resolve",
+        "group": null,
+        "scope": "operator.questions"
+      },
+      {
+        "name": "question.waitAnswer",
+        "group": null,
+        "scope": "operator.questions"
+      },
+      {
+        "name": "secrets.reload",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.resolve",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.store.allowedHosts",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.store.delete",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.store.import",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.store.list",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "secrets.store.set",
+        "group": null,
+        "scope": "operator.admin"
+      },
+      {
+        "name": "send",
+        "group": "send",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.discussion.info",
+        "group": "session-discussion",
+        "scope": "operator.read"
+      },
+      {
+        "name": "session.discussion.open",
+        "group": "session-discussion",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.members.add",
+        "group": "sessions-sharing",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.members.list",
+        "group": "sessions-sharing",
+        "scope": "operator.read"
+      },
+      {
+        "name": "session.members.listEvidence",
+        "group": "sessions-sharing",
+        "scope": "operator.read"
+      },
+      {
+        "name": "session.members.remove",
+        "group": "sessions-sharing",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.publicShare.set",
+        "group": "sessions-sharing",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.reactions.list",
+        "group": "sessions-reactions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "session.reactions.set",
+        "group": "sessions-reactions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.suggestions.add",
+        "group": "sessions-suggestions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.suggestions.list",
+        "group": "sessions-suggestions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "session.suggestions.resolve",
+        "group": "sessions-suggestions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.typing",
+        "group": "sessions-suggestions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "session.visibility.set",
+        "group": "sessions-sharing",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.abort",
+        "group": "sessions-abort",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.activitySummary.ensure",
+        "group": "session-activity-summary",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.assignOwner",
+        "group": "sessions-mutations",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.branches.list",
+        "group": "sessions-rewind",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.branches.switch",
+        "group": "sessions-rewind",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.catalog.archive",
+        "group": "session-catalog",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.catalog.continue",
+        "group": "session-catalog",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.catalog.import",
+        "group": "session-catalog",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.catalog.list",
+        "group": "session-catalog",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.catalog.read",
+        "group": "session-catalog",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.catalog.resolve",
+        "group": "session-catalog",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.catalog.startTerminal",
+        "group": "session-catalog",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.cleanup",
+        "group": "sessions-read",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.compact",
+        "group": "sessions-compact",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.companion.ask",
+        "group": "session-companion-rpc",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.companion.reset",
+        "group": "session-companion-rpc",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.companion.state",
+        "group": "session-companion-rpc",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.describe",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.diff",
+        "group": "sessions-diff",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.assets",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.download",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.get",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.list",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.preview",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.preview.release",
+        "group": "sessions-files",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.files.reveal",
+        "group": "sessions-files",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.files.set",
+        "group": "sessions-files",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.fork",
+        "group": "sessions-rewind",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.get",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.github.confirm",
+        "group": "sessions-github",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.github.options",
+        "group": "sessions-github",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.github.readiness",
+        "group": "sessions-github",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.github.status",
+        "group": "sessions-github",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.goal.clear",
+        "group": "sessions-goal",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.goal.update",
+        "group": "sessions-goal",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.create",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.defaults",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.delete",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.list",
+        "group": "sessions-groups",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.groups.put",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.rename",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.groups.update",
+        "group": "sessions-groups",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.list",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.messages.subscribe",
+        "group": "sessions-subscriptions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.messages.unsubscribe",
+        "group": "sessions-subscriptions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.observer.visibility",
+        "group": "session-observer-rpc",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.pluginPatch",
+        "group": "sessions-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.preview",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.processes.list",
+        "group": "session-processes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.processes.stop",
+        "group": "session-processes",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.providerReview.continue",
+        "group": "sessions-provider-review",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.reclaim",
+        "group": "sessions-dispatch",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.reset",
+        "group": "sessions-mutations",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.resolve",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.rewind",
+        "group": "sessions-rewind",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.search",
+        "group": "sessions-read",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.send",
+        "group": "sessions-messaging",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.setInvolvement",
+        "group": "sessions-mutations",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.steer",
+        "group": "sessions-messaging",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.storage.run",
+        "group": "sessions-read",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.storage.status",
+        "group": "sessions-read",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "sessions.subscribe",
+        "group": "sessions-subscriptions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.title.prepare",
+        "group": "sessions-title",
+        "scope": "operator.write"
+      },
+      {
+        "name": "sessions.usage",
+        "group": "usage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.usage.logs",
+        "group": "usage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.usage.timeseries",
+        "group": "usage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "sessions.viewers.set",
+        "group": "sessions-subscriptions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "set-heartbeats",
+        "group": "system",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.bins",
+        "group": "skills",
+        "scope": "node"
+      },
+      {
+        "name": "skills.curator.pin",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.curator.restore",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.curator.status",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.curator.unpin",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.detail",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.files.get",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.install",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.library.activate",
+        "group": "skills",
+        "scope": "operator.write"
+      },
+      {
+        "name": "skills.library.import",
+        "group": "skills",
+        "scope": "operator.write"
+      },
+      {
+        "name": "skills.library.list",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.library.mutate",
+        "group": "skills",
+        "scope": "operator.write"
+      },
+      {
+        "name": "skills.library.read",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.library.save",
+        "group": "skills",
+        "scope": "operator.write"
+      },
+      {
+        "name": "skills.library.upload",
+        "group": "skills",
+        "scope": "operator.write"
+      },
+      {
+        "name": "skills.proposals.apply",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.create",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.evaluate",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.events.list",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.proposals.historyScan",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.historyStatus",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.proposals.inspect",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.proposals.list",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.proposals.quarantine",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.reject",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.requestRevision",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.revise",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.proposals.update",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.search",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.securityVerdicts",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.skillCard",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.status",
+        "group": "skills",
+        "scope": "operator.read"
+      },
+      {
+        "name": "skills.update",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.upload.begin",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.upload.chunk",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "skills.upload.commit",
+        "group": "skills",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "status",
+        "group": "health",
+        "scope": "operator.read"
+      },
+      {
+        "name": "storage.locations.list",
+        "group": "storage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "storage.locations.probe",
+        "group": "storage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "system-event",
+        "group": "system",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "system.info",
+        "group": "system",
+        "scope": "operator.read"
+      },
+      {
+        "name": "talk.catalog",
+        "group": "talk",
+        "scope": "operator.read"
+      },
+      {
+        "name": "talk.client.close",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.client.create",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.client.say",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.client.steer",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.client.toolCall",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.client.transcript",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.mode",
+        "group": "talk-mode",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.acknowledgeMark",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.appendAudio",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.cancelOutput",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.close",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.create",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.steer",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.session.submitToolResult",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.speak",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.voice.complete",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.voice.get",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "talk.voice.set",
+        "group": "talk",
+        "scope": "operator.talk"
+      },
+      {
+        "name": "taskSuggestions.accept",
+        "group": "task-suggestions",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "taskSuggestions.create",
+        "group": "task-suggestions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "taskSuggestions.dismiss",
+        "group": "task-suggestions",
+        "scope": "operator.write"
+      },
+      {
+        "name": "taskSuggestions.list",
+        "group": "task-suggestions",
+        "scope": "operator.read"
+      },
+      {
+        "name": "templates.add.apply",
+        "group": "templates-add",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "templates.add.plan",
+        "group": "templates-add",
+        "scope": "operator.read"
+      },
+      {
+        "name": "templates.catalog.detail",
+        "group": "templates",
+        "scope": "operator.read"
+      },
+      {
+        "name": "templates.catalog.preview",
+        "group": "templates",
+        "scope": "operator.read"
+      },
+      {
+        "name": "templates.catalog.search",
+        "group": "templates",
+        "scope": "operator.read"
+      },
+      {
+        "name": "templates.drafts.create",
+        "group": "templates-drafts",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "templates.drafts.publish",
+        "group": "templates-drafts",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "templates.drafts.read",
+        "group": "templates-drafts",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "templates.drafts.review",
+        "group": "templates-drafts",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "templates.drafts.save",
+        "group": "templates-drafts",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.attach",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.close",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.input",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.list",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.open",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.resize",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "terminal.upload",
+        "group": "terminal",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "themes.get",
+        "group": "themes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "themes.import",
+        "group": "themes",
+        "scope": "operator.write"
+      },
+      {
+        "name": "themes.list",
+        "group": "themes",
+        "scope": "operator.read"
+      },
+      {
+        "name": "themes.set",
+        "group": "themes",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tools.catalog",
+        "group": "tools-catalog",
+        "scope": "operator.read"
+      },
+      {
+        "name": "tools.effective",
+        "group": "tools-effective",
+        "scope": "operator.read"
+      },
+      {
+        "name": "tools.github.authorize.cancel",
+        "group": "tools-github",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "tools.github.authorize.poll",
+        "group": "tools-github",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "tools.github.authorize.start",
+        "group": "tools-github",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "tools.github.configure",
+        "group": "tools-github",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "tools.github.status",
+        "group": "tools-github",
+        "scope": "operator.read"
+      },
+      {
+        "name": "tools.invoke",
+        "group": "tools-invoke",
+        "scope": "operator.write"
+      },
+      {
+        "name": "transcripts.export",
+        "group": "transcripts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "transcripts.get",
+        "group": "transcripts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "transcripts.list",
+        "group": "transcripts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "transcripts.status",
+        "group": "transcripts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "transcripts.summarize",
+        "group": "transcripts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.convert",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.disable",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.enable",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.personas",
+        "group": "tts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "tts.providers",
+        "group": "tts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "tts.setPersona",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.setProvider",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.speak",
+        "group": "tts",
+        "scope": "operator.write"
+      },
+      {
+        "name": "tts.status",
+        "group": "tts",
+        "scope": "operator.read"
+      },
+      {
+        "name": "ui.command",
+        "group": "ui-command",
+        "scope": "operator.write"
+      },
+      {
+        "name": "ui.command.result",
+        "group": "ui-command",
+        "scope": "operator.read"
+      },
+      {
+        "name": "update.handoffSentinel",
+        "group": "update-handoff-sentinel",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.hold",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.recovery.cleanup",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.report",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.run",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.runs.get",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.runs.list",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "update.status",
+        "group": "update",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "usage.cost",
+        "group": "usage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "usage.status",
+        "group": "usage",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.authConnect.answer",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.authConnect.cancel",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.authConnect.catalog",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.authConnect.start",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.authConnect.status",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.background.get",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.background.remove",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.background.upload",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.github.authorize.cancel",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.github.authorize.poll",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.github.authorize.start",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.github.disconnect",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.github.status",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.linkAuthProfile",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.linkChannelIdentity",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.linkEmail",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.list",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.listAuthLinks",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.listChannelIdentities",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.listModelAccounts",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.mentionable",
+        "group": "users-mentionable",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.merge",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.personalFile.get",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.personalFile.set",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.prefs.get",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.prefs.set",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.selectModelAccount",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.self",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.setAvatar",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.setDisplayName",
+        "group": "users",
+        "scope": "operator.read"
+      },
+      {
+        "name": "users.setRole",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "users.unlinkAuthProfile",
+        "group": "users",
+        "scope": "operator.write"
+      },
+      {
+        "name": "users.unlinkChannelIdentity",
+        "group": "users",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "voicewake.get",
+        "group": "voicewake",
+        "scope": "operator.read"
+      },
+      {
+        "name": "voicewake.routing.get",
+        "group": "voicewake-routing",
+        "scope": "operator.read"
+      },
+      {
+        "name": "voicewake.set",
+        "group": "voicewake",
+        "scope": "operator.write"
+      },
+      {
+        "name": "wake",
+        "group": "cron",
+        "scope": "operator.write"
+      },
+      {
+        "name": "web.login.start",
+        "group": "web",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "web.login.wait",
+        "group": "web",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "webSearch.status",
+        "group": "web-search",
+        "scope": "operator.read"
+      },
+      {
+        "name": "webSearch.test",
+        "group": "web-search",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "wizard.cancel",
+        "group": "wizard",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "wizard.next",
+        "group": "wizard",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "wizard.start",
+        "group": "wizard",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "wizard.status",
+        "group": "wizard",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worker.desktop.launch",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worker.desktop.observe",
+        "group": "environments",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.branches",
+        "group": "worktrees",
+        "scope": "operator.write"
+      },
+      {
+        "name": "worktrees.create",
+        "group": "worktrees",
+        "scope": "operator.write"
+      },
+      {
+        "name": "worktrees.gc",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.list",
+        "group": "worktrees",
+        "scope": "operator.read"
+      },
+      {
+        "name": "worktrees.recoverFile",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.recoverRemoval",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.remove",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.restore",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      },
+      {
+        "name": "worktrees.retireSnapshot",
+        "group": "worktrees",
+        "scope": "operator.admin"
+      }
+    ],
+    "extensions": [
+      {
+        "id": "a2a",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "abliteration",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "acpx",
+        "categories": [
+          "agent-runtimes"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "acpx.agents.list"
+        ]
+      },
+      {
+        "id": "active-memory",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "admin-http-rpc",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "advisor",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "agent-guidance",
+        "categories": [
+          "other"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "agentsapi",
+        "categories": [
+          "agent-runtimes"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "alibaba",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "amazon-bedrock",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "amazon-bedrock-mantle",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "anthropic",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "anthropic-vertex",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "apple-fm",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "arcee",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "autoreview",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "azure-speech",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "baseten",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "beam",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "bifrost",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "bonjour",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "brave",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "browser",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "buzz",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "byteplus",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "canvas",
+        "categories": [
+          "documents-files"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "cerebras",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "chutes",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "clawrouter",
+        "categories": [
+          "models"
+        ],
+        "controlUi": true,
+        "gatewayMethods": [
+          "clawrouter.pool.get"
+        ]
+      },
+      {
+        "id": "clickclack",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "cloudflare",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "cloudflare-ai-gateway",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "code-mode-quickjs",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "codex",
+        "categories": [
+          "agent-runtimes"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "codex.accountUsage"
+        ]
+      },
+      {
+        "id": "cohere",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "comfy",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "copilot",
+        "categories": [
+          "agent-runtimes"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "copilot-proxy",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "crabbox",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "crabbox.images.list",
+          "crabbox.images.recover"
+        ]
+      },
+      {
+        "id": "cua-computer",
+        "categories": [
+          "computer-use"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "deepgram",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "deepinfra",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "deepseek",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "device-pair",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "diagnostics-otel",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "diagnostics-prometheus",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "diffs",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "diffs-language-pack",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "discord",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "document-extract",
+        "categories": [
+          "documents-files"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "duckduckgo",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "elevenlabs",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "exa",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "facetime",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "fal",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "featherless",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "feishu",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "file-transfer",
+        "categories": [
+          "documents-files"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "firecrawl",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "fireworks",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "fish-audio-speech",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "geolocation",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "geolocation.lookup"
+        ]
+      },
+      {
+        "id": "github",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "github-copilot",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "gmi",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "google",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "google-meet",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "googlemeet.create",
+          "googlemeet.endActiveConference",
+          "googlemeet.export",
+          "googlemeet.join",
+          "googlemeet.leave",
+          "googlemeet.participate",
+          "googlemeet.participationContext",
+          "googlemeet.recoverCurrentTab",
+          "googlemeet.setup",
+          "googlemeet.speak",
+          "googlemeet.status",
+          "googlemeet.testListen",
+          "googlemeet.testSpeech",
+          "googlemeet.transcript"
+        ]
+      },
+      {
+        "id": "googlechat",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "gradium",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "groq",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "huggingface",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "imap",
+        "categories": [
+          "inbox-collaboration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "imessage",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "inworld",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "irc",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "kie",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "kilocode",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "kimi",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "knowledge",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "levanto",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "line",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "linux-node",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "liquid-ai",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "litellm",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "llama-cpp",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "llm-task",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "lmstudio",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "lobster",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "logbook",
+        "categories": [
+          "productivity"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "logbook.status"
+        ]
+      },
+      {
+        "id": "longcat",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "matrix",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "mattermost",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "mcp-events",
+        "categories": [
+          "scheduling"
+        ],
+        "controlUi": false,
+        "gatewayMethods": [
+          "mcp-events.status"
+        ]
+      },
+      {
+        "id": "mcp-relay",
+        "categories": [
+          "infrastructure"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "memory-core",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "memory-lancedb",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "memory-wiki",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "meta",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "microsoft",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "microsoft-foundry",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "migrate-claude",
+        "categories": [
+          "integrations"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "migrate-hermes",
+        "categories": [
+          "integrations"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "minimax",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "mistral",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "moonshot",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "msteams",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "muse",
+        "categories": [
+          "agent-runtimes"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "mxc",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "nextcloud-talk",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "nostr",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "novita",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "nvidia",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "oc-path",
+        "categories": [
+          "documents-files"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "ollama",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "omlx",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "onepassword",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "onnx",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "openai",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "opencode",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "opencode-go",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "openrouter",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "openshell",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "parallel",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "particle",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "perplexity",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "pixverse",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "policy",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "qa-channel",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "qa-lab",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "qianfan",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "qwen",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "radius",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "raft",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "reef",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "requesty",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "runway",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "searxng",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "senseaudio",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "session-share",
+        "categories": [
+          "inbox-collaboration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "sglang",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "signal",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "skill-workshop",
+        "categories": [
+          "agent-orchestration"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "slack",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "slack-huddles",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "sms",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "stepfun",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "subq",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "synology-chat",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "synthetic",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "talk-voice",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "tavily",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "team-reports",
+        "categories": [
+          "data-analytics"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "teams-meetings",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "telegram",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "tencent",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "tlon",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "together",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "tokenjuice",
+        "categories": [
+          "context"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "tts-local-cli",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "twitch",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "typesafe",
+        "categories": [
+          "developer-tools"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "vault",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "venice",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "vercel-ai-gateway",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "visitor-access",
+        "categories": [
+          "security"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "vllm",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "voice-call",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "volcengine",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "voyage",
+        "categories": [
+          "memory"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "vydra",
+        "categories": [
+          "media"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "web-readability",
+        "categories": [
+          "web"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "whatsapp",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "workboard",
+        "categories": [
+          "productivity"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "x",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": true,
+        "gatewayMethods": []
+      },
+      {
+        "id": "xai",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "xiaomi",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "zai",
+        "categories": [
+          "models"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "zalo",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "zalouser",
+        "categories": [
+          "channels"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      },
+      {
+        "id": "zoom-meetings",
+        "categories": [
+          "voice"
+        ],
+        "controlUi": false,
+        "gatewayMethods": []
+      }
+    ]
+  },
+  "coverage": {
+    "uncoveredWebRoutes": [],
+    "uncoveredBackendPackages": [],
+    "uncoveredJobPackages": [],
+    "statuses": {
+      "missing": 29,
+      "native": 2,
+      "partial": 13
+    }
+  }
+}
