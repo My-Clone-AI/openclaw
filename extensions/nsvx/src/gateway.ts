@@ -11,6 +11,7 @@ import {
   selectCalendar,
   submitChange,
 } from "./agenda.js";
+import { registerAviationMethods } from "./aviation.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
@@ -188,6 +189,7 @@ export function registerNsvxGatewayMethods(
   method("nsvx.group.devAction", "operator.admin", (params) => runDevAction(client, params));
   method("nsvx.group.serverAction", "operator.admin", (params) => serverAction(client, params));
   registerDeviceMethods(method, client);
+  registerAviationMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

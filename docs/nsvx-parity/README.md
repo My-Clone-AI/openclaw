@@ -104,18 +104,19 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Progress    | This registry by family                                      | `registry.json`, copied at build |
 The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page; these are its main tabs.
 
-| Tab         | What it does                                                                 | Data owner                       |
-| ----------- | ---------------------------------------------------------------------------- | -------------------------------- |
-| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)   |
-| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes   |
-| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts          |
-| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)   |
-| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)   |
-| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions      |
-| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync` |
-| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages     |
-| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)      |
-| Progress    | This registry by family                                                      | `registry.json`, copied at build |
+| Tab         | What it does                                                                 | Data owner                        |
+| ----------- | ---------------------------------------------------------------------------- | --------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts                         | NSVX owner screens (read only)    |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes    |
+| Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts           |
+| Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)    |
+| Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)    |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions       |
+| Aviation    | Logbook, yesterday's flights, docs, check-in, roster, settings, exports      | NSVX `/api/aviation`, `/api/work` |
+| Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync`  |
+| Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages      |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)       |
+| Progress    | This registry by family                                                      | `registry.json`, copied at build  |
 
 Every Team tree change (move, device, pause, resume, undo) goes through the plugin's `nsvx.team.*` methods, which log
 the `agents` config section before the change in plugin state (`nsvx-team-history`, last 100). History lists them and
@@ -171,6 +172,15 @@ offers a preview, confirmed, typed for high risk, and sent with one idempotency 
 draft and sent only after a second confirm; bodies show as plain text. Adult apps never appear. Chat gets the optional
 owner-only `nsvx_group`: reads, plus dev actions, which NSVX limits to development; it never sends mail, runs app
 operations, or touches servers. `ui/src/e2e/nsvx-group.e2e.test.ts` covers every section at 1280 and 390 wide.
+
+Aviation reads NSVX `/api/aviation` (overview, logbook, previous-day flights, Flight Log, documents, check-ins,
+settings, compliance) and `/api/work` (HiFly roster, mail, portal) through `nsvx.view`, and changes them only through
+`nsvx.aviation.change`, one fixed `OWNER_WRITES` route per action. NSVX validates every flight and keeps revisions, so
+Control never fills a field the pilot did not state. Exports and document downloads come through `nsvx.aviation.file`;
+document pages are NSVX's own page images. A second check-in for a booking that is still active comes back as
+`conflict` instead of a duplicate airline run. Chat gets `nsvx_aviation` on the owner's own turns: overview, logbook,
+entry, missing, pending, confirm, checkYesterday, compare, documents, checkins, airlines, checkin, cancelCheckin, and
+roster. `ui/src/e2e/nsvx-aviation.e2e.test.ts` covers every section at 1280 and 390 wide (`ui/e2e-shots/nsvx-aviation`).
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
