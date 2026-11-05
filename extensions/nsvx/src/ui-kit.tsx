@@ -20,6 +20,9 @@ const ICONS = {
   group:
     "M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16m0-10h2a2 2 0 0 1 2 2v8M8 7h4m-4 4h4m-4 4h4M2 21h20",
   progress: "M4 20V10m6 10V4m6 16v-7m4 7H2",
+  // Cases (scales) and Research (page under a magnifier) tabs.
+  cases: "M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zm14 0-3 7a3 3 0 0 0 6 0zM8 21h8",
+  research: "M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M14 3l5 5v2M14 3v5h5m-1 11-2-2m-2.5.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
   // Setup and Skills tabs.
   setup: "M4 6h16M4 12h16M4 18h16M9 4v4m6 2v4m-8 2v4",
   skills: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z",

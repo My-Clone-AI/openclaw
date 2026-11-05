@@ -115,9 +115,11 @@ export type NsvxRunRequest = {
  * Owner screens NSVX serves only to its signed-in owner. Read-only GETs on fixed paths, so the held session can never
  * change NSVX data (unsafe methods also need the session's CSRF token, which this Gateway never has).
  */
-type OwnerViewSpec = { path: string; query?: readonly string[]; image?: true };
+type OwnerViewSpec = { path: string; query?: readonly string[]; image?: true; pdf?: true };
 /** Largest page image relayed to the browser (a 1000px JPEG page is far below this). */
 const IMAGE_LIMIT = 4 * 1024 * 1024;
+/** Largest PDF relayed to the browser; research reports are a few hundred kilobytes. */
+const PDF_LIMIT = 8 * 1024 * 1024;
 
 const OWNER_VIEWS = {
   today: { path: "/api/today" },
@@ -249,6 +251,41 @@ const OWNER_VIEWS = {
   // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
   syncChanges: { path: "/api/sync/changes" },
   runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
+  // Cases (`/processos`): the reads the NSVX Processos screens make, plus owner procedures.
+  casesVocab: { path: "/api/cases/vocab" },
+  casesDashboard: { path: "/api/cases/dashboard" },
+  cases: { path: "/api/cases", query: ["status", "q", "category"] },
+  caseSuggestions: { path: "/api/cases/suggestions", query: ["status"] },
+  caseSettings: { path: "/api/cases/settings" },
+  case: { path: "/api/cases/{key}" },
+  caseHistory: { path: "/api/cases/{key}/history" },
+  caseTimeline: { path: "/api/cases/{key}/timeline" },
+  caseEvidence: { path: "/api/cases/{key}/evidence", query: ["folder", "q"] },
+  caseProof: { path: "/api/cases/evidence/{eid}", query: ["case"] },
+  caseProofPage: { path: "/api/cases/evidence/{eid}/page/{n}", query: ["w"], image: true },
+  casePayments: { path: "/api/cases/{key}/payments" },
+  caseDeadlines: { path: "/api/cases/{key}/deadlines" },
+  caseResearch: { path: "/api/cases/{key}/research" },
+  caseDocuments: { path: "/api/cases/{key}/documents" },
+  caseDocument: { path: "/api/cases/documents/{did}" },
+  caseAi: { path: "/api/cases/{key}/ai" },
+  caseAiRun: { path: "/api/cases/ai/{rid}" },
+  procedures: { path: "/api/procedures" },
+  procedure: { path: "/api/procedures/{pid}" },
+  procedureRun: { path: "/api/procedures/runs/{rid}" },
+  // Research (`/pesquisas`): jobs, one job, its PDF, and automatic delivery settings.
+  researchJobs: { path: "/api/research", query: ["completed"] },
+  researchSettings: { path: "/api/research/settings", query: ["account_id"] },
+  researchJob: { path: "/api/research/{id}" },
+  researchPdf: { path: "/api/research/{id}/pdf", pdf: true },
+  // Marketing (`/empresas-do-grupo`, Marketing): the reads the NSVX marketing admin makes.
+  marketingOverview: { path: "/api/group-companies/marketing/overview" },
+  marketingGate: { path: "/api/group-companies/marketing/gate" },
+  marketingBrands: { path: "/api/group-companies/marketing/brands" },
+  marketingCalendar: { path: "/api/group-companies/marketing/calendar" },
+  marketingChannels: { path: "/api/group-companies/marketing/channels" },
+  marketingAnalytics: { path: "/api/group-companies/marketing/analytics" },
+  marketingJob: { path: "/api/group-companies/marketing/jobs/{job}" },
 } as const satisfies Record<string, OwnerViewSpec>;
 
 type OwnerView = keyof typeof OWNER_VIEWS;
@@ -360,6 +397,42 @@ const OWNER_WRITES = {
     idempotency: "Idempotency-Key",
   },
   syncDiscard: { method: "DELETE", path: "/api/sync/tasks/{id}" },
+  // Cases: the changes the NSVX Processos screens make. legal.ts limits fields; nothing here sends a message.
+  caseCreate: { method: "POST", path: "/api/cases" },
+  caseUpdate: { method: "PATCH", path: "/api/cases/{key}" },
+  caseParty: { method: "POST", path: "/api/cases/{key}/parties" },
+  caseFact: { method: "POST", path: "/api/cases/{key}/facts" },
+  caseEvent: { method: "POST", path: "/api/cases/{key}/timeline" },
+  caseDeadline: { method: "POST", path: "/api/cases/{key}/deadlines" },
+  caseDeadlineUpdate: { method: "PATCH", path: "/api/cases/{key}/deadlines/{did}" },
+  caseNote: { method: "POST", path: "/api/cases/{key}/research" },
+  caseNoteUpdate: { method: "PATCH", path: "/api/cases/{key}/research/{rid}" },
+  caseNoteRemove: { method: "DELETE", path: "/api/cases/{key}/research/{rid}" },
+  caseDocumentStatus: { method: "POST", path: "/api/cases/documents/{did}/status" },
+  caseSuggestion: { method: "POST", path: "/api/cases/suggestions/{sid}/status" },
+  caseConvert: { method: "POST", path: "/api/cases/suggestions/{sid}/convert" },
+  caseDiscover: { method: "POST", path: "/api/cases/discovery/run" },
+  caseSettings: { method: "PUT", path: "/api/cases/settings" },
+  caseAiPrepare: { method: "POST", path: "/api/cases/{key}/ai/prepare" },
+  caseAiAuthorize: { method: "POST", path: "/api/cases/ai/{rid}/authorize" },
+  caseAiCancel: { method: "POST", path: "/api/cases/ai/{rid}/cancel" },
+  procedureState: { method: "POST", path: "/api/procedures/{pid}/state" },
+  procedureStart: { method: "POST", path: "/api/procedures/{pid}/runs" },
+  procedureCancel: { method: "POST", path: "/api/procedures/runs/{rid}/cancel" },
+  // Research: rename, the four job actions NSVX allows, and automatic delivery.
+  researchName: { method: "POST", path: "/api/research/{id}/name" },
+  researchAction: { method: "POST", path: "/api/research/{id}/{action}" },
+  researchSettingsSave: { method: "POST", path: "/api/research/settings" },
+  // Marketing: NSVX refuses every content change outside its development server; live publishing stays gated there.
+  marketingGateSave: { method: "POST", path: "/api/group-companies/marketing/gate" },
+  marketingActivation: { method: "POST", path: "/api/group-companies/marketing/activations/{app}" },
+  marketingGenerate: { method: "POST", path: "/api/group-companies/marketing/generate" },
+  marketingPreview: { method: "POST", path: "/api/group-companies/marketing/preview" },
+  marketingSchedule: { method: "POST", path: "/api/group-companies/marketing/schedule" },
+  marketingPublish: { method: "POST", path: "/api/group-companies/marketing/publish" },
+  marketingRetry: { method: "POST", path: "/api/group-companies/marketing/retry" },
+  marketingPause: { method: "POST", path: "/api/group-companies/marketing/pause" },
+  marketingCancel: { method: "POST", path: "/api/group-companies/marketing/jobs/{job}/cancel" },
   syncConfirm: {
     method: "POST",
     path: "/api/sync/drafts/{id}/confirm",
@@ -675,6 +748,17 @@ export function createNsvxClient(options: {
     ): Promise<T> {
       const spec = ownerViewSpec(view);
       const path = ownerViewPath(view, params);
+      if (spec.pdf) {
+        const response = await ownerFetch(path, { accept: "application/pdf" });
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        if (
+          response.headers.get("content-type")?.split(";")[0] !== "application/pdf" ||
+          bytes.byteLength > PDF_LIMIT
+        ) {
+          throw new NsvxError("invalid", "NSVX did not send a PDF.");
+        }
+        return { src: `data:application/pdf;base64,${Buffer.from(bytes).toString("base64")}` } as T;
+      }
       if (!spec.image) {
         return readOwner(path);
       }

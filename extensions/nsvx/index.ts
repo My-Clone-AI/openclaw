@@ -2,6 +2,11 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import { createAgentSettings } from "./src/agent-settings.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig } from "./src/config.js";
+import {
+  createNsvxCasesTool,
+  createNsvxMarketingTool,
+  createNsvxResearchTool,
+} from "./src/desk-tools.js";
 import { createNsvxDeviceTool } from "./src/device.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
@@ -59,6 +64,16 @@ export default definePluginEntry({
     api.registerTool((context) => createNsvxGroupTool(client, context), {
       name: "nsvx_group",
       optional: true,
+    });
+    api.registerTool((context) => createNsvxCasesTool(client, context), {
+      name: "nsvx_cases",
+      optional: true,
+    });
+    api.registerTool((context) => createNsvxResearchTool(client, context), {
+      name: "nsvx_research",
+    });
+    api.registerTool((context) => createNsvxMarketingTool(client, context), {
+      name: "nsvx_marketing",
     });
     for (const name of NSVX_OWNER_TOOL_NAMES) {
       api.registerTool(
