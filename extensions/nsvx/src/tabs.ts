@@ -2,6 +2,7 @@ import { agendaTranslator } from "./agenda-i18n.js";
 import { aviationTranslator } from "./aviation-i18n.js";
 import { deviceTranslator } from "./device-i18n.js";
 import { fleetTranslator } from "./fleet-i18n.js";
+import { growTranslator } from "./grow-i18n.js";
 import { groupTranslator } from "./group-i18n.js";
 import { translator } from "./i18n.js";
 import { messagesTranslator } from "./messages-i18n.js";
@@ -13,6 +14,7 @@ export const TABS = [
   "find",
   "tasks",
   "work",
+  "grow",
   "activity",
   "messages",
   "reply",
@@ -45,6 +47,8 @@ export function tabLabel(locale: string, id: Tab): string {
       return aviationTranslator(locale)(id);
     case "fleet":
       return fleetTranslator(locale)(id);
+    case "grow":
+      return growTranslator(locale)(id);
     case "group":
       return groupTranslator(locale)("group");
     case "messages":

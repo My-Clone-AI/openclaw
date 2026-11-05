@@ -93,6 +93,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Messages    | Inbox by channel, thread, approve drafts, reply, take over                   | NSVX owner screens and changes   |
 | Quick reply | Paste, write with AI, change, copy, history                                  | NSVX Quick Reply drafts          |
 | People      | People, person page, interests, places, memory, groups                       | NSVX owner screens and changes   |
+| Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace) |
 | Agenda      | Day, week, month; book, move, cancel; follow up, remind, calendar file       | NSVX Google Calendar (workspace) |
 | Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)   |
 | Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)   |
@@ -102,6 +103,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Skills      | NSVX skills: on/off, review learned ones, steps and runs                     | NSVX owner screens and changes   |
 | Device      | Desktop jobs (stop), bots (edit), memory (fix, forget), skills, offline sync | NSVX `/api/desktop`, `/api/sync` |
 | Health      | Up, ready, checks, warnings, one job's attempts; legal pages                 | NSVX public probes and pages     |
+| Grow        | Coding apps (mode, run, stop all, log), ideas, brain, timers, model chains   | NSVX Grow, Build Me, and brain   |
 | Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks                 | NSVX AgentOS (see Blockers)      |
 | Progress    | This registry by family                                                      | `registry.json`, copied at build |
 | Tab         | What it does                                                                 | Data owner                        |
@@ -191,6 +193,14 @@ draft and sent only after a second confirm; bodies show as plain text. Adult app
 owner-only `nsvx_group`: reads, plus dev actions, which NSVX limits to development; it never sends mail, runs app
 operations, or touches servers. `ui/src/e2e/nsvx-group.e2e.test.ts` covers every section at 1280 and 390 wide.
 
+Grow reads NSVX `/api/grow` (status, per-app cycles, the live log, timers, model chains), the Build Me admin list and
+ideas with their images, and the OpenClaw brain status and worker roles through `nsvx.view`. Changes go through
+`nsvx.grow.control` (run, pause, resume, mode, stop all, one `Idempotency-Key` per tap; NSVX only queues them for its
+engine), `nsvx.grow.timer`, `nsvx.grow.rollback`, `nsvx.ideas.submit`, `nsvx.ideas.decide` (fenced by the idea's
+revision and version), `nsvx.brain.task`, and `nsvx.brain.roles`, each one fixed `OWNER_WRITES` route. A new idea is
+text only and its tracking link stays in NSVX; a brain task has no NSVX idempotency key, so an uncertain answer is
+reported, never repeated. Chat gets `nsvx_grow` on the owner's own turns. `ui/src/e2e/nsvx-grow.e2e.test.ts` covers
+all four sections at 1280 and 390 wide (`ui/e2e-shots/nsvx-grow`).
 Aviation reads NSVX `/api/aviation` (overview, logbook, previous-day flights, Flight Log, documents, check-ins,
 settings, compliance) and `/api/work` (HiFly roster, mail, portal) through `nsvx.view`, and changes them only through
 `nsvx.aviation.change`, one fixed `OWNER_WRITES` route per action. NSVX validates every flight and keeps revisions, so

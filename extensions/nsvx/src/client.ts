@@ -250,6 +250,29 @@ const OWNER_VIEWS = {
   // Offline sync: NSVX's bounded authoritative windows (device.ts trims them before the browser).
   syncChanges: { path: "/api/sync/changes" },
   runtimeExecution: { path: "/api/runtime/execution", query: ["job_id"] },
+  // Grow (`/empresas-do-grupo`, Grow tab): the engine's read models; NSVX answers "not provisioned" without one.
+  growStatus: { path: "/api/grow/status" },
+  growHistory: { path: "/api/grow/{app}/cycles", query: ["limit"] },
+  growCycle: { path: "/api/grow/cycles/{id}" },
+  growLog: { path: "/api/grow/{app}/log", query: ["cycle", "tail", "kind"] },
+  growTimers: { path: "/api/grow/automations" },
+  growChains: { path: "/api/grow/development/chains" },
+  growChainHistory: { path: "/api/grow/development/chains/{slot}/history" },
+  // Build Me admin: ideas from every app, with their images.
+  buildMeConfig: { path: "/api/build-me/config" },
+  buildMeRequests: {
+    path: "/api/build-me/admin/requests",
+    query: ["app", "state", "q", "start", "end", "page"],
+  },
+  buildMeRequest: { path: "/api/build-me/admin/requests/{id}" },
+  buildMeImage: { path: "/api/build-me/admin/requests/{id}/media/{attachment}", image: true },
+  buildMeReplicaImage: {
+    path: "/api/build-me/admin/replicas/{app}/{id}/media/{attachment}",
+    image: true,
+  },
+  // OpenClaw brain (`/apps`): the status file and worker roles NSVX keeps for the brain.
+  brainStatus: { path: "/api/v1/admin/ai/openclaw/status" },
+  brainRoles: { path: "/api/v1/admin/ai/openclaw/worker-roles" },
   // Aviation (`/aviacao`): logbook, previous-day flights, Drive documents, auto check-in, and the airline's
   // roster, mail, and portal (`/api/work`), as the NSVX Aviação screens read them.
   aviationOverview: { path: "/api/aviation/overview" },
@@ -335,6 +358,10 @@ type OwnerWriteSpec = {
   path: string;
   query?: readonly string[];
   idempotency?: string;
+  /** Sent as a form: NSVX reads this route with `request.form()`. */
+  form?: true;
+  /** NSVX also checks `Origin` on this route; the Gateway sends NSVX's own, as the NSVX web app does. */
+  origin?: true;
 };
 
 const OWNER_WRITES = {
@@ -438,6 +465,17 @@ const OWNER_WRITES = {
     path: "/api/sync/drafts/{id}/confirm",
     idempotency: "Idempotency-Key",
   },
+  // Grow only queues requests; the engine applies them on its next tick.
+  growControl: { method: "POST", path: "/api/grow/control", idempotency: "Idempotency-Key" },
+  growTimerOn: { method: "POST", path: "/api/grow/automations/{id}/enable" },
+  growTimerOff: { method: "POST", path: "/api/grow/automations/{id}/disable" },
+  growTimerSchedule: { method: "PUT", path: "/api/grow/automations/{id}/schedule" },
+  growChainRollback: { method: "POST", path: "/api/grow/development/chains/{id}/rollback" },
+  // Build Me keys idempotency in the body; a submission is the owner's own idea, text only.
+  buildMeSubmit: { method: "POST", path: "/api/build-me/submissions", form: true, origin: true },
+  buildMeDecide: { method: "POST", path: "/api/build-me/admin/requests/{id}/override" },
+  brainTask: { method: "POST", path: "/api/v1/admin/ai/openclaw/tasks" },
+  brainRoles: { method: "PUT", path: "/api/v1/admin/ai/openclaw/worker-roles" },
   // Aviation: the owner's own records (logbook, documents metadata, settings) plus check-ins, which later act on
   // the airline's site under NSVX's no-payment policy. Reading the roster only queues an NSVX read of HiFly.
   aviationEntryAdd: { method: "POST", path: "/api/aviation/logbook/entries" },
@@ -685,14 +723,17 @@ export function createNsvxClient(options: {
         method: spec.method,
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": spec.form ? "application/x-www-form-urlencoded" : "application/json",
           Cookie: `${OWNER_COOKIE}=${options.ownerSession}`,
           "X-CSRF-Token": state.csrf,
+          ...(spec.origin ? { Origin: new URL(options.baseUrl).origin } : {}),
           ...(spec.idempotency && more.idempotencyKey
             ? { [spec.idempotency]: more.idempotencyKey }
             : {}),
         },
-        body: JSON.stringify(body ?? {}),
+        body: spec.form
+          ? new URLSearchParams(body as Record<string, string>).toString()
+          : JSON.stringify(body ?? {}),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {

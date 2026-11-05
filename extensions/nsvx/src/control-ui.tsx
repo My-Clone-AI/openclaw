@@ -1,11 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 import { render } from "@solidjs/web";
-import {
-  defineControlUiPlugin,
-  type ControlUiHost,
-  type ControlUiView,
-} from "openclaw/plugin-sdk/control-ui";
+import { defineControlUiPlugin, type ControlUiView } from "openclaw/plugin-sdk/control-ui";
 import { createSignal, For, Show } from "solid-js";
+import { ActionsTab } from "./actions-tab.js";
 import { ActivityTab, FindTab } from "./activity-tab.js";
 import { AgendaTab } from "./agenda-tab.js";
 import { AviationTab } from "./aviation-tab.js";
@@ -14,8 +11,10 @@ import { DeviceTab } from "./device-tab.js";
 import { FinanceTab } from "./finance-tab.js";
 import { FleetTab } from "./fleet-tab.js";
 import { GroupTab } from "./group-tab.js";
+import { growTranslator } from "./grow-i18n.js";
+import { GrowTab } from "./grow-tab.js";
 import { HealthTab } from "./health-tab.js";
-import { translator, type MessageKey } from "./i18n.js";
+import { translator } from "./i18n.js";
 import { messagesTranslator, type MT } from "./messages-i18n.js";
 import { MessagesTab } from "./messages-tab.js";
 import { TasksTab, TodayTab, WorkTab } from "./owner-tabs.js";
@@ -27,16 +26,7 @@ import { isTab, TABS, tabLabel, type Tab } from "./tabs.js";
 import { SetupTab } from "./setup-tab.js";
 import { SkillsTab } from "./skills-tab.js";
 import { TeamTab } from "./team-tab.js";
-import type { NsvxAction, NsvxApproval, NsvxRunResult, NsvxStatus, NsvxTask } from "./types.js";
-import {
-  ConnectCard,
-  createSource,
-  errorMessage,
-  Icon,
-  matches,
-  SourceView,
-  type T,
-} from "./ui-kit.js";
+import { Icon, type T } from "./ui-kit.js";
 import "./control-ui.css";
 import "./messages.css";
 import "./finance.css";
@@ -577,6 +567,16 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "work"}>
               <WorkTab host={host} t={t} query={query()} />
+            </Show>
+            <Show when={tab() === "grow"}>
+              <GrowTab
+                host={host}
+                t={t}
+                dt={dt}
+                gt={growTranslator(locale())}
+                locale={locale()}
+                query={query()}
+              />
             </Show>
             <Show when={tab() === "activity"}>
               <ActivityTab host={host} t={t} query={query()} />

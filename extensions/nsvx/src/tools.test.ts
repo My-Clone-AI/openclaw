@@ -3,6 +3,7 @@ import manifest from "../openclaw.plugin.json" with { type: "json" };
 import { createNsvxAviationTool } from "./aviation-tool.js";
 import type { NsvxClient } from "./client.js";
 import { createNsvxDeviceTool } from "./device.js";
+import { createNsvxGrowTool } from "./grow.js";
 import { createNsvxFleetTool } from "./fleet-tool.js";
 import { createNsvxGroupTool } from "./group-tool.js";
 import { createNsvxPeopleTool } from "./people-tool.js";
@@ -74,6 +75,7 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     createNsvxPeopleTool({} as NsvxClient, ctx as never).name,
     createNsvxGroupTool({} as NsvxClient, ctx as never).name,
     createNsvxDeviceTool({} as NsvxClient, ctx as never).name,
+    createNsvxGrowTool({} as NsvxClient, ctx as never).name,
     createNsvxAviationTool({} as NsvxClient, ctx as never).name,
     createNsvxFleetTool({} as NsvxClient, ctx as never).name,
   ];
@@ -83,5 +85,5 @@ it("declares every registered tool, because the loader drops undeclared tools", 
       .toSorted(),
   );
   expect(manifest.contracts.tools.toSorted()).toEqual([...new Set(names)].toSorted());
-  expect(manifest.contracts.tools).toHaveLength(16);
+  expect(manifest.contracts.tools).toHaveLength(17);
 });

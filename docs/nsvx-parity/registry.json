@@ -3139,7 +3139,7 @@
       "title": "Development progress board",
       "family": "09",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/empresas-do-grupo"
@@ -3153,6 +3153,9 @@
         ],
         "sourceFiles": [
           "backend/clone/grow/api.py",
+          "backend/clone/grow/development_chains.py",
+          "backend/clone/grow/views.py",
+          "web/src/logic/groupGrow.ts",
           "web/src/screens/GroupCompanies.tsx",
           "web/src/screens/GroupGrow.tsx"
         ],
@@ -3166,14 +3169,23 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [
-          "workboard"
+        "uiRoutes": [
+          "plugin"
         ],
-        "chatTools": []
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.grow.control",
+          "nsvx.grow.timer",
+          "nsvx.grow.rollback"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_grow"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/grow; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Grow tab (Apps, Timers) reads NSVX /api/grow status, per-app cycles, the live log, automation timers, and development model chains through nsvx.view, and sends owner changes through nsvx.grow.control (run, pause, resume, mode, stop all; Idempotency-Key per tap), nsvx.grow.timer, and nsvx.grow.rollback, one fixed owner route each (OWNER_WRITES) with the owner session and its CSRF token. NSVX only queues control requests; its engine applies them. nsvx_grow gives chat the same on the owner's turns.",
       "verification": {
         "requires": [
           "discovery",
@@ -3188,22 +3200,37 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/GroupGrow.tsx",
-          "backend/clone/grow/"
+          "backend/clone/grow/api.py",
+          "backend/clone/grow/views.py",
+          "extensions/nsvx/src/grow-apps.tsx",
+          "extensions/nsvx/src/grow-timers.tsx",
+          "extensions/nsvx/src/grow.ts",
+          "extensions/nsvx/src/client.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-grow.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-grow/): app cards with last run, GitHub PR chips, next slot, and ChatGPT sign-in alert; mode Canary, Run now after a confirm (refused for an app that is off), live log, history, Stop all after a confirm; timers on/off and model chain restore with the expected version.",
+          "extensions/nsvx/src/grow.test.ts, 2026-11-05: control requests reach POST /api/grow/control through the real client against a fake NSVX with the CSRF token and the caller's Idempotency-Key; invalid modes never reach NSVX."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_grow was unit tested, not run by a live agent turn."
       ],
       "unknowns": [
-        "Whether Workboard should display these jobs or keep a separate board."
+        "Development chains can be restored to an earlier version but not edited model by model: editing needs the NSVX model catalog for the development slot, which has no owner read route at the pin."
       ]
     },
     {
@@ -3211,7 +3238,7 @@
       "title": "Build Me requests",
       "family": "09",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/"
@@ -3225,8 +3252,11 @@
         ],
         "sourceFiles": [
           "backend/clone/build_me/api.py",
+          "backend/clone/build_me/contracts.py",
           "backend/clone/build_me/peer.py",
+          "web/src/buildMe/Admin.tsx",
           "web/src/buildMe/BuildMe.tsx",
+          "web/src/buildMe/logic.ts",
           "web/src/screens/TodayScreen.tsx"
         ],
         "permissions": [
@@ -3237,12 +3267,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.ideas.submit",
+          "nsvx.ideas.decide"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_grow"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/build-me; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Grow tab (Ideas) reads the NSVX Build Me admin list, counts, one idea, and its images through nsvx.view, sends the owner's own idea through nsvx.ideas.submit (NSVX's form with its own Origin and an idempotency key; the tracking capability stays in NSVX), and approves, rejects, retries, merges to develop, sets priority, or blocks through nsvx.ideas.decide with the revision, version, and key NSVX fences on.",
       "verification": {
         "requires": [
           "discovery",
@@ -3257,22 +3297,37 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/buildMe/BuildMe.tsx",
-          "backend/clone/build_me/"
+          "web/src/buildMe/Admin.tsx",
+          "backend/clone/build_me/api.py",
+          "extensions/nsvx/src/grow-ideas.tsx",
+          "extensions/nsvx/src/grow.ts",
+          "extensions/nsvx/src/grow-data.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-grow.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-grow/): idea counts from NSVX KPIs, progress rings, new idea sent, idea deep link (?idea=), steps, acceptance criteria, merge to dev with a reason and the idea's revision and version.",
+          "extensions/nsvx/src/grow.test.ts, 2026-11-05: a submission is form encoded with NSVX's Origin and CSRF and the tracking link never leaves the Gateway; decisions offered per state match NSVX transitions; nsvx_grow decides on the revision it read and replays one key per tool call."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_grow was unit tested, not run by a live agent turn.",
+        "Images can be shown but not attached to a new idea from Control: NSVX takes images only as multipart uploads, which the owner client does not send."
       ],
       "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
+        "Public visitor parts (anonymous challenge, tracking page, rephrase) are app-user features, not owner features, and stay in each app."
       ]
     },
     {
@@ -3280,7 +3335,7 @@
       "title": "OpenClaw brain inbox and roles",
       "family": "09",
       "priority": "P1",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/apps"
@@ -3305,12 +3360,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.brain.task",
+          "nsvx.brain.roles"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_grow"
+        ]
       },
-      "adapter": "AgentOS action contract through the nsvx plugin once one is pinned; the inbox and status files live on the NSVX host.",
+      "adapter": "nsvx plugin Grow tab (Brain) reads the NSVX brain status file and worker roles through nsvx.view (/api/v1/admin/ai/openclaw/status and worker-roles), queues tasks through nsvx.brain.task, and sets worker engines through nsvx.brain.roles, one fixed owner route each with the owner session and its CSRF token. The brain itself stays locked in NSVX.",
       "verification": {
         "requires": [
           "discovery",
@@ -3325,19 +3390,32 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
+          "web/src/components/OpenClawPanel.tsx",
           "backend/clone/inference/openclaw_api.py",
-          "web/src/components/OpenClawPanel.tsx"
+          "extensions/nsvx/src/grow-brain.tsx",
+          "extensions/nsvx/src/grow.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-grow.e2e.test.ts, 2026-11-05: Chromium against a mock Gateway with synthetic NSVX payloads, desktop 1280 and mobile 390 (screenshots in ui/e2e-shots/nsvx-grow/): online lamps, approval alert, architecture map with live dots and engine logos, agents, flow, jobs; worker role change sends all four roles; new task queued.",
+          "extensions/nsvx/src/grow.test.ts, 2026-11-05: setRole reads the current roles and sends all four; an unknown engine never reaches NSVX."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "nsvx_grow was unit tested, not run by a live agent turn.",
+        "NSVX takes no idempotency key for a brain task, so an uncertain answer is reported and never repeated."
       ],
       "unknowns": [
         "Whether the brain inbox should move into the Gateway task queue instead of staying an NSVX file inbox."

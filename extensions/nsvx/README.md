@@ -12,7 +12,8 @@ Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages,
 agent team
 chart (move, assign, task, stop, pause), NSVX action contracts, approvals, and parity progress.
 Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, Money, Device (desktop
-jobs, bots, memory, skills, sync), Health (status and legal pages), the agent team chart (move, assign, task, stop,
+jobs, bots, memory, skills, sync), Health (status and legal pages), Grow (coding apps, Build Me ideas, the OpenClaw
+brain, timers), the agent team chart (move, assign, task, stop,
 pause), NSVX action contracts, approvals, and parity progress.
 
 Enable it with `openclaw plugins enable nsvx`. Set the NSVX address in the plugin config (`baseUrl`). Two sign-ins
@@ -57,6 +58,11 @@ NSVX's own preview then `/api/workspace/actions`, with the preview's terms hash 
 refuses changed terms and never repeats an invite or an email. Finance / Money is read-only. Health and legal pages are
 public NSVX pages and need no sign-in. For each write, the Gateway reads the session's CSRF token from NSVX's
 `/api/auth/state`, as the NSVX web app does, so NSVX applies its own checks, idempotency, and audit. Chat tools that
+use the owner session (`nsvx_messages`, `nsvx_search`, `nsvx_activity`, `nsvx_device`, `nsvx_grow`, optional
+`nsvx_finance`) run on the owner's own turns only; `nsvx_messages` and `nsvx_device` never send. Grow's changes are the
+fixed `/api/grow`, Build Me admin, and brain routes in `OWNER_WRITES`; a new idea goes as NSVX's own form with NSVX's
+`Origin`, as its web app sends it. Team works with neither sign-in, because it reads this Gateway's own
+agents.
 use the owner session (`nsvx_messages`, `nsvx_people`, `nsvx_search`, `nsvx_activity`, `nsvx_agenda`, `nsvx_device`,
 optional `nsvx_finance` and `nsvx_group`) run on the owner's own turns only; `nsvx_messages`, `nsvx_people`, and
 `nsvx_device` never send, `nsvx_agenda` never runs a change Google would announce to guests or sends an email (it
