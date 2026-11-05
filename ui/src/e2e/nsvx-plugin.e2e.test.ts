@@ -201,10 +201,12 @@ suite.define(() => {
         await tab("Work").click();
         await surface.getByText("Today tab", { exact: true }).waitFor();
         await surface.getByText("master", { exact: true }).waitFor();
-        await tab("Failed").click();
-        await gateway.waitForRequest("nsvx.view", {
+        // Arm the waiter before the click — the Failed reload can finish in the same tick.
+        const failedTasks = gateway.waitForRequest("nsvx.view", {
           match: { view: "workTasks", params: { state: "failed" } },
         });
+        await tab("Failed").click();
+        await failedTasks;
 
         if (process.env.OPENCLAW_CAPTURE_UI_PROOF === "1") {
           await tab("Running").click();
