@@ -125,11 +125,25 @@ async function searchProjectsUncached(params: {
   org?: string;
 }): Promise<ProjectsSearchRemoteResult> {
   if (params.org) {
+    const owner = params.query.split("/")[0];
+    const [exact, results] = await Promise.all([
+      EXACT_REPO_QUERY.test(params.query) && owner?.toLowerCase() === params.org.toLowerCase()
+        ? loadExactRepository(params.query, params.request)
+        : null,
+      loadRepositorySearch(params.query, params.request, params.org),
+    ]);
+    const projects = new Map<string, RemoteProject>();
+    for (const project of [...(exact ? [exact] : []), ...results]) {
+      if (project.fullName.split("/")[0]?.toLowerCase() === params.org.toLowerCase()) {
+        const key = project.fullName.toLowerCase();
+        if (!projects.has(key)) {
+          projects.set(key, project);
+        }
+      }
+    }
     return {
       credential: params.token ? "configured" : "missing",
-      projects: (await loadRepositorySearch(params.query, params.request, params.org)).filter(
-        (project) => project.fullName.split("/")[0]?.toLowerCase() === params.org?.toLowerCase(),
-      ),
+      projects: [...projects.values()].slice(0, SEARCH_RESULT_LIMIT),
     };
   }
   const [exact, affiliated, global] = await Promise.all([
