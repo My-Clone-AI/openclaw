@@ -191,6 +191,7 @@ function humanizeId(value: string) {
     ["modelstudio", "Model Studio"],
     ["msteams", "Microsoft Teams"],
     ["nextcloud", "Nextcloud"],
+    ["nsvx", "NSVX"],
     ["nvidia", "NVIDIA"],
     ["openai", "OpenAI"],
     ["opencode", "OpenCode"],

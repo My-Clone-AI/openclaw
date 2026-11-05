@@ -90,6 +90,7 @@ describe("Control UI controller guard", () => {
     "extensions/whatsapp/browser/page.tsx",
     "extensions/clawrouter/src/control-ui.tsx",
     "extensions/x/src/control-ui.tsx",
+    "extensions/nsvx/src/control-ui.tsx",
   ])("rejects forbidden Solid patterns in the plugin view %s", (file) => {
     const root = fixture();
     write(root, file, 'element.addEventListener("click", handler);');

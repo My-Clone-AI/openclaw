@@ -186,10 +186,10 @@ function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
                 </Show>
                 <For each={supervisors()}>
                   {(id) => (
-                    <option value={id()} selected={row.agent.supervisors[0] === id()}>
-                      {row.data.chart.agents.find((agent) => agent.id === id())?.name ??
-                        row.data.chart.unlinked.find((agent) => agent.id === id())?.name ??
-                        id()}
+                    <option value={id} selected={row.agent.supervisors[0] === id}>
+                      {row.data.chart.agents.find((agent) => agent.id === id)?.name ??
+                        row.data.chart.unlinked.find((agent) => agent.id === id)?.name ??
+                        id}
                     </option>
                   )}
                 </For>
@@ -208,8 +208,8 @@ function TeamTab(props: { host: ControlUiHost; t: T; query: string }) {
                 </option>
                 <For each={row.data.nodes}>
                   {(node) => (
-                    <option value={node().nodeId} selected={row.agent.node === node().nodeId}>
-                      {node().displayName ?? node().nodeId}
+                    <option value={node.nodeId} selected={row.agent.node === node.nodeId}>
+                      {node.displayName ?? node.nodeId}
                     </option>
                   )}
                 </For>
@@ -443,7 +443,7 @@ function ActionCard(props: {
                     >
                       <option value="" />
                       <For each={options()}>
-                        {(option) => <option value={option()}>{option()}</option>}
+                        {(option) => <option value={option}>{option}</option>}
                       </For>
                     </select>
                   )}
@@ -632,8 +632,8 @@ function ProgressTab(props: { host: ControlUiHost; t: T; query: string }) {
             <For each={SEGMENTS}>
               {(segment) => (
                 <li>
-                  <span class={["nsvx-swatch", `nsvx-swatch--${segment()}`]} aria-hidden="true" />
-                  {props.t(segment())} {data()[segment()]}
+                  <span class={["nsvx-swatch", `nsvx-swatch--${segment}`]} aria-hidden="true" />
+                  {props.t(segment)} {data()[segment]}
                 </li>
               )}
             </For>
@@ -658,11 +658,11 @@ function ProgressTab(props: { host: ControlUiHost; t: T; query: string }) {
                       <span class="nsvx-bar">
                         <For each={SEGMENTS}>
                           {(segment) => (
-                            <Show when={family()[segment()] > 0}>
+                            <Show when={family()[segment] > 0}>
                               <span
-                                class={["nsvx-swatch", `nsvx-swatch--${segment()}`]}
-                                style={{ "flex-grow": String(family()[segment()]) }}
-                                title={`${props.t(segment())}: ${family()[segment()]}`}
+                                class={["nsvx-swatch", `nsvx-swatch--${segment}`]}
+                                style={{ "flex-grow": String(family()[segment]) }}
+                                title={`${props.t(segment)}: ${family()[segment]}`}
                               />
                             </Show>
                           )}
@@ -711,12 +711,12 @@ const mountNsvx: ControlUiView = (container, context) => {
               <button
                 type="button"
                 role="tab"
-                aria-selected={tab() === id() ? "true" : "false"}
-                class={["nsvx__tab", { "nsvx__tab--active": tab() === id() }]}
-                onClick={() => select(id())}
+                aria-selected={tab() === id ? "true" : "false"}
+                class={["nsvx__tab", { "nsvx__tab--active": tab() === id }]}
+                onClick={() => select(id)}
               >
-                <Icon name={id()} />
-                {t(id())}
+                <Icon name={id} />
+                {t(id)}
               </button>
             )}
           </For>
