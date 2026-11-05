@@ -85,22 +85,33 @@ or internal service endpoints that still need a decision.
 
 ## Built in Control
 
-The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page with six tabs.
+The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one NSVX page with eight tabs.
 
-| Tab      | What it does                                                 | Data owner                       |
-| -------- | ------------------------------------------------------------ | -------------------------------- |
-| Today    | Decisions, questions, running and done tasks, alerts         | NSVX owner screens (read only)   |
-| Tasks    | Task list with filters and each task's history               | NSVX owner screens (read only)   |
-| Work     | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
-| Team     | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
-| Actions  | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
-| Progress | This registry by family                                      | `registry.json`, copied at build |
+| Tab         | What it does                                                 | Data owner                       |
+| ----------- | ------------------------------------------------------------ | -------------------------------- |
+| Today       | Decisions, questions, running and done tasks, alerts         | NSVX owner screens (read only)   |
+| Messages    | Inbox by channel, thread, approve drafts, reply, take over   | NSVX owner screens and changes   |
+| Quick reply | Paste, write with AI, change, copy, history                  | NSVX Quick Reply drafts          |
+| Tasks       | Task list with filters and each task's history               | NSVX owner screens (read only)   |
+| Work        | Coding work totals, servers, and running jobs                | NSVX owner screens (read only)   |
+| Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History  | Gateway config and sessions      |
+| Actions     | Run NSVX AgentOS actions, decide approvals, see recent tasks | NSVX AgentOS (see Blockers)      |
+| Progress    | This registry by family                                      | `registry.json`, copied at build |
 
 Every Team tree change (move, device, pause, resume, undo) goes through the plugin's `nsvx.team.*` methods, which log
 the `agents` config section before the change in plugin state (`nsvx-team-history`, last 100). History lists them and
 Undo restores the team as it was before one, as NSVX rollback does; agents deleted since stay deleted. Pause keeps the
 agent's old leads (`nsvx-paused`), so Resume restores the same tree. Chat gets the same through `nsvx_team`, which
 changes the team only on the owner's own turns.
+
+Messages and Quick reply read NSVX through `nsvx.view` and change it only through `nsvx.messages.*` and
+`nsvx.quickReply.*`, one fixed NSVX route each (`OWNER_WRITES`), sent with the owner session and the CSRF token NSVX
+gives that session. A reply keeps its idempotency key until NSVX confirms it, so an uncertain send is repeated with
+the same key and NSVX dedupes it. The AI draft button and the Quick reply tab use NSVX Quick Reply under its current
+rules; the draft lands in the composer or on screen and is never sent by itself. Chat gets `nsvx_messages` on the
+owner's own turns: unanswered, find, read, draft, take over, and auto replies. It never sends, because message text
+from other people reaches the model and could carry instructions. `ui/src/e2e/nsvx-messages.e2e.test.ts` covers the
+list, filters, thread, AI draft, send, approve, take over, and Quick reply at 1280 and 390 wide.
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
@@ -115,14 +126,15 @@ repository is public and the owner is anonymous on Git. The original is
 
 ## Blockers
 
-- **Owner screens need the owner's session.** Today, Find, Tasks, Work, and Activity read NSVX owner routes
-  (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with `NSVX_OWNER_SESSION`. Until it is
-  set, those tabs show a sign-in card. They were proven against a mock Gateway with synthetic NSVX payloads, not
-  against a live NSVX.
+- **Owner screens need the owner's session.** Today, Find, Tasks, Work, Activity, Messages, and Quick reply read NSVX
+  owner routes (`OWNER_VIEWS` and `OWNER_READ_POSTS` in `extensions/nsvx/src/client.ts`) with `NSVX_OWNER_SESSION`;
+  Messages and Quick reply also make the fixed `OWNER_WRITES` changes. Until it is set, those tabs show a sign-in card.
+  They were proven against a mock Gateway with synthetic NSVX payloads, not against a live NSVX.
 - **No NSVX machine sign-in.** AgentOS at `/api/agentos/v1` is the safe path: typed action contracts with policy,
   approvals, idempotency, and audit. Its `get_principal` rejects every `Authorization` header and accepts only the
   owner's browser session. The bearer token work (`AD-8` in the NSVX AgentOS architecture doc) must land in NSVX first.
-  The owner session reaches chat only through the owner-only `nsvx_search` and `nsvx_activity` reads.
+  The owner session reaches chat only through the owner-only `nsvx_search`, `nsvx_activity`, and `nsvx_messages` tools
+  (and `nsvx_messages` never sends).
 - **Few actions exist.** Five read actions are pinned: three group reads, the mission list, and task lookup.
   Everything else needs a contract in NSVX.
 - **AgentOS is off by default.** The `agentos.gateway` flag defaults to off, and its live value was not checked.
