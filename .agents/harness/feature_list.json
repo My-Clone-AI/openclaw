@@ -1,0 +1,77 @@
+{
+  "project": "openclaw-controller",
+  "last_updated": "2026-11-06",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "do_not_skip_verification": true,
+    "verification_levels": ["unit", "integration", "e2e"]
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current active task (only one at a time).",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "features": [
+    {
+      "id": "session-harness",
+      "priority": 1,
+      "area": "harness",
+      "title": "Session kit under .agents/harness and root AGENTS.md pointer",
+      "user_visible_behavior": "Agents initialize from .agents/harness, record progress, and cannot declare victory without evidence.",
+      "status": "in_progress",
+      "verification": [
+        "unit: node .agents/harness/validate.mjs exits 0",
+        "integration: .agents/harness/init.sh exits 0 on develop and non-zero when a verify step fails",
+        "e2e: a Grow worker session runs init.sh at start and updates PROGRESS.md at end"
+      ],
+      "evidence": [],
+      "notes": "Initializer PR."
+    },
+    {
+      "id": "control-files-read-error",
+      "priority": 2,
+      "area": "control-nsvx-hub",
+      "title": "Fix \"Some files could not be read\" on the Control nsvx hub",
+      "user_visible_behavior": "The nsvx hub header shows no read warning when files are readable.",
+      "status": "not_started",
+      "verification": ["unit", "integration", "e2e on the Control desktop nsvx hub"],
+      "evidence": [],
+      "notes": "Hub source location must be confirmed first."
+    },
+    {
+      "id": "control-native-move",
+      "priority": 3,
+      "area": "control-nsvx-hub",
+      "title": "Move every old-theme NSVX tab and every hub exit to Native here cards in Control's own look",
+      "user_visible_behavior": "Every nsvx area opens natively in Control; nothing opens the old site.",
+      "status": "not_started",
+      "verification": ["unit per wave", "integration per wave", "e2e on the Control desktop nsvx hub"],
+      "evidence": [],
+      "notes": "Waves: Overview; Communication (Messages/People/Calls); Today (Today/Quick Reply/Apps and settings); Organize (Tasks/Searches/Calendar/Automations + Agenda); remaining admin cards and old tabs."
+    },
+    {
+      "id": "grow-rules",
+      "priority": 4,
+      "area": "control-nsvx-hub",
+      "title": "Grow Rules: show/edit/save org and repo AGENTS.md",
+      "user_visible_behavior": "Grow → Rules: pick Universe or Open Group, show/edit/save the global rules, list repos, show/edit/save a repo's AGENTS.md (save opens a PR).",
+      "status": "not_started",
+      "verification": ["unit: i18n en/pt/es; section id rules", "integration: clone rules API lists orgs/repos and round-trips sha", "e2e on the Control desktop nsvx hub"],
+      "evidence": [],
+      "notes": "Needs My-Clone-AI/clone Rules API first."
+    },
+    {
+      "id": "remove-old-theme",
+      "priority": 5,
+      "area": "control-nsvx-hub",
+      "title": "Delete the old NSVX theme, icon rail, and exits to the old site",
+      "user_visible_behavior": "Only Control's own look remains.",
+      "status": "not_started",
+      "verification": ["unit", "integration", "e2e on the Control desktop nsvx hub"],
+      "evidence": [],
+      "notes": "Only after control-native-move is passing. Keep NSVX backend/API."
+    }
+  ]
+}
