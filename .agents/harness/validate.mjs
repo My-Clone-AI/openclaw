@@ -35,9 +35,45 @@ export function checkFeatures(doc) {
     if (f?.status === "passing" && !(Array.isArray(f.evidence) && f.evidence.some((e) => String(e).trim()))) {
       errs.push(`feature ${id}: passing without evidence`);
     }
+    if (f?.status === "passing" && Array.isArray(f.evidence) && f.evidence.some((e) => typeof e !== "string" || !e.trim())) {
+      errs.push(`feature ${id}: passing evidence must all be non-empty strings`);
+    }
   }
   if (active > 1) errs.push(`feature_list: ${active} features in_progress (WIP=1)`);
   return errs;
+}
+
+export function summarizeLayers(text) {
+  const failed = {};
+  for (const layer of LAYERS) failed[layer] = 0;
+  const summary = { total: 0, ok: 0, failed, malformed: 0 };
+  String(text).split("\n").forEach((line) => {
+    if (!line.trim()) return;
+    let row;
+    try {
+      row = JSON.parse(line);
+    } catch {
+      summary.malformed += 1;
+      return;
+    }
+    if (row?.ok === true && row?.layer === null) {
+      summary.total += 1;
+      summary.ok += 1;
+    } else if (row?.ok === false && typeof row?.layer === "string" && LAYERS.has(row.layer)) {
+      summary.total += 1;
+      summary.failed[row.layer] += 1;
+    } else {
+      summary.malformed += 1;
+    }
+  });
+  return summary;
+}
+
+export function formatHistogram(summary) {
+  const parts = [`total=${summary.total}`, `ok=${summary.ok}`];
+  for (const layer of LAYERS) parts.push(`${layer}=${summary.failed[layer] ?? 0}`);
+  parts.push(`malformed=${summary.malformed}`);
+  return `diagnostic layers: ${parts.join(" ")}`;
 }
 
 export function checkLog(text) {
@@ -61,11 +97,29 @@ export function checkLog(text) {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const errs = [
-    ...checkFeatures(JSON.parse(readFileSync(join(here, "feature_list.json"), "utf8"))),
-    ...checkLog(readFileSync(join(here, "diagnostics/log.jsonl"), "utf8")),
-  ];
+  const errs = [];
+  let featuresRaw;
+  let logText = "";
+  try {
+    featuresRaw = readFileSync(join(here, "feature_list.json"), "utf8");
+  } catch (error) {
+    errs.push(`feature_list.json: unreadable (${error.code ?? error.message})`);
+  }
+  if (featuresRaw !== undefined) {
+    try {
+      errs.push(...checkFeatures(JSON.parse(featuresRaw)));
+    } catch {
+      errs.push("feature_list.json: not JSON");
+    }
+  }
+  try {
+    logText = readFileSync(join(here, "diagnostics/log.jsonl"), "utf8");
+  } catch (error) {
+    errs.push(`diagnostics/log.jsonl: unreadable (${error.code ?? error.message})`);
+  }
+  if (logText) errs.push(...checkLog(logText));
   for (const e of errs) console.error(e);
   console.log(errs.length ? `harness state: ${errs.length} problem(s)` : "harness state: ok");
+  console.log(formatHistogram(summarizeLayers(logText)));
   process.exit(errs.length ? 1 : 0);
 }
