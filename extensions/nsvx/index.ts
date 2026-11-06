@@ -3,6 +3,7 @@ import { createNsvxAccessTool } from "./src/access-tool.js";
 import { createAgentSettings } from "./src/agent-settings.js";
 import { createNsvxAiTool } from "./src/ai-tool.js";
 import { createNsvxAviationTool } from "./src/aviation-tool.js";
+import { createNsvxBusinessTool } from "./src/business-tool.js";
 import { createNsvxCallsTool } from "./src/calls.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig, readNsvxToken } from "./src/config.js";
@@ -11,9 +12,9 @@ import { createNsvxFleetTool } from "./src/fleet-tool.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
 import { createNsvxGrowTool } from "./src/grow.js";
+import { createNsvxHomesTool } from "./src/homes-tool.js";
 import { createNsvxLegalTool } from "./src/legal-tool.js";
 import { createNsvxMarketingTool } from "./src/marketing.js";
-import { createNsvxHomesTool } from "./src/homes-tool.js";
 import { createNsvxPeopleTool } from "./src/people-tool.js";
 import { createNsvxResearchTool } from "./src/research.js";
 import { createTeamService, openHistoryStore, openPausedStore } from "./src/team.js";
@@ -95,6 +96,10 @@ export default definePluginEntry({
     });
     api.registerTool((context) => createNsvxHomesTool(client, context), {
       name: "nsvx_homes",
+      optional: true,
+    });
+    api.registerTool((context) => createNsvxBusinessTool(client, context), {
+      name: "nsvx_business",
       optional: true,
     });
     for (const name of NSVX_OWNER_TOOL_NAMES) {

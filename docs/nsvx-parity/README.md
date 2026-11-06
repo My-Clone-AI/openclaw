@@ -128,6 +128,7 @@ The `nsvx` plugin ([extensions/nsvx](../../extensions/nsvx/README.md)) adds one 
 | Agenda      | Day, week, month; book, move, cancel; Meet, guests, help                     | NSVX Google Calendar (workspace)    |
 | Fleet       | TVDE home, drivers, cars, plan, money, km, ask, driver portal, Uber trips    | NSVX `/api/tvde`, `/api/transports` |
 | Homes       | Summary, homes, rent, loans, mortgage, short stays (AL)                      | NSVX `/api/realestate`, `/api/al`   |
+| Business    | Invoices, quarter, orders, home services, meters, warranty, grants           | NSVX `/api/business`, `/api/orders` |
 | Tasks       | Task list with filters and each task's history                               | NSVX owner screens (read only)      |
 | Work        | Coding work totals, servers, and running jobs                                | NSVX owner screens (read only)      |
 | Team        | Agent tree; Reports to, Runs on, Task, Stop, Pause, History                  | Gateway config and sessions         |
@@ -219,6 +220,15 @@ rent matching uses NSVX's own ranked allocation. Nothing issues a receipt, calls
 go to NSVX's deterministic home assistant (`nsvx.homes.ask`) and rate moves to its calculator (`nsvx.homes.rates`).
 Chat gets `nsvx_homes` on the owner's own turns. `ui/src/e2e/nsvx-homes.e2e.test.ts` covers every area at 1280 and 390
 wide (`ui/e2e-shots/nsvx-homes`).
+
+Business reads NSVX `/api/business` (Via Verde, Prio, Bolt, Fidelidade, the quarter workflow), `/api/orders` (Glovo,
+Amazon ES history and return drafts), `/api/utilities` (NOS, Endesa, meter readings), `/api/warranties`, and the
+business action grants in `/api/group-companies` through `nsvx.view`; its routes live in
+`extensions/nsvx/src/business-routes.ts`. Provider taps (`nsvx.business.provider`) only start sign-in steps and quarter
+collections that NSVX files in Drive; a meter reading reaches the supplier only through `confirm` with the binding NSVX
+issued for the exact values shown; warranty claims build a draft packet NSVX never sends; grant revokes and sign-in
+details need `operator.admin`. Adult apps' grants never show. Chat gets the optional `nsvx_business` on the owner's own
+turns. `ui/src/e2e/nsvx-business.e2e.test.ts` covers every section at 1280 and 390 wide (`ui/e2e-shots/nsvx-business`).
 
 `ui/src/e2e/nsvx-plugin.e2e.test.ts` builds the plugin, mounts it in Control UI against a mock Gateway, and checks
 Today, Tasks, Work, and the Stop, Task, Pause, Resume, move, and Undo requests. Set `OPENCLAW_CAPTURE_UI_PROOF=1` to write desktop and mobile screenshots. A mock run
