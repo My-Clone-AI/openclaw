@@ -8,6 +8,7 @@ import { createNsvxCallsTool } from "./src/calls.js";
 import { createNsvxClient } from "./src/client.js";
 import { parseNsvxConfig, readNsvxToken } from "./src/config.js";
 import { createNsvxDeviceTool } from "./src/device.js";
+import { createNsvxDocsTool } from "./src/docs.js";
 import { createNsvxFleetTool } from "./src/fleet-tool.js";
 import { registerNsvxGatewayMethods } from "./src/gateway.js";
 import { createNsvxGroupTool } from "./src/group-tool.js";
@@ -78,6 +79,7 @@ export default definePluginEntry({
       optional: true,
     });
     api.registerTool((context) => createNsvxCallsTool(client, context), { name: "nsvx_calls" });
+    api.registerTool((context) => createNsvxDocsTool(client, context), { name: "nsvx_docs" });
     api.registerTool((context) => createNsvxLegalTool(client, context), { name: "nsvx_legal" });
     api.registerTool((context) => createNsvxResearchTool(client, context), {
       name: "nsvx_research",

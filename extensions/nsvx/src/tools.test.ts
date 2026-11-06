@@ -7,6 +7,7 @@ import { createNsvxBusinessTool } from "./business-tool.js";
 import { createNsvxCallsTool } from "./calls.js";
 import type { NsvxClient } from "./client.js";
 import { createNsvxDeviceTool } from "./device.js";
+import { createNsvxDocsTool } from "./docs.js";
 import { createNsvxFleetTool } from "./fleet-tool.js";
 import { createNsvxGroupTool } from "./group-tool.js";
 import { createNsvxGrowTool } from "./grow.js";
@@ -89,6 +90,7 @@ it("declares every registered tool, because the loader drops undeclared tools", 
     createNsvxFleetTool({} as NsvxClient, ctx as never).name,
     createNsvxAccessTool({} as NsvxClient, ctx as never).name,
     createNsvxCallsTool({} as NsvxClient, ctx as never).name,
+    createNsvxDocsTool({} as NsvxClient, ctx as never).name,
     createNsvxLegalTool({} as NsvxClient, ctx as never).name,
     createNsvxResearchTool({} as NsvxClient, ctx as never).name,
     createNsvxMarketingTool({} as NsvxClient, ctx as never).name,
@@ -101,5 +103,5 @@ it("declares every registered tool, because the loader drops undeclared tools", 
       .toSorted(),
   );
   expect(manifest.contracts.tools.toSorted()).toEqual([...new Set(names)].toSorted());
-  expect(manifest.contracts.tools).toHaveLength(25);
+  expect(manifest.contracts.tools).toHaveLength(26);
 });

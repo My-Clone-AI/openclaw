@@ -4499,26 +4499,23 @@
     },
     {
       "id": "documents",
-      "title": "Documents, forms and signatures",
+      "title": "Documents and forms",
       "family": "11",
       "priority": "P2",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/documentos"
         ],
         "backendPackages": [
           "documents",
-          "pdf_forms",
-          "signatures"
+          "pdf_forms"
         ],
         "jobPackages": [
-          "documents",
-          "signatures"
+          "documents"
         ],
         "apiPrefixes": [
           "/api/documents",
-          "/api/signatures",
           "/api/pdf-forms"
         ],
         "sourceFiles": [
@@ -4526,9 +4523,7 @@
           "backend/clone/documents/quick_documents_api.py",
           "backend/clone/documents/quick_invoice_api.py",
           "backend/clone/pdf_forms/api.py",
-          "backend/clone/signatures/api.py",
-          "web/src/screens/Documents.tsx",
-          "web/src/screens/Signatures.tsx"
+          "web/src/screens/Documents.tsx"
         ],
         "permissions": [
           "owner session + CSRF"
@@ -4540,12 +4535,24 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.docs.change",
+          "nsvx.docs.upload",
+          "nsvx.docs.ask",
+          "nsvx.docs.file"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_docs"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/documents, /api/signatures, /api/pdf-forms; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Docs tab (Files, Check, Settings) reads NSVX /api/documents/overview, /api/documents (search, category, origin, dates, order, review), /api/documents/{id}, its page images (/api/documents/{id}/page/{n}), taxonomy, settings, and learned rules through nsvx.view; uploads (multipart, up to 20 files) go through nsvx.docs.upload; correct, accept NSVX's suggested category, rename, confirm, read again, forget (clone's copy only), notices, rules, categories, and settings go through nsvx.docs.change on fixed OWNER_WRITES routes with the owner session and CSRF token; the category suggestion, plain explanation, and why-filed answer are NSVX POST reads (nsvx.docs.ask); downloads and the JSON list export come through nsvx.docs.file. nsvx_docs gives chat overview, list, read (names and excerpt marked untrusted), suggest, approve, and reprocess; upload, forget, sign, and settings return needsOwner.",
       "verification": {
         "requires": [
           "discovery",
@@ -4560,32 +4567,45 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Documents.tsx",
-          "backend/clone/documents/",
-          "backend/clone/pdf_forms/",
-          "backend/clone/signatures/"
+          "web/src/logic/documents.ts",
+          "backend/clone/documents/api.py",
+          "extensions/nsvx/src/docs-tab.tsx",
+          "extensions/nsvx/src/docs-viewer.tsx",
+          "extensions/nsvx/src/docs-settings.tsx",
+          "extensions/nsvx/src/docs.ts",
+          "extensions/nsvx/src/docs-routes.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-docs.e2e.test.ts, 2026-11-06: Chromium 1280 and 390 against a mock Gateway with synthetic NSVX payloads (screenshots in ui/e2e-shots/nsvx-docs/): archive with Drive state, counts, notice, category chips, rows with state and origin; upload of a picked file; one document with page image, NSVX's category suggestion accepted, a corrected number saved; settings switches and learned-rule removal; no element passes the 390 viewport.",
+          "extensions/nsvx/src/docs.test.ts, 2026-11-06: corrections send only changed fields; forget carries NSVX's confirmation flag; uploads arrive as NSVX's multipart files field; bad input never reaches NSVX; nsvx_docs refuses other senders, marks document text untrusted, and returns needsOwner for signing."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session): NSVX serves no AgentOS documents actions to a bearer token yet; not yet run against a live NSVX.",
+        "Not in Control yet: proposal comparison (/api/documents/proposal-comparison), quick documents and quick invoices (/quick-documents, /quick-invoices, resumable transfers), bank document imports and bank invoice access (family 12), warranties (/garantias), and PDF forms (/api/pdf-forms, mission-bound).",
+        "nsvx_docs was unit tested, not run by a live agent turn."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "drive",
       "title": "Drive",
       "family": "11",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/documentos"
@@ -4613,12 +4633,21 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.docs.change"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_docs"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/drive; NSVX stays the owner of data and jobs.",
+      "adapter": "nsvx plugin Docs tab, Drive: reads NSVX's Drive sync state and folders (/api/documents/drive/status), its file index by name (/api/drive/files), and the archive's Drive settings through nsvx.view; sync now (/api/documents/drive/resync), rename in Drive, include existing files, whole Drive or some folders, and where uploads are copied go through nsvx.docs.change. Connecting Google Drive opens the native Access tab. nsvx_docs gives chat drive (sync state) and driveFind (names in the index). NSVX never asks Google from these reads.",
       "verification": {
         "requires": [
           "discovery",
@@ -4633,22 +4662,134 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
-          "web/src/screens/PersonDrive.tsx"
+          "web/src/screens/Documents.tsx",
+          "web/src/screens/PersonDrive.tsx",
+          "backend/clone/api.py",
+          "backend/clone/documents/api.py",
+          "extensions/nsvx/src/docs-drive.tsx",
+          "extensions/nsvx/src/docs.ts"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-docs.e2e.test.ts, 2026-11-06: Chromium 1280 and 390 against a mock Gateway with synthetic NSVX payloads (screenshots in ui/e2e-shots/nsvx-docs/): Drive card with live state and document count, find a file by name with its folder path, include-existing switch saved; no element passes the 390 viewport."
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "A person's Drive card (PersonDrive.tsx: link, change, unlink /api/people/{pid}/drive-file) belongs to the People tab and is not in Control yet."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
+    },
+    {
+      "id": "signatures",
+      "title": "Signatures",
+      "family": "11",
+      "priority": "P2",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/documentos"
+        ],
+        "backendPackages": [
+          "signatures"
+        ],
+        "jobPackages": [
+          "signatures"
+        ],
+        "apiPrefixes": [
+          "/api/signatures"
+        ],
+        "sourceFiles": [
+          "backend/clone/signatures/api.py",
+          "backend/clone/signatures/desktop.py",
+          "backend/clone/signatures/service.py",
+          "web/src/components/SignPdfButton.tsx",
+          "web/src/screens/Signatures.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Autenticação.gov (Chave Móvel Digital)"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.sign.change",
+          "nsvx.sign.upload",
+          "nsvx.sign.import",
+          "nsvx.sign.profile",
+          "nsvx.docs.file"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_docs"
+        ]
+      },
+      "adapter": "nsvx plugin Docs tab, Sign (also a sidebar entry under NSVX): reads NSVX /api/signatures (state filter, search, pages of 50), one signature document with its requests, validation, and history, its page images (NSVX records each page served as reviewed), companies, the desktop capability, the CMD vault state, and desktop signing progress through nsvx.view; add a PDF or a photo, sign a filed document (from-catalogue), request a signature with the owner's confirmation, the reviewed hash, and one idempotency key per choice, import the signed PDF for NSVX to validate, cancel, start the installed official app, and type the six-digit code go through nsvx.sign.change / nsvx.sign.upload / nsvx.sign.import; the CMD vault (phone, signing PIN, certificate name and ID) needs operator.admin (nsvx.sign.profile) and passes through without being stored. Original, reviewed, and signed PDFs download through nsvx.docs.file. Control never signs: signing happens in Autenticação.gov. nsvx_docs gives chat signatures and signature (requests, validation); sign returns needsOwner.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "web/src/screens/Signatures.tsx",
+          "web/src/components/SignPdfButton.tsx",
+          "backend/clone/signatures/api.py",
+          "extensions/nsvx/src/docs-sign.tsx",
+          "extensions/nsvx/src/docs-sign-view.tsx",
+          "extensions/nsvx/src/docs.ts"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-docs.e2e.test.ts, 2026-11-06: Chromium 1280 and 390 against a mock Gateway with synthetic NSVX payloads (screenshots in ui/e2e-shots/nsvx-docs/): a filed PDF becomes a signature document; Sign stays off until every page is seen; the visible-seal box sits where NSVX placed it; the confirmed request carries mode, certificate name and ID from the vault, the reviewed hash, and one key; the desk lists states and companies; the Assinar sidebar entry opens Sign in pt-PT; no element passes the 390 viewport.",
+          "extensions/nsvx/src/docs.test.ts, 2026-11-06: a request needs the owner's confirmation, the reviewed hash, a company for company mode, and one key; the code must be six digits; the CMD vault refuses a non-Portuguese mobile."
+        ]
+      },
+      "blockers": [
+        "Live data needs NSVX_OWNER_SESSION on the Gateway (needs-owner-session); not yet run against a live NSVX.",
+        "Batches (SignatureBatchAssistant, /api/signatures/batches: prepare, authorize, revalidate, revise) and the voice fields of the NSVX form are not in Control yet.",
+        "Signing itself is external: Autenticação.gov or the installed official app on the owner's desktop."
+      ],
+      "unknowns": []
     },
     {
       "id": "finance",

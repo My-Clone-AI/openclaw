@@ -35,7 +35,8 @@
       "nsvx_ai",
       "nsvx_homes",
       "nsvx_calls",
-      "nsvx_business"
+      "nsvx_business",
+      "nsvx_docs" 
     ]
   },
   "uiCapabilities": [
