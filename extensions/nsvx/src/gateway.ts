@@ -33,6 +33,7 @@ import {
 import { parseDefaults, parseToolAccess, parseIdea, type AgentSettings } from "./agent-settings.js";
 import { changeAi } from "./ai.js";
 import { registerAviationMethods } from "./aviation.js";
+import { registerBusinessMethods } from "./business.js";
 import { registerCallsMethods } from "./calls.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
@@ -48,6 +49,7 @@ import {
   serverAction,
 } from "./group.js";
 import { registerGrowMethods } from "./grow.js";
+import { registerHomesMethods } from "./homes.js";
 import { registerLegalMethods } from "./legal.js";
 import { registerMarketingMethods } from "./marketing.js";
 import {
@@ -60,7 +62,6 @@ import {
   setTakeover,
   startQuickReply,
 } from "./messages.js";
-import { registerHomesMethods } from "./homes.js";
 import parity from "./parity-data.json" with { type: "json" };
 import { changeGroup, changePerson } from "./people.js";
 import { registerResearchMethods } from "./research.js";
@@ -262,6 +263,8 @@ export function registerNsvxGatewayMethods(
   method("nsvx.ai.change", "operator.admin", (params) => changeAi(client, params));
   // Homes read through nsvx.view; these are the owner's taps and two stored-data reads (homes.ts).
   registerHomesMethods(method, client);
+  // Business reads through nsvx.view; these are the owner's taps on fixed routes (business-routes.ts).
+  registerBusinessMethods(method, client);
   method("nsvx.team.paused", "operator.read", () => team.listPaused());
   method("nsvx.team.history", "operator.read", () => team.history());
   // Tree changes rewrite agent config, so they need the same scope as config.patch.

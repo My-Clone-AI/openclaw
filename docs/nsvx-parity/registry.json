@@ -6933,7 +6933,7 @@
       "title": "Business workspace",
       "family": "20",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/empresarial"
@@ -6967,12 +6967,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.provider",
+          "nsvx.business.access"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/business; NSVX stays the owner of data and jobs.",
+      "adapter": "Business › Invoices and nsvx_business read NSVX /api/business/{viaverde,prio,bolt,fidelidade} through nsvx.view; sign-in, sign-in steps, codes, and quarter collections are fixed owner routes (business-routes.ts). NSVX stays the owner of data and jobs.",
       "verification": {
         "requires": [
           "discovery",
@@ -6987,30 +6997,45 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Business.tsx",
-          "backend/clone/business/"
+          "backend/clone/business/",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-providers.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Invoices cards for Via Verde, Prio, Bolt, and Fidelidade with sign-in light, last run, progress, and Collect (provider request with the quarter).",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "Not native yet: Fidelidade policy search and document download, Prio and NOS run pages, Uber Business (in Fleet), and the Bolt and Via Verde assistants stay in NSVX Empresarial."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "orders",
       "title": "Orders",
       "family": "20",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/encomendas",
@@ -7042,12 +7067,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.provider",
+          "nsvx.business.access"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/orders; NSVX stays the owner of data and jobs.",
+      "adapter": "Business › Orders and nsvx_business read NSVX /api/orders/glovo and /api/orders/amazon-es (history, returns) through nsvx.view; Glovo sign-in, invoice name, and collections, and Amazon sign-in and history reads are fixed owner routes.",
       "verification": {
         "requires": [
           "discovery",
@@ -7062,31 +7097,47 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/OnlineOrders.tsx",
           "backend/clone/orders/",
-          "backend/clone/commerce/"
+          "backend/clone/commerce/",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-workflow.tsx",
+          "extensions/nsvx/src/business-providers.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Orders: Glovo with its official mark, invoice name, and Collect; Amazon ES order history and return drafts.",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "Not native yet: starting or stepping an Amazon return (it acts on Amazon) stays in NSVX Encomendas; Control shows return drafts read only."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "utilities",
       "title": "Home utilities",
       "family": "20",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/utilities"
@@ -7117,12 +7168,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.provider",
+          "nsvx.business.access"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/utilities; NSVX stays the owner of data and jobs.",
+      "adapter": "Business › Home and nsvx_business read NSVX /api/utilities/{nos,endesa} through nsvx.view; account refresh, Endesa sign-in steps, and quarter collections are fixed owner routes.",
       "verification": {
         "requires": [
           "discovery",
@@ -7137,30 +7198,44 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/screens/Utilities.tsx",
-          "backend/clone/utilities/"
+          "backend/clone/utilities/",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-providers.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Home: NOS accounts and Endesa places with Update and Collect.",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
     },
     {
       "id": "warranties",
       "title": "Warranties",
       "family": "20",
       "priority": "P3",
-      "status": "missing",
+      "status": "partial",
       "nsvx": {
         "webRoutes": [
           "/garantias"
@@ -7186,12 +7261,22 @@
         "runtime": "not-checked"
       },
       "openclaw": {
-        "uiRoutes": [],
-        "gatewayMethods": [],
-        "extensions": [],
-        "chatTools": []
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.warranty",
+          "nsvx.business.file"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
       },
-      "adapter": "Plugin Gateway methods proxy NSVX /api/warranties; NSVX stays the owner of data and jobs.",
+      "adapter": "Business › Warranty and nsvx_business read NSVX /api/warranties through nsvx.view; create (client key), edit, upload, resume, cancel, and confirm are fixed owner routes carrying the revision NSVX gave; the export is NSVX's own file. NSVX has no send route.",
       "verification": {
         "requires": [
           "discovery",
@@ -7206,23 +7291,328 @@
           "evidence"
         ],
         "passed": [
-          "discovery"
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
         ]
       },
       "evidence": {
-        "level": "source",
+        "level": "runtime",
         "source": [
           "web/src/warranties/Warranties.tsx",
-          "backend/clone/warranties/"
+          "backend/clone/warranties/",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-warranty.tsx"
         ],
-        "runtime": []
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Warranty: saved claims, one claim's draft (facts, letter, what is missing, evidence), deep link (?claim=), and Confirm draft (warranty request with packet id and hash).",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
       },
       "blockers": [
-        "NSVX accepts only the owner browser session; AgentOS bearer tokens are not implemented yet (get_principal in agentos/rest_api.py)."
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "Not native yet: dictating the fault by voice (transcript_command_id) stays in NSVX Garantias; Control takes typed text."
       ],
-      "unknowns": [
-        "Whether this business domain belongs in OpenClaw Control: the owner brief was unavailable to this audit."
-      ]
+      "unknowns": []
+    },
+    {
+      "id": "business-grants",
+      "title": "Business grants",
+      "family": "20",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresas-do-grupo"
+        ],
+        "backendPackages": [
+          "group_companies"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/group-companies"
+        ],
+        "sourceFiles": [
+          "backend/clone/group_companies/api.py",
+          "web/src/screens/BusinessGrantsPanel.tsx",
+          "web/src/screens/GroupCompanies.tsx",
+          "web/src/logic/grantExport.ts"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "write",
+        "integrations": [],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.grant",
+          "nsvx.business.explain",
+          "nsvx.business.file"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
+      },
+      "adapter": "Business › Grants and nsvx_business read NSVX /api/group-companies/business-action-grants (list, expiry notice, expiring, denials) through nsvx.view; explanation is an NSVX POST read; the expiry notice and revoke are fixed owner routes (operator.admin); the export is NSVX's own CSV or JSON.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/group_companies/api.py",
+          "web/src/screens/BusinessGrantsPanel.tsx",
+          "web/src/screens/GroupCompanies.tsx",
+          "web/src/logic/grantExport.ts",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-grants.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Grants: adult apps hidden, expiry warning setting, find, Explain (NSVX inference), Refusals, two-tap Revoke (grant request), and the history export.",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
+      },
+      "blockers": [
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "Not native yet: creating a grant stays in NSVX Empresas do grupo."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "business-workflow",
+      "title": "Business workflow",
+      "family": "20",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/empresarial"
+        ],
+        "backendPackages": [
+          "business"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/business"
+        ],
+        "sourceFiles": [
+          "backend/clone/business/workflows_api.py",
+          "backend/clone/business/workflows.py",
+          "web/src/screens/BusinessWorkflow.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Bolt",
+          "Prio",
+          "Via Verde",
+          "Fidelidade"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.workflow"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
+      },
+      "adapter": "Business › Quarter and nsvx_business start NSVX's cross-supplier quarter collection and resume its unverified steps through fixed owner routes; the workflow is read through nsvx.view. Like NSVX's screen, the device remembers the last one it started.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/business/workflows_api.py",
+          "backend/clone/business/workflows.py",
+          "web/src/screens/BusinessWorkflow.tsx",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-workflow.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Quarter: supplier picks, Collect all (workflow request, sorted suppliers), and each step's state and filed count.",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
+      },
+      "blockers": [
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "Not native yet: the recovery-job dashboard and compensation receipts and exports stay in NSVX Recolha trimestral."
+      ],
+      "unknowns": []
+    },
+    {
+      "id": "meter-readings",
+      "title": "Meter readings",
+      "family": "20",
+      "priority": "P3",
+      "status": "partial",
+      "nsvx": {
+        "webRoutes": [
+          "/utilities"
+        ],
+        "backendPackages": [
+          "utilities"
+        ],
+        "jobPackages": [],
+        "apiPrefixes": [
+          "/api/utilities"
+        ],
+        "sourceFiles": [
+          "backend/clone/utilities/meter_readings/api.py",
+          "backend/clone/utilities/meter_readings/service.py",
+          "web/src/screens/MeterReadings.tsx"
+        ],
+        "permissions": [
+          "owner session + CSRF"
+        ],
+        "effect": "external",
+        "integrations": [
+          "Endesa"
+        ],
+        "runtime": "not-checked"
+      },
+      "openclaw": {
+        "uiRoutes": [
+          "plugin"
+        ],
+        "gatewayMethods": [
+          "nsvx.view",
+          "nsvx.business.reading"
+        ],
+        "extensions": [
+          "nsvx"
+        ],
+        "chatTools": [
+          "nsvx_business"
+        ]
+      },
+      "adapter": "Business › Meters and nsvx_business read NSVX /api/utilities/meter-readings through nsvx.view (photo as an image view); photo and voice uploads, edits, prepare, confirm (binding for the exact values), verify, retry, and cancel are fixed owner routes carrying the revision NSVX gave.",
+      "verification": {
+        "requires": [
+          "discovery",
+          "ui",
+          "actions",
+          "chat",
+          "data",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile",
+          "evidence"
+        ],
+        "passed": [
+          "discovery",
+          "ui",
+          "actions",
+          "permissions",
+          "feedback",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "evidence": {
+        "level": "runtime",
+        "source": [
+          "backend/clone/utilities/meter_readings/api.py",
+          "backend/clone/utilities/meter_readings/service.py",
+          "web/src/screens/MeterReadings.tsx",
+          "extensions/nsvx/src/business-routes.ts",
+          "extensions/nsvx/src/business.ts",
+          "extensions/nsvx/src/business-tool.ts",
+          "extensions/nsvx/src/business-data.ts",
+          "extensions/nsvx/src/business-tab.tsx",
+          "extensions/nsvx/src/business-readings.tsx"
+        ],
+        "runtime": [
+          "ui/src/e2e/nsvx-business.e2e.test.ts, 2026-11-06: built nsvx plugin in Control UI against a mock Gateway with synthetic NSVX payloads, Chromium 1280 and 390 wide (screenshots in ui/e2e-shots/nsvx-business/), no element wider than the phone: Meters: the meter photo, NSVX's read (place, meter, date, registers, checks), and Confirm and send with NSVX's binding (reading request), then Sending.",
+          "extensions/nsvx/src/business.test.ts, 2026-11-06: changes reach their fixed NSVX routes through the real client against a fake NSVX (method, path, CSRF, multipart, body shape NSVX validates); refused inputs never reach it; nsvx_business answers only the owner and hides adult apps' grants"
+        ]
+      },
+      "blockers": [
+        "Owner session only: NSVX serves these screens on the owner browser session and exposes no clone.business, clone.orders, clone.utilities, or clone.warranties AgentOS read actions yet, so a Gateway with only NSVX_AGENTOS_TOKEN_FILE shows Coming soon; not yet run against a live NSVX.",
+        "nsvx_business was unit tested, not run by a live agent turn.",
+        "NSVX itself marks Endesa sending as not checked yet (providers[].supported false), so Confirm and send can be refused by NSVX until it validates the route."
+      ],
+      "unknowns": []
     },
     {
       "id": "owner-auth",

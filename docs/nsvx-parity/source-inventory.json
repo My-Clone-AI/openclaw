@@ -5730,6 +5730,24 @@
         "writes": 6,
         "digest": "c395a420f58ecbd11750dedf1396318746808d829fac4ab734ad7b65c90447c7"
       },
+      "business-grants": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "business-workflow": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "meter-readings": {
+        "routes": 0,
+        "reads": 0,
+        "writes": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
       "owner-auth": {
         "routes": 17,
         "reads": 5,
@@ -5780,10 +5798,10 @@
       }
     },
     "parity": {
-      "discovered": 87,
+      "discovered": 90,
       "native": 14,
-      "partial": 62,
-      "missing": 11,
+      "partial": 69,
+      "missing": 7,
       "blocked": 0,
       "verified": 1,
       "families": [
@@ -5890,10 +5908,10 @@
         {
           "id": "20",
           "name": "Business and personal",
-          "discovered": 4,
+          "discovered": 7,
           "native": 0,
-          "partial": 0,
-          "missing": 4,
+          "partial": 7,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

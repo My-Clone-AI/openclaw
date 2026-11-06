@@ -1,3 +1,9 @@
+import {
+  businessFiles,
+  businessReadPosts,
+  businessViews,
+  businessWrites,
+} from "./business-routes.js";
 import { callFiles, callReadPosts, callViews, callWrites } from "./calls-routes.js";
 import {
   LEGAL_LANGS,
@@ -332,6 +338,7 @@ const OWNER_VIEWS = {
   fleetAccess: { path: "/api/tvde/access" },
   ...accessRoutes,
   ...callViews,
+  ...businessViews,
   fleetLocations: { path: "/api/tvde/locations" },
   fleetFinance: { path: "/api/tvde/finance/summary", query: ["start", "end"] },
   fleetInvoices: {
@@ -438,6 +445,7 @@ const SLOW_TIMEOUT_MS = 320_000;
 
 const OWNER_WRITES = {
   ...accessWrites,
+  ...businessWrites,
   ...callWrites,
   ...marketingWrites,
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
@@ -524,7 +532,11 @@ const OWNER_WRITES = {
   // Homes: internal NSVX records only. No receipt goes to the Portal das Finanças, no bank or guest is contacted.
   homesAlertRead: { method: "POST", path: "/api/properties/alerts/{id}/read" },
   homesNotice: { method: "POST", path: "/api/realestate/notifications/{id}/{action}" },
-  homesExpense: { method: "POST", path: "/api/properties/{id}/expenses", idempotency: "Idempotency-Key" },
+  homesExpense: {
+    method: "POST",
+    path: "/api/properties/{id}/expenses",
+    idempotency: "Idempotency-Key",
+  },
   rentReconcile: { method: "POST", path: "/api/arrendamento/reconcile" },
   rentAssociate: { method: "POST", path: "/api/arrendamento/payments/{id}/associate" },
   rentReverse: { method: "POST", path: "/api/arrendamento/matches/{id}/reverse" },
@@ -719,6 +731,7 @@ const OWNER_READ_POSTS = {
   homesAsk: "/api/properties/ask",
   loanRates: "/api/realestate/simulate/rates",
   ...callReadPosts,
+  ...businessReadPosts,
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -735,6 +748,7 @@ const OWNER_FILES = {
   researchPdf: { path: "/api/research/{id}/pdf" },
   marketingInventory: { path: "/api/marketing/social-accounts-inventory", query: ["format"] },
   ...callFiles,
+  ...businessFiles,
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;

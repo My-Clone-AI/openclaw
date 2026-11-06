@@ -9,6 +9,7 @@ import { AgendaTab } from "./agenda-tab.js";
 import { aiTranslator, type AT } from "./ai-i18n.js";
 import { AI_VIEWS, AiTab, type AiView } from "./ai-tab.js";
 import { AviationTab } from "./aviation-tab.js";
+import { BusinessTab } from "./business-tab.js";
 import { callsTranslator } from "./calls-i18n.js";
 import { CallsTab } from "./calls-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
@@ -399,6 +400,9 @@ const mountNsvx: ControlUiView = (container, context) => {
             </Show>
             <Show when={tab() === "homes"}>
               <HomesTab host={host} t={t} locale={locale()} query={query()} />
+            </Show>
+            <Show when={tab() === "business"}>
+              <BusinessTab host={host} t={t} query={query()} locale={locale()} />
             </Show>
             <Show when={tab() === "fleet"}>
               <FleetTab host={host} t={t} locale={locale()} query={query()} />
