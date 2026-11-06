@@ -114,6 +114,7 @@ Update instructions at owner; no competing rules here.
 - **Audit/identity:** [audit doctrine](docs/gateway/audit.md); provenance = opt-in, never authorization; changes to collection, reader scope, retained fields, bounds, contracts need approval.
 - **Codex-backed behavior:** personally inspect and cite exact sibling `../codex` source first; other agents' reports don't substitute. Routes use `openai` (`openai-codex` only in migration); refresh [the harness guide](docs/plugins/codex-harness.md) from `model/list` on upgrades.
 - **Validation:** [test suites](docs/help/testing/suites.md) lists commands; [writing tests](docs/help/testing/writing-tests.md) for authoring.
+- **Long-running agent sessions:** [session harness](.agents/harness/AGENTS.md): init, progress, feature list, done = unit then integration then e2e.
 - **GitHub:** [contribution rules](CONTRIBUTING.md), PR template, [review feedback](docs/reference/pull-request-review-flow.md); `scripts/pr` follows [scripts guide](scripts/AGENTS.md).
 - **Docs:** [docs guide](docs/AGENTS.md); update docs with behavior; fix notes go in PRs (`CHANGELOG.md` = release-owned).
 - **Releases, extended-stable:** release workflow and [release contract](docs/reference/RELEASING.md) ([line/retirement policy](docs/reference/RELEASING.md#release-channels)); preserve selected cut and identity through publication and verification.

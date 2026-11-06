@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenClaw Controller feature list",
+  "description": "Source of truth for feature state. WIP=1: at most one in_progress. passing requires non-empty evidence (checked by validate.mjs).",
+  "type": "object",
+  "required": ["project", "rules", "features"],
+  "properties": {
+    "project": { "type": "string" },
+    "last_updated": { "type": "string" },
+    "rules": {
+      "type": "object",
+      "required": ["single_active_feature", "passing_requires_evidence", "verification_levels"],
+      "properties": {
+        "single_active_feature": { "const": true },
+        "passing_requires_evidence": { "const": true },
+        "do_not_skip_verification": { "const": true },
+        "verification_levels": { "const": ["unit", "integration", "e2e"] }
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "priority", "area", "title", "user_visible_behavior", "status", "verification", "evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "priority": { "type": "integer", "minimum": 1 },
+          "area": { "type": "string" },
+          "title": { "type": "string" },
+          "user_visible_behavior": { "type": "string" },
+          "status": { "enum": ["not_started", "in_progress", "blocked", "passing"] },
+          "verification": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}
