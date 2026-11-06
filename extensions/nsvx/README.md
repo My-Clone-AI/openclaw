@@ -1,7 +1,8 @@
 # NSVX plugin
 
 Brings NSVX into OpenClaw Control: Today, Find, Tasks, Work, Activity, Messages, Quick reply, Calls (dial, live calls,
-history, transcripts, recordings, Who called, voice settings; also a sidebar entry under NSVX), People, Agenda, Money,
+history, transcripts, recordings, Who called, voice settings; also a sidebar entry under NSVX), People, Docs (archive,
+check, page previews, AI category, Google Drive, signatures; also Docs and Sign sidebar entries), Agenda, Money,
 AI (routes, accounts, flows, Clone AI, voice, log), Group, Homes (real estate, rent, loans, mortgage, short
 stays), Business (supplier invoices, the quarter's collection, orders, home services, meter readings, warranty
 drafts, action grants), Aviation (logbook, documents, auto check-in, roster), Fleet
@@ -75,12 +76,16 @@ The fixed routes in `OWNER_WRITES` (`src/client.ts`) are the only owner changes:
   binding), warranty claim drafts (never sent; NSVX has no send route), the grants expiry warning, and grant revokes.
   Sign-in details and grants need `operator.admin`.
 - Grow: the fixed `/api/grow`, Build Me admin, and brain routes.
+- Docs: uploads, corrections, confirm, rename, read again, forget (clone's copy only; a Drive original stays), notices,
+  learned rules, categories, archive and Drive settings, Drive sync, signature documents, requests (one key per
+  choice, after every page is seen), signed-PDF import, cancel, the installed official app and its code, and the CMD
+  vault (`operator.admin`). Control never signs; signing happens in Autenticação.gov.
 - Skills: skill state and review.
 
 Finance / Money is read only. AI changes reroute every NSVX model call, so `nsvx.ai.change` needs `operator.admin`.
 
 Owner chat tools (`nsvx_messages`, `nsvx_people`, `nsvx_search`, `nsvx_activity`, `nsvx_agenda`, `nsvx_ai`,
-`nsvx_device`, `nsvx_grow`, `nsvx_aviation`, `nsvx_fleet`, `nsvx_homes` (optional), `nsvx_business` (optional), `nsvx_skills`, `nsvx_agents` (suggest), optional
+`nsvx_device`, `nsvx_grow`, `nsvx_aviation`, `nsvx_fleet`, `nsvx_docs`, `nsvx_homes` (optional), `nsvx_business` (optional), `nsvx_skills`, `nsvx_agents` (suggest), optional
 `nsvx_finance` and `nsvx_group`) run on the owner's own turns only:
 
 - `nsvx_messages`, `nsvx_people`, and `nsvx_device` never send.

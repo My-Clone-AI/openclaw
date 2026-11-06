@@ -38,6 +38,7 @@ import { registerCallsMethods } from "./calls.js";
 import type { NsvxClient } from "./client.js";
 import { NsvxError } from "./client.js";
 import { registerDeviceMethods } from "./device.js";
+import { registerDocsMethods } from "./docs.js";
 import { askFleet, changeFleet } from "./fleet.js";
 import {
   mailAction,
@@ -251,6 +252,7 @@ export function registerNsvxGatewayMethods(
   registerGrowMethods(method, client);
   registerAviationMethods(method, client);
   registerCallsMethods(method, client);
+  registerDocsMethods(method, client);
   registerLegalMethods(method, client);
   registerResearchMethods(method, client);
   registerMarketingMethods(method, client);

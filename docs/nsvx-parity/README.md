@@ -220,6 +220,15 @@ rent matching uses NSVX's own ranked allocation. Nothing issues a receipt, calls
 go to NSVX's deterministic home assistant (`nsvx.homes.ask`) and rate moves to its calculator (`nsvx.homes.rates`).
 Chat gets `nsvx_homes` on the owner's own turns. `ui/src/e2e/nsvx-homes.e2e.test.ts` covers every area at 1280 and 390
 wide (`ui/e2e-shots/nsvx-homes`).
+Docs (NSVX `/documentos` and `/documentos/assinaturas`) reads the archive (`/api/documents`: overview, list, one
+document, its page images, taxonomy, settings, learned rules), Google Drive (`/api/documents/drive/status`,
+`/api/drive/files`), and the signature desk (`/api/signatures`) through `nsvx.view`. Uploads, corrections, NSVX's
+suggested category, confirm, rename, read again, forget, notices, rules, categories, settings, and Drive sync go
+through `nsvx.docs.*`; signature documents, requests, signed-PDF import, cancel, the desktop app and its code go
+through `nsvx.sign.*`, each one fixed `OWNER_WRITES` route. A request needs every page seen, the owner's confirmation,
+the reviewed hash, and one idempotency key per choice; the CMD vault needs `operator.admin` and its PIN is never kept.
+Control never signs: signing happens in Autenticação.gov. Chat gets `nsvx_docs` on the owner's own turns.
+`ui/src/e2e/nsvx-docs.e2e.test.ts` covers every section at 1280 and 390 wide (`ui/e2e-shots/nsvx-docs`).
 
 Business reads NSVX `/api/business` (Via Verde, Prio, Bolt, Fidelidade, the quarter workflow), `/api/orders` (Glovo,
 Amazon ES history and return drafts), `/api/utilities` (NOS, Endesa, meter readings), `/api/warranties`, and the

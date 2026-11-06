@@ -14,6 +14,8 @@ import { callsTranslator } from "./calls-i18n.js";
 import { CallsTab } from "./calls-tab.js";
 import { deviceTranslator, type DT } from "./device-i18n.js";
 import { DeviceTab } from "./device-tab.js";
+import { docsTranslator } from "./docs-i18n.js";
+import { DOCS_VIEWS, DocsTab, type DocsView } from "./docs-tab.js";
 import { FinanceTab } from "./finance-tab.js";
 import { FleetTab } from "./fleet-tab.js";
 import { GroupTab } from "./group-tab.js";
@@ -77,6 +79,10 @@ const mountNsvx: ControlUiView = (container, context) => {
   const [aiView, setAiView] = createSignal<AiView>(
     aiParam && AI_VIEWS.includes(aiParam) ? aiParam : "routes",
   );
+  const docsParam = search.get("docs") as DocsView | null;
+  const [docsView, setDocsView] = createSignal<DocsView>(
+    docsParam && DOCS_VIEWS.includes(docsParam) ? docsParam : "files",
+  );
   const [query, setQuery] = createSignal("");
   const [revision, setRevision] = createSignal(0);
   // Deep links: reloading or sharing the address returns to the same tab and open item.
@@ -92,6 +98,7 @@ const mountNsvx: ControlUiView = (container, context) => {
       skill?: string;
       event?: string;
       ai?: AiView;
+      docs?: DocsView;
     } = {},
   ) => {
     const url = new URL(location.href);
@@ -141,6 +148,13 @@ const mountNsvx: ControlUiView = (container, context) => {
     } else {
       url.searchParams.delete("ai");
     }
+    if (nextTab === "docs" && open.docs) {
+      url.searchParams.set("docs", open.docs);
+    } else {
+      for (const name of ["docs", "doc", "sig"]) {
+        url.searchParams.delete(name);
+      }
+    }
     history.replaceState(history.state, "", url);
   };
   const select = (next: Tab) => {
@@ -155,11 +169,21 @@ const mountNsvx: ControlUiView = (container, context) => {
       agent: agent(),
       skill: skill(),
       ai: aiView(),
+      docs: docsView(),
     });
   };
   const openAi = (view: AiView) => {
     setAiView(view);
     remember("ai", { ai: view });
+  };
+  const openDocs = (view: DocsView) => {
+    setDocsView(view);
+    remember("docs", { docs: view });
+    // A section switch closes any open document; the Docs tab sets `sig` again when it opens one to sign.
+    const url = new URL(location.href);
+    url.searchParams.delete("doc");
+    url.searchParams.delete("sig");
+    history.replaceState(history.state, "", url);
   };
   const showMission = (id: string) => {
     setMission(id);
@@ -350,6 +374,19 @@ const mountNsvx: ControlUiView = (container, context) => {
                 onMission={showMission}
               />
             </Show>
+            <Show when={tab() === "docs"}>
+              <DocsTab
+                host={host}
+                t={t}
+                dt={dt}
+                kt={docsTranslator(locale())}
+                locale={locale()}
+                query={query()}
+                view={docsView()}
+                onView={openDocs}
+                onAccess={() => select("access")}
+              />
+            </Show>
             <Show when={tab() === "money"}>
               <FinanceTab host={host} t={t} query={query()} />
             </Show>
@@ -450,7 +487,12 @@ const mountNsvx: ControlUiView = (container, context) => {
     // The Calls shortcut (and any page link with `tab`) reaches a page that is already open.
     update(next) {
       const wanted = next.props.tab;
-      if (wanted && isTab(wanted) && wanted !== tab()) {
+      const docs = next.props.docs as DocsView | undefined;
+      if (wanted === "docs" && docs && DOCS_VIEWS.includes(docs)) {
+        setTab("docs");
+        setQuery("");
+        openDocs(docs);
+      } else if (wanted && isTab(wanted) && wanted !== tab()) {
         select(wanted);
       }
     },
@@ -481,7 +523,27 @@ export default defineControlUiPlugin({
       icon: "smartphone",
       order: 21,
     });
+    // NSVX's Documentos and Assinaturas shortcuts, nested under NSVX.
+    const kt = docsTranslator(host.locale);
+    const disposeDocs = host.ui.registerNavigation({
+      id: "nsvx-docs",
+      parent: "nsvx",
+      label: kt("docs"),
+      page: { id: "nsvx", params: { tab: "docs", docs: "files" } },
+      icon: "fileText",
+      order: 22,
+    });
+    const disposeSign = host.ui.registerNavigation({
+      id: "nsvx-sign",
+      parent: "nsvx",
+      label: kt("sign"),
+      page: { id: "nsvx", params: { tab: "docs", docs: "sign" } },
+      icon: "penLine",
+      order: 23,
+    });
     return () => {
+      disposeSign();
+      disposeDocs();
       disposeCalls();
       disposeNavigation();
       disposePage();

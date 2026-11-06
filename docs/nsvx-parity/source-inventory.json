@@ -5557,16 +5557,22 @@
         "digest": "376785325be92c30ab60c3853a2fe57c5fc81f6e2da7290bc8a57ea338819cef"
       },
       "documents": {
-        "routes": 120,
-        "reads": 53,
-        "writes": 67,
-        "digest": "003d255de4dfa10901968b5750b7b4bff0718d7a94e5748c1d379edfb94ffd2f"
+        "routes": 87,
+        "reads": 39,
+        "writes": 48,
+        "digest": "62b368fa41df09ff2115c8ba747b5c93758a5cecc09889362d3291cc271ab7a6"
       },
       "drive": {
         "routes": 1,
         "reads": 1,
         "writes": 0,
         "digest": "549237cfce4c8bee0bc60f5a412224639048099fbafb343869307620edd0acd3"
+      },
+      "signatures": {
+        "routes": 33,
+        "reads": 14,
+        "writes": 19,
+        "digest": "5edd0323ed8316df3794f1330b1ddee949d7aa58a899563a588521a58be56970"
       },
       "finance": {
         "routes": 91,
@@ -5798,10 +5804,10 @@
       }
     },
     "parity": {
-      "discovered": 90,
+      "discovered": 91,
       "native": 14,
-      "partial": 69,
-      "missing": 7,
+      "partial": 72,
+      "missing": 5,
       "blocked": 0,
       "verified": 1,
       "families": [
@@ -5818,10 +5824,10 @@
         {
           "id": "11",
           "name": "Documents and Drive",
-          "discovered": 2,
+          "discovered": 3,
           "native": 0,
-          "partial": 0,
-          "missing": 2,
+          "partial": 3,
+          "missing": 0,
           "blocked": 0,
           "verified": 0
         },

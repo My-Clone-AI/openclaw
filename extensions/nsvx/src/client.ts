@@ -12,6 +12,7 @@ import {
   accessWrites,
   marketingWrites,
 } from "./device-data.js";
+import { docFiles, docReadPosts, docViews, docWrites } from "./docs-routes.js";
 import { AGENTOS_PATH, TIMEOUT_MS, NsvxError } from "./nsvx-client-core.js";
 import {
   OWNER_FILE_ACTIONS,
@@ -339,6 +340,7 @@ const OWNER_VIEWS = {
   ...accessRoutes,
   ...callViews,
   ...businessViews,
+  ...docViews,
   fleetLocations: { path: "/api/tvde/locations" },
   fleetFinance: { path: "/api/tvde/finance/summary", query: ["start", "end"] },
   fleetInvoices: {
@@ -447,6 +449,7 @@ const OWNER_WRITES = {
   ...accessWrites,
   ...businessWrites,
   ...callWrites,
+  ...docWrites,
   ...marketingWrites,
   reply: { method: "POST", path: "/api/conversations/{id}/reply" },
   takeover: { method: "POST", path: "/api/conversations/{id}/takeover" },
@@ -732,6 +735,7 @@ const OWNER_READ_POSTS = {
   loanRates: "/api/realestate/simulate/rates",
   ...callReadPosts,
   ...businessReadPosts,
+  ...docReadPosts,
 } as const;
 
 export type OwnerReadPost = keyof typeof OWNER_READ_POSTS;
@@ -749,6 +753,7 @@ const OWNER_FILES = {
   marketingInventory: { path: "/api/marketing/social-accounts-inventory", query: ["format"] },
   ...callFiles,
   ...businessFiles,
+  ...docFiles,
 } as const satisfies Record<string, OwnerViewSpec>;
 
 export type OwnerFile = keyof typeof OWNER_FILES;
