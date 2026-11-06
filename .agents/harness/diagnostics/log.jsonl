@@ -1,0 +1,2 @@
+{"ts":"2026-11-06T20:14:00.000Z","task":"harness baseline init","ok":false,"layer":"execution_environment","detail":"init.sh fail-closed on missing node_modules (SKIP_INSTALL=1 probe)","fix":"ran sanctioned pnpm install via .agents/harness/init.sh; rerun exit 0"}
+{"ts":"2026-11-06T20:40:00.000Z","task":"harness-validate-histogram","ok":true,"layer":null,"detail":"histogram + fail-closed evidence; 8 unit tests pass; init.sh exit 0","fix":""}

@@ -20,13 +20,17 @@
       "area": "harness",
       "title": "Session kit under .agents/harness and root AGENTS.md pointer",
       "user_visible_behavior": "Agents initialize from .agents/harness, record progress, and cannot declare victory without evidence.",
-      "status": "in_progress",
+      "status": "passing",
       "verification": [
         "unit: node .agents/harness/validate.mjs exits 0",
         "integration: .agents/harness/init.sh exits 0 on develop and non-zero when a verify step fails",
         "e2e: a Grow worker session runs init.sh at start and updates PROGRESS.md at end"
       ],
-      "evidence": [],
+      "evidence": [
+        "PR #57 merged as 541fa1b (session kit + AGENTS.md pointer)",
+        "2026-11-06: node .agents/harness/validate.mjs exit 0 on develop worktree",
+        "2026-11-06: .agents/harness/init.sh exit 0 (validate, agents-md-size, nsvx entry test); earlier exit 1 with missing node_modules proved fail-closed"
+      ],
       "notes": "Initializer PR."
     },
     {
@@ -61,6 +65,25 @@
       "verification": ["unit: i18n en/pt/es; section id rules", "integration: clone rules API lists orgs/repos and round-trips sha", "e2e on the Control desktop nsvx hub"],
       "evidence": [],
       "notes": "Needs My-Clone-AI/clone Rules API first."
+    },
+    {
+      "id": "harness-validate-histogram",
+      "priority": 6,
+      "area": "harness",
+      "title": "Diagnostic layer histogram + no-early-victory validate",
+      "user_visible_behavior": "validate.mjs always prints a per-layer diagnostic histogram and rejects WIP>1, passing-without-evidence, and blank evidence entries.",
+      "status": "passing",
+      "verification": [
+        "unit: node --test .agents/harness/validate.test.mjs passes (WIP=2 and empty-evidence fixtures)",
+        "integration: .agents/harness/init.sh exits 0",
+        "e2e: histogram line prints from diagnostics/log.jsonl after sample log lines"
+      ],
+      "evidence": [
+        "2026-11-06: node --test .agents/harness/validate.test.mjs: 8 pass, 0 fail",
+        "2026-11-06: CLI negative controls exit 1 on WIP=2 and on passing-with-empty-evidence fixtures",
+        "2026-11-06: .agents/harness/init.sh exit 0; validate prints diagnostic layers histogram (total=2 ok=1 execution_environment=1)"
+      ],
+      "notes": "Gap-fill on PR #57 kit."
     },
     {
       "id": "remove-old-theme",
