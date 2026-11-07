@@ -21,6 +21,7 @@ import {
 } from "../../internal-events.js";
 import {
   projectRuntimeContextFragments,
+  supersedeRuntimeContextSnapshots,
   type RuntimeContextFragment,
 } from "../../internal-runtime-context.js";
 import { buildRuntimeFactsContext } from "../../runtime-facts-prompt.js";
@@ -506,7 +507,11 @@ export async function prepareEmbeddedAttemptPromptContext(input: {
         .filter((text): text is string => Boolean(text?.trim()))
         .map((text) => ({ kind: "runtime-instruction", text }))
     : [];
-  const contextFragments = [...fragments, ...runtimeFacts, ...fallbackHookFragments];
+  const contextFragments = supersedeRuntimeContextSnapshots([
+    ...fragments,
+    ...runtimeFacts.map((fact) => Object.assign({}, fact, { snapshotFamily: fact.text.split("\n", 1)[0] })),
+    ...fallbackHookFragments,
+  ]);
   const runtimeContextForHook = joinPresentTextSegments(
     contextFragments.map((fragment) => fragment.text),
   );

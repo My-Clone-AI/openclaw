@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
+import * as pendingInputs from "../config/sessions/session-pending-input-history.js";
 import * as execApprovals from "../infra/exec-approvals.js";
 import { withMockedPlatform } from "../test-utils/vitest-spies.js";
 import type { MediaGenerationOperation } from "./media-generation-activity.js";
@@ -198,4 +199,29 @@ it.each([undefined, "   "])("does not read media without a session: %j", async (
     ),
   );
   expect(read).not.toHaveBeenCalled();
+});
+
+
+it("renders the latest retained-input page in a stable, bounded summary", async () => {
+  const read = vi.spyOn(pendingInputs, "listSessionPendingInputs");
+  const input = {
+    ...params,
+    executionHost: false,
+    sessionTarget: { sessionId: "session", sessionKey: "agent:main:session" },
+  };
+  read.mockResolvedValue({ items: [], total: 0 });
+  expect(await buildRuntimeFactsContext(input)).toContainEqual(
+    fact("## Interrupted inputs\nnone in the latest retained-input page"),
+  );
+  read.mockResolvedValue({
+    total: 2,
+    items: [
+      { id: "b", runId: "b", acceptedAt: 2, state: "interrupted", message: { role: "user", content: "second", timestamp: 2 } },
+      { id: "a", runId: "a", acceptedAt: 1, state: "interrupted", message: { role: "user", content: "first", timestamp: 1 } },
+    ],
+  });
+  expect(await buildRuntimeFactsContext(input)).toContainEqual(
+    fact('## Interrupted inputs\n- interrupted: "first"\n- interrupted: "second"'),
+  );
+  expect(read).toHaveBeenLastCalledWith(expect.anything(), { limit: 10 });
 });
