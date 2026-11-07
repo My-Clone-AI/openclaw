@@ -48,8 +48,12 @@ export type RuntimeContextFragment = {
 export function supersedeRuntimeContextSnapshots(fragments: RuntimeContextFragment[]): RuntimeContextFragment[] {
   const seen = new Set<string>();
   return fragments.toReversed().filter((fragment) => {
-    if (!fragment.snapshotFamily) return true;
-    if (seen.has(fragment.snapshotFamily)) return false;
+    if (!fragment.snapshotFamily) {
+      return true;
+    }
+    if (seen.has(fragment.snapshotFamily)) {
+      return false;
+    }
     seen.add(fragment.snapshotFamily);
     return true;
   }).toReversed();

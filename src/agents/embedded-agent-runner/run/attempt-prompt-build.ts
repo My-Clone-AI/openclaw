@@ -509,7 +509,7 @@ export async function prepareEmbeddedAttemptPromptContext(input: {
     : [];
   const contextFragments = supersedeRuntimeContextSnapshots([
     ...fragments,
-    ...runtimeFacts.map((fact) => ({ ...fact, snapshotFamily: fact.text.split("\n", 1)[0] })),
+    ...runtimeFacts.map((fact) => Object.assign({}, fact, { snapshotFamily: fact.text.split("\n", 1)[0] })),
     ...fallbackHookFragments,
   ]);
   const runtimeContextForHook = joinPresentTextSegments(
