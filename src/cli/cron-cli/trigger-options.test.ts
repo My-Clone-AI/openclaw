@@ -495,6 +495,22 @@ describe("cron scratch", () => {
     reply?: { ok: false; currentRevision: number };
     offline?: boolean;
   };
+  it("prints scratch with --get without writing", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    callGatewayFromCli.mockResolvedValue({ ...current, scratch: { content: "saved note\n" } });
+    await runScratch(["--get"]);
+    expect(stdout).toHaveBeenCalledExactlyOnceWith("saved note\n");
+    expectRpc(["get", {}]);
+  });
+
+  it("rejects --get with a mutation", async () => {
+    await reject(["scratch", "job-1", "--get", "--set", "x"], "--get cannot be combined");
+  });
+
+  it("reports an unknown job on --get", async () => {
+    callGatewayFromCli.mockRejectedValue(new Error("unknown job id"));
+    await reject(["scratch", "missing", "--get"], "unknown job id", ["cron.scratch.get"]);
+  });
   it.each`
     name                                         | args                                                                                  | message                                                      | calls                                                 | reply                                 | offline
     ${"non-decimal revision"}                    | ${["--set", "x", "--expected-revision", "0x2"]}                                       | ${"--expected-revision must be a non-negative integer"}      | ${[["get", {}]]}                                      | ${undefined}                          | ${false}
