@@ -555,6 +555,7 @@ Private per-job scratch for checklists and other run context:
 
 ```bash
 openclaw automations scratch <job-id>                  # print current scratch content
+openclaw automations scratch <job-id> --get            # explicitly read current scratch content
 openclaw automations scratch <job-id> --json           # scratch plus revision metadata
 openclaw automations scratch <job-id> --set "text"     # replace scratch with exact text
 openclaw automations scratch <job-id> --file notes.md  # replace scratch from a file (- for stdin)

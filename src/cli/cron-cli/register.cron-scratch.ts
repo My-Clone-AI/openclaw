@@ -17,6 +17,7 @@ export function registerCronScratchCommand(cron: Command) {
     createCronOutputCommand(cron, "scratch")
       .description("Read or replace an automation's private scratch")
       .argument("<id>", "Job id")
+      .option("--get", "Print current scratch without changing it")
       .option("--set <text>", "Replace scratch with exact text")
       .option("--file <path>", "Replace scratch from a file, or - for stdin")
       .option("--unset", "Remove the scratch row", false)
@@ -29,6 +30,9 @@ export function registerCronScratchCommand(cron: Command) {
             opts.file !== undefined,
             opts.unset === true,
           ].filter(Boolean).length;
+          if (opts.get && mutations > 0) {
+            throw new CronCliError("--get cannot be combined with --set, --file, or --unset");
+          }
           if (mutations > 1) {
             throw new CronCliError("choose only one of --set, --file, or --unset");
           }
