@@ -228,3 +228,18 @@ describe("additive fallback context lifetime", () => {
     },
   );
 });
+
+
+it("replaces snapshots by family, including an explicit empty snapshot", async () => {
+  const { supersedeRuntimeContextSnapshots } = await import("./internal-runtime-context.js");
+  const snapshot = (snapshotFamily: string, text: string) =>
+    ({ kind: "conversation-data" as const, snapshotFamily, text });
+  const old = snapshot("interrupted", "## Interrupted inputs\n- old");
+  const empty = snapshot("interrupted", "## Interrupted inputs\nnone");
+  const date = snapshot("temporal", "## Temporal Context\ntoday");
+  const newerDate = snapshot("temporal", "## Temporal Context\ntomorrow");
+  const ordinary = { kind: "conversation-data" as const, text: "other" };
+  expect(supersedeRuntimeContextSnapshots([old, date, ordinary, empty, newerDate])).toEqual([
+    ordinary, empty, newerDate,
+  ]);
+});

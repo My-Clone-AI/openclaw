@@ -40,7 +40,20 @@ export const STEERING_RUNTIME_CONTEXT = Symbol.for("openclaw.steeringRuntimeCont
 export type RuntimeContextFragment = {
   kind: "runtime-instruction" | "conversation-data" | "heartbeat-outcome";
   text: string;
+  /** Producer-owned identity for a replaceable current snapshot. */
+  snapshotFamily?: string;
 };
+
+/** Keep the newest snapshot of each family, including explicit empty snapshots. */
+export function supersedeRuntimeContextSnapshots(fragments: RuntimeContextFragment[]): RuntimeContextFragment[] {
+  const seen = new Set<string>();
+  return fragments.toReversed().filter((fragment) => {
+    if (!fragment.snapshotFamily) return true;
+    if (seen.has(fragment.snapshotFamily)) return false;
+    seen.add(fragment.snapshotFamily);
+    return true;
+  }).toReversed();
+}
 
 /** Move only the exact section annotated by its producer; later policy additions survive. */
 export function splitExtraSystemPrompt(params: {
